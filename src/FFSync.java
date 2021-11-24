@@ -1,44 +1,91 @@
 import java.io.File;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- *
- *  PROTOCOLO DE SINCRONIZAÇÃO
- *
- *  Objetivo:
- *      - no protocolo devem estar definidas medidas para o comportamento da sincronização
- *      - os metodos de sincronização devem ter devidas regras estipuladas (tempo + processo)
- *      - o protocolo de sincronização faz recurso do protocolo de transferência de dados
- *      -
- *
- * */
+ * PROTOCOLO DE SINCRONIZAÇÃO
+ * <p>
+ * Objetivo:
+ * - no protocolo devem estar definidas medidas para o comportamento da sincronização
+ * - os metodos de sincronização devem ter devidas regras estipuladas (tempo + processo)
+ * - o protocolo de sincronização faz recurso do protocolo de transferência de dados
+ * -
+ * Algoritmos de peer2peer:
+ * - Chord
+ * - Kademlia
+ * - Tapestry
+ * - Pastry
+ */
 
 public class FFSync {
-    private static int PORT = 8888; // Port used to access, should be 80
+    private static final int MTU = 1500;
+    private static final int PORT = 8888; // Port used to access, should be 80
 
-    private File currentDirectory;
-    private List<Node> nodes = new ArrayList<>(); // Connected nodes.
+    private final File currentDirectory;
+    private final List<Node> nodes = new ArrayList<>(); // Connected nodes.
 
-    private Lock lock = new ReentrantLock();
+    private final Lock lock = new ReentrantLock();
 
     // metadados dos ficheiros - ou estrutura equivalente
 
+    public static int getMTU() {
+        return MTU;
+    }
+
+    public static int getPORT() {
+        return PORT;
+    }
+
+    public List<Node> getNodes() {
+        lock.lock();
+        try {
+            return new ArrayList<>(nodes);
+        } finally {
+            lock.unlock();
+        }
+    }
 
     public FFSync(File currentDirectory) {
         this.currentDirectory = currentDirectory;
     }
 
     public void addNode(Node node) {
-        nodes.add(node);
+        lock.lock();
+        try {
+            nodes.add(node);
+        } finally {
+            lock.unlock();
+        }
     }
 
-    public static void main(String[] args) throws UnknownHostException {
+    private void start() {
+        // Creating 2 threads: To receive and to send requests - FFRapid protocol
+        Thread sender = new Thread(new Sender(this));
+        Thread receiver = new Thread(new Receiver(this));
 
+        // Creating a thread to handle the http request on port 80 - TCP/HTTP
+        Thread httpHandler = new Thread(new HttpHandler());
+
+        sender.start();
+        receiver.start();
+        //httpHandler.start();
+
+        try {
+            sender.join();
+            receiver.join();
+            //httpHandler.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+
+    public static void main(String[] args) throws UnknownHostException {
 
         // Validating the arguments
         if (args.length < 1) System.exit(1); // Invalid number of arguments
@@ -48,10 +95,11 @@ public class FFSync {
 
         FFSync ffSync = new FFSync(directory);
 
-        for(int i = 1; i < args.length; i++) ffSync.addNode(new Node(args[i]));
+        for (int i = 1; i < args.length; i++) ffSync.addNode(new Node(args[i]));
+
+        ffSync.start();
 
     }
-
 }
 /*
 
