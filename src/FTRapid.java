@@ -1,3 +1,5 @@
+import java.security.NoSuchAlgorithmException;
+
 /**
  *
  * PROTOCOLO DE TRANSFERÊNCIA DE DADOS
@@ -13,5 +15,13 @@
  * */
 
 public class FTRapid {
-
+    public static void main(String[] args) {
+        int maxKeySize = 0;
+        try {
+            maxKeySize = javax.crypto.Cipher.getMaxAllowedKeyLength("AES");
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println("erro [" + e.getMessage() + "]");
+        }
+        System.out.println("Max Key Size for AES : " + maxKeySize);
+    }
 }

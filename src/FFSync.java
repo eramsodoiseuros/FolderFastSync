@@ -11,5 +11,13 @@
  * */
 
 public class FFSync {
+    private static int porta;
+
+    // lista dos nodos ligados
+
+    // metadados dos ficheiros - ou estrutura equivalente
+
+    //
+
 
 }
