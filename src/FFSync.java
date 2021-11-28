@@ -9,15 +9,27 @@ import java.util.concurrent.locks.ReentrantLock;
  * PROTOCOLO DE SINCRONIZAÇÃO
  * <p>
  * Objetivo:
- * - no protocolo devem estar definidas medidas para o comportamento da sincronização
- * - os metodos de sincronização devem ter devidas regras estipuladas (tempo + processo)
- * - o protocolo de sincronização faz recurso do protocolo de transferência de dados
+ * - no protocolo devem estar definidas medidas para o comportamento da sincronização - falta
+ * - os metodos de sincronização devem ter devidas regras estipuladas (tempo + processo) - falta
+ * - o protocolo de sincronização faz recurso do protocolo de transferência de dados - falta
  * -
  * Algoritmos de peer2peer:
  * - Chord
  * - Kademlia
  * - Tapestry
  * - Pastry
+
+ $ FFSync pasta1 10.3.3.1
+ FFSync <pastas a sincronizar> <endereço de IP do sistema a sincronizar>
+ FFSync <folder> <peer>
+
+
+ Dps de executar o comando:
+ 1. Validar os parâmetros
+ 2. Verificar se há condições de funcionamento (Se há acesso à pasta e à rede).
+ 3. Começar a atender pedidos em TCP e UDP em simultâneo, ambos na porta 80.
+ Usar outra porta sem ser a 80 no inicio para testar. Por exemplo, porta 8888.
+
  */
 
 public class FFSync {
@@ -78,7 +90,7 @@ public class FFSync {
             receiver.join();
             //httpHandler.join();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.out.println("erro node - start [" + e.getMessage() + "]");
         }
 
 
@@ -101,16 +113,4 @@ public class FFSync {
 
     }
 }
-/*
 
- $ FFSync pasta1 10.3.3.1
- FFSync <pastas a sincronizar> <endereço de IP do sistema a sincronizar>
- FFSync <folder> <peer>
-
-
- Dps de executar o comando:
- 1. Validar os parâmetros
- 2. Verificar se há condições de funcionamento (Se há acesso à pasta e à rede).
- 3. Começar a atender pedidos em TCP e UDP em simultâneo, ambos na porta 80.
- Usar outra porta sem ser a 80 no inicio para testar. Por exemplo, porta 8888.
- */

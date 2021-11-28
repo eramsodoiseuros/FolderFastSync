@@ -31,7 +31,7 @@ public class Receiver implements Runnable {
             }
             serveSocket.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("erro receiver - run [" + e.getMessage() + "]");
         }
     }
 }

@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 /**
  * Sends FTRapid data.
  */
+
 public class Sender implements Runnable {
     private final FFSync ffSync;
     private final int MTU = FFSync.getMTU();
@@ -47,7 +48,7 @@ public class Sender implements Runnable {
             }
             clientSocket.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("erro sender - run [" + e.getMessage() + "]");
         }
     }
 }

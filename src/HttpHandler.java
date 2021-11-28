@@ -1,6 +1,7 @@
 /**
  * Handles http requests
  */
+
 public class HttpHandler implements Runnable {
 
     @Override
