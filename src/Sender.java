@@ -4,7 +4,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
 /**
- * Sends FTRapid data.
+ * Sends FFRapidProtocol.FTRapid data.
  */
 
 public class Sender implements Runnable {

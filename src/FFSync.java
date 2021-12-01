@@ -79,7 +79,7 @@ public class FFSync {
         Thread receiver = new Thread(new Receiver(this));
 
         // Creating a thread to handle the http request on port 80 - TCP/HTTP
-        Thread httpHandler = new Thread(new HttpHandler());
+        //Thread httpHandler = new Thread(new HttpHandler());
 
         sender.start();
         receiver.start();
