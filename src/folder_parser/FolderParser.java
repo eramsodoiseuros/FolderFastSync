@@ -1,3 +1,5 @@
+package folder_parser;
+
 import java.time.LocalDateTime;
 
 /**
@@ -8,7 +10,7 @@ import java.time.LocalDateTime;
  *
  *  aprender sobre metadados
  *
- * . FFSync consegue obter uma lista dos ficheiros da pasta a sincronizar e listá-los no “log” ou na saída normal
+ * . app.FFSync consegue obter uma lista dos ficheiros da pasta a sincronizar e listá-los no “log” ou na saída normal
  * */
 
 public class FolderParser {

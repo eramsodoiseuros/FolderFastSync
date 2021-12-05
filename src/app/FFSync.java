@@ -1,3 +1,9 @@
+package app;
+
+import common.Node;
+import receiver.Receiver;
+import sender.Sender;
+
 import java.io.File;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -19,9 +25,9 @@ import java.util.concurrent.locks.ReentrantLock;
  * - Tapestry
  * - Pastry
 
- $ FFSync pasta1 10.3.3.1
- FFSync <pastas a sincronizar> <endereço de IP do sistema a sincronizar>
- FFSync <folder> <peer>
+ $ app.FFSync pasta1 10.3.3.1
+ app.FFSync <pastas a sincronizar> <endereço de IP do sistema a sincronizar>
+ app.FFSync <folder> <peer>
 
 
  Dps de executar o comando:
@@ -34,7 +40,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class FFSync {
     private static final int MTU = 1500;
-    private static final int PORT = 8888; // Port used to access, should be 80
+    private static final int PORT = 12345; // Port used to access, should be 80
 
     private final File currentDirectory;
     private final List<Node> nodes = new ArrayList<>(); // Connected nodes.

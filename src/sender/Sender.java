@@ -1,3 +1,8 @@
+package sender;
+
+import app.FFSync;
+import common.Node;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.DatagramPacket;

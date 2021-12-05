@@ -1,6 +1,7 @@
-package FFRapidProtocol;
+package ffrapid_protocol;
 
-import FFRapidProtocol.ControlPacketTypes.ACK;
+import ffrapid_protocol.control_packet_types.Ack;
+import ffrapid_protocol.control_packet_types.Hello;
 
 import java.nio.ByteBuffer;
 
@@ -37,8 +38,11 @@ public abstract class ControlPacket {
         ByteBuffer bb = ByteBuffer.wrap(message);
         int type = bb.getInt();
         switch (type) {
+            case 0:
+                controlPacket = Hello.getFromBytes(bb);
+
             case 5:
-                controlPacket = ACK.getFromBytes(bb);
+                controlPacket = Ack.getFromBytes(bb);
 
             default:
                 controlPacket = null;

@@ -1,6 +1,6 @@
-package FFRapidProtocol;
+package ffrapid_protocol;
 
-import FFRapidProtocol.ControlPacketTypes.ACK;
+import ffrapid_protocol.control_packet_types.Ack;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -29,14 +29,14 @@ import java.security.NoSuchAlgorithmException;
  * 1     Read request (RRQ)
  * 2     Write request (WRQ)
  * 3     Data (DATA)
- * 4     Acknowledgment (ACK)
+ * 4     Acknowledgment (Ack)
  * 5     Error (ERROR)
  * <p>
  * Tratar os diferentes opcodes
  * Guardar os ficheiros em pastas
  * Encriptar os envios dos ficheiros com chaves
  * <p>
- * 4. FFSync consegue trocar mensagens protocolares simples com o seu parceiro remoto (qualquer mensagem)
+ * 4. app.FFSync consegue trocar mensagens protocolares simples com o seu parceiro remoto (qualquer mensagem)
  * 5. Definir quais as mensagens a trocar para obter a lista de ficheiros do sistema remoto (sintaxe, semântica e diagrama
  * temporal)
  * 8. FFsync implementa transferência de pelo menos um ficheiro num sentido. Validar.
@@ -46,7 +46,7 @@ public class FTRapid {
 
     public void send(DatagramSocket socket, byte[] d) {
         try {
-            ControlPacket m = new ACK(10);
+            ControlPacket m = new Ack(10);
             byte[] buf = m.toBytes();
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
             socket.send(packet);
