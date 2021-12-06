@@ -47,7 +47,7 @@ public class FTRapid {
     public void send(DatagramSocket socket, byte[] d) {
         try {
             ControlPacket m = new Ack(10);
-            byte[] buf = m.toBytes();
+            byte[] buf = m.serialize();
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
             socket.send(packet);
         } catch (IOException e) {

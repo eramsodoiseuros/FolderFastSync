@@ -40,7 +40,7 @@ public class Receiver implements Runnable {
                 Debugger.print(new String(inPacket.getData(), StandardCharsets.UTF_8));
                 Debugger.print("New connection with address: " + inPacket.getAddress() + " and port " + inPacket.getPort());
                 DatagramSocket socket = new DatagramSocket();
-                Thread t = new Thread(new RequestHandler(socket, inPacket.getAddress(), inPacket.getPort()));
+                Thread t = new Thread(new RequestHandler(socket, inPacket.getAddress(), inPacket.getPort(), inPacket));
                 t.start();
             }
             serverSocket.close();

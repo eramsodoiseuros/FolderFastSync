@@ -12,7 +12,7 @@ public class Ack extends ControlPacket {
     }
 
     @Override
-    public byte[] typeToBytes(ByteBuffer byteBuffer) {
+    public byte[] serializeType(ByteBuffer byteBuffer) {
         byteBuffer.putInt(5); // Number of Ack
 
         byteBuffer.putLong(num_seq);
@@ -21,7 +21,7 @@ public class Ack extends ControlPacket {
     }
 
 
-    public static Ack getFromBytes(ByteBuffer byteBuffer) {
+    public static Ack deserialize(ByteBuffer byteBuffer) {
         return new Ack(byteBuffer.getInt());
     }
 }
