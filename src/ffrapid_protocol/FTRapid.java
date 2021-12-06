@@ -1,7 +1,5 @@
 package ffrapid_protocol;
 
-import ffrapid_protocol.control_packet_types.Ack;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -45,14 +43,6 @@ import java.security.NoSuchAlgorithmException;
 public class FTRapid {
 
     public void send(DatagramSocket socket, byte[] d) {
-        try {
-            ControlPacket m = new Ack(10);
-            byte[] buf = m.serialize();
-            DatagramPacket packet = new DatagramPacket(buf, buf.length);
-            socket.send(packet);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public byte[] receive(DatagramSocket socket) {

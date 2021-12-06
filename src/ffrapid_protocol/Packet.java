@@ -1,33 +1,35 @@
 package ffrapid_protocol;
 
+import ffrapid_protocol.data_packet_types.Data;
 import ffrapid_protocol.data_packet_types.Get;
 
 import java.nio.ByteBuffer;
 
 public abstract class Packet {
-    protected PacketType type;
-
     public abstract byte[] serialize();
 
     public static Packet deserialize(byte[] message) {
         Packet packet;
         ByteBuffer bb = ByteBuffer.wrap(message);
         byte control = bb.get();
+        switch (control) {
+            case 0: // Get packet
+                packet = Get.deserialize(bb);
+                break;
 
-        if (control == 0) {
-            packet = ControlPacket.deserialize(bb);
-            packet.type = PacketType.Control;
+            case 1: // Data packet
+                packet = Data.deserialize(bb);
+                break;
+
+            case 2: // Ack packet
+                packet = null;
+                break;
+
+            default:
+                packet = null;
         }
-        else if (control == 1) {
-            packet = DataPacket.deserialize(bb);
-            packet.type = PacketType.Data;
-        }
-        else packet = null;
 
         return packet;
     }
 
-    public PacketType getType() {
-        return type;
-    }
 }

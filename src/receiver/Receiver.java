@@ -32,6 +32,7 @@ public class Receiver implements Runnable {
     public void run() {
         try {
             while (running) {                                           // infinite loop - very bad pratice
+                System.out.println("Estou aqui");
                 byte[] inBuffer = new byte[MTU];
                 // create the packet to receive the data from client
                 DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);

@@ -1,12 +1,15 @@
 package common;
 
+import common.debugger.Debugger;
 import ffrapid_protocol.*;
-import ffrapid_protocol.control_packet_types.Hello;
+import ffrapid_protocol.data_packet_types.Data;
 import ffrapid_protocol.data_packet_types.Get;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 
 public class RequestHandler implements Runnable {
     private final DatagramSocket socket;
@@ -14,7 +17,7 @@ public class RequestHandler implements Runnable {
     private final int port;
     private final DatagramPacket initialPacket;
 
-    public RequestHandler(DatagramSocket socket, InetAddress address, int port, DatagramPacket initialPacket) {
+    public RequestHandler(DatagramSocket socket, InetAddress address, int port, DatagramPacket initialPacket) throws IOException {
         this.socket = socket;
         this.address = address;
         this.port = port;
@@ -24,33 +27,16 @@ public class RequestHandler implements Runnable {
     @Override
     public void run() {
         Packet packet = Packet.deserialize(initialPacket.getData());
-        PacketType type = packet.getType();
-        DataPacketType dataType;
-        ControlPacketType controlType;
-        switch (type) {
-            case Control:
-                controlType = ((ControlPacket) packet).getControlType();
-                switch (controlType) {
-                    case Hello:
-                        sendMetaData(socket);
-                        break;
+        String str;
+        if (packet instanceof Data) Debugger.print((str = new String(((Data) packet).getData(), StandardCharsets.UTF_8)));
+        else str = "";
+        Data data = new Data(100, str.getBytes(StandardCharsets.UTF_8));
+        byte[] packetToSend = data.serialize();
 
-                    case Ack:
-                        break;
-
-
-                }
-                break;
-
-            case Data -> break;
-
-            default -> throw new IllegalStateException("Unexpected value: " + type);
-        }
-
-        DatagramPacket data = new DatagramPacket(packet, packet.length, address, port);
+        DatagramPacket datagramPacket = new DatagramPacket(packetToSend, packetToSend.length, address, port);
 
         try {
-            socket.send(data); // Send the hello packet
+            socket.send(datagramPacket);
             System.out.println("Sending the hello packet");
         } catch (Exception e) {
             System.out.println("Error common.RequestHandler run [" + e.getMessage() + "]");
