@@ -1,6 +1,7 @@
-package folder_parser;
+import java.io.File;
+import java.util.HashSet;
 
-import java.time.LocalDateTime;
+import java.util.Set;
 
 /**
  *
@@ -10,26 +11,64 @@ import java.time.LocalDateTime;
  *
  *  aprender sobre metadados
  *
- * . app.FFSync consegue obter uma lista dos ficheiros da pasta a sincronizar e listá-los no “log” ou na saída normal
+ * . FFSync consegue obter uma lista dos ficheiros da pasta a sincronizar e listá-los no “log” ou na saída normal
  * */
 
 public class FolderParser {
+ //   private List<Directory1> directories;
+    private Set<File> f1;
+    private Set<File> f2;
 
-    public static class Directory {
+    void compareFiles(File f1, File f2) {
+        this.f1=new HashSet<>();
+        this.f2=new HashSet<>();
 
-        // arvore de files e diretorias
+        boolean b = false;
+        File[] fs1 = f1.listFiles();
+        File[] fs2 = f2.listFiles();
+        int i = 0, flag;
 
-        public static class File {
-            // inicial, eventualmente aprender sobre metadados
-            private String name;
-            private LocalDateTime ultima_atualizacao;
-            private int size;
-
+        int max, min;
+        if (fs2.length > fs1.length) {
+            max = fs2.length;
+            min = fs1.length;
+            b=true;
+        } else {
+            max = fs1.length;
+            min = fs2.length;
+            b=false;
         }
-
-        // root
-        // diretoria = diretoria e/ou ficheiro
+        for (i = 0; i < max; i++) {
+            if(fs1[i]!=null && fs2[i]!=null) {
+                if ((flag = compareFile(fs1[i], fs2[i])) > 0) {
+                    if (flag == 1) {
+                        this.f2.add(fs1[i]);
+                    } else {
+                        this.f1.add(fs2[i]);
+                    }
+                }
+            }else
+            if(fs1[i]==null){
+                this.f1.add(fs2[i]);
+            }else{
+                this.f2.add(fs1[i]);
+            }
+            i++;
+        }
+        //return b;
     }
+   public int compareFile(File dir1, File dir2){
+        int r=-1;
+
+        if(dir1.compareTo(dir2)==0 && dir1.lastModified()==dir2.lastModified() && dir1.length()==dir2.length() )r=0;else{
+            if(dir1.lastModified()>dir2.lastModified()){
+                r=1;
+            }else r=2;
+        }
+        return r;
+    }
+}
+
 
     // metodo que lista ficheiros diferentes (diretoria a, diretoria b) => lista dos elementos de a que sao != b e o mesmo para b
 
@@ -40,4 +79,4 @@ public class FolderParser {
     // metodo que escreve um ficheiro numa diretoria
 
     // metodo que devolve o caminho de um ficheiro numa diretoria
-}
+
