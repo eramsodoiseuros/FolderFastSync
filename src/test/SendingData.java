@@ -1,5 +1,6 @@
 package test;
 
+import ffrapid_protocol.FTRapid;
 import ffrapid_protocol.Packet;
 import ffrapid_protocol.data_packet_types.Data;
 
@@ -17,6 +18,7 @@ public class SendingData {
             try {
                 DatagramSocket socket = new DatagramSocket();
                 boolean running = true;
+                int i = 0;
                 int port = 12345;
 
                 // Connecting
@@ -25,22 +27,15 @@ public class SendingData {
                 //print("Connecting...");
 
                 while (running) {
-                    Data data = new Data(0, "Hello".getBytes(StandardCharsets.UTF_8));
-                    bytes = data.serialize();
-                    datagramPacket =
-                            new DatagramPacket(bytes, bytes.length, InetAddress.getByName("localhost"), port);
-
-                    socket.send(datagramPacket);
+                    Data dataSent = new Data(0, "Hello".getBytes(StandardCharsets.UTF_8));
+                    FTRapid.send(dataSent, socket, InetAddress.getByName("localhost"), port);
                     log("Packet sent");
 
-                    socket.receive(datagramPacket);
-                    //port = datagramPacket.getPort();
-                    log("Port: " + port);
-
-                    Data packet = (Data) Packet.deserialize(datagramPacket.getData());
+                    Data dataReceived = (Data) FTRapid.receive(socket);
                     log("Packet received");
-                    log("Data: " + new String(packet.getData(), StandardCharsets.UTF_8));
+                    log("Data: " + new String(dataReceived.getData(), StandardCharsets.UTF_8));
                     Thread.sleep(5000);
+                    if (i++ >= 5) running = false;
                 }
                 socket.close();
             } catch (Exception e) {

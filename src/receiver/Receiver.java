@@ -3,6 +3,7 @@ package receiver;
 import app.FFSync;
 import common.RequestHandler;
 import common.debugger.Debugger;
+import ffrapid_protocol.FTRapid;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -29,14 +30,11 @@ public class Receiver implements Runnable {
     public void run() {
         try {
             while (running) {                                           // infinite loop - very bad pratice
-                byte[] inBuffer = new byte[MTU];
-                // create the packet to receive the data from client
-                DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
-                serverSocket.receive(inPacket);
+                DatagramPacket received = FTRapid.receiveDatagram(serverSocket);
 
-                Debugger.log("New connection with address: " + inPacket.getAddress() + " and port " + inPacket.getPort());
+                Debugger.log("New connection with address: " + received.getAddress() + " and port " + received.getPort());
                 DatagramSocket socket = new DatagramSocket();
-                Thread t = new Thread(new RequestHandler(socket, inPacket.getAddress(), inPacket.getPort(), inPacket));
+                Thread t = new Thread(new RequestHandler(socket, received.getAddress(), received.getPort(), received));
                 t.start();
             }
             serverSocket.close();

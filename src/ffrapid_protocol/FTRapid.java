@@ -1,8 +1,11 @@
 package ffrapid_protocol;
 
+import app.FFSync;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.security.NoSuchAlgorithmException;
 
 /**
@@ -42,20 +45,23 @@ import java.security.NoSuchAlgorithmException;
 
 public class FTRapid {
 
-    public void send(DatagramSocket socket, byte[] d) {
+    public static void send(Packet packet, DatagramSocket socket, InetAddress address, int port) throws IOException {
+        byte[] data = packet.serialize();
+        DatagramPacket datagramPacket = new DatagramPacket(data, data.length, address, port);
+        socket.send(datagramPacket);
     }
 
-    public byte[] receive(DatagramSocket socket) {
-        byte[] inBuffer = new byte[1492]; // MTU - UDPLength
-        DatagramPacket packet = new DatagramPacket(inBuffer, inBuffer.length);
+    public static Packet receive(DatagramSocket socket) throws IOException {
+        DatagramPacket datagramPacket = receiveDatagram(socket);
+        return Packet.deserialize(datagramPacket.getData());
+    }
 
-        try {
-            socket.receive(packet);
-        } catch (IOException e) {
-            e.printStackTrace();
-            inBuffer = null;
-        }
-        return inBuffer;
+    public static DatagramPacket receiveDatagram(DatagramSocket socket) throws IOException {
+        byte[] inBuffer = new byte[FFSync.getMTU()]; // creates a packet to receive the data from the client
+        DatagramPacket packet = new DatagramPacket(inBuffer, inBuffer.length);
+        socket.receive(packet);
+
+        return packet;
     }
 
     public static void main(String[] args) {
