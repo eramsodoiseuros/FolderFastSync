@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Get extends Packet {
-    private final static byte opcode = 0;
+    private final static byte opcode = 1;
 
     private final boolean metadata; // Request for metadata
     private final List<String> filesName; // Name of the files
@@ -32,11 +32,15 @@ public class Get extends Packet {
         this.root = false;
     }
 
+    public static byte getOpcode() {
+        return opcode;
+    }
+
     @Override
     public byte[] serialize() {
         int size = root ? 0 : 4 + filesName.stream().mapToInt(String::length).sum();
-        ByteBuffer bb = ByteBuffer.allocate(4 + 1 + 1 + 4 + size); // opcode + boolean + boolean + size
-        bb.putInt(opcode);
+        ByteBuffer bb = ByteBuffer.allocate(1 + 1 + 1 + 4 + size); // opcode + boolean + boolean + size
+        bb.put(opcode);
         bb.put((byte) (metadata ? 0 : 1));
         bb.put((byte) (root ? 0 : 1));
         if (!root) {

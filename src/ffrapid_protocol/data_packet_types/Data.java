@@ -5,7 +5,7 @@ import ffrapid_protocol.Packet;
 import java.nio.ByteBuffer;
 
 public class Data extends Packet {
-    private final static byte opcode = 1;
+    private final static byte opcode = 2;
 
     private long blockNumber;
     private byte[] data;
@@ -16,8 +16,8 @@ public class Data extends Packet {
     }
 
     public byte[] serialize() {
-        ByteBuffer bb = ByteBuffer.allocate(4 + 8 + 4 + data.length);
-        bb.putInt(opcode);
+        ByteBuffer bb = ByteBuffer.allocate(1 + 8 + 4 + data.length);
+        bb.put(opcode);
         bb.putLong(blockNumber);
         bb.putInt(data.length);
         bb.put(data);

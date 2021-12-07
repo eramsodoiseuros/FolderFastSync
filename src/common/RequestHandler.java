@@ -1,9 +1,8 @@
 package common;
 
 import common.debugger.Debugger;
-import ffrapid_protocol.*;
+import ffrapid_protocol.Packet;
 import ffrapid_protocol.data_packet_types.Data;
-import ffrapid_protocol.data_packet_types.Get;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -26,18 +25,22 @@ public class RequestHandler implements Runnable {
 
     @Override
     public void run() {
-        Packet packet = Packet.deserialize(initialPacket.getData());
-        String str;
-        if (packet instanceof Data) Debugger.print((str = new String(((Data) packet).getData(), StandardCharsets.UTF_8)));
-        else str = "";
-        Data data = new Data(100, str.getBytes(StandardCharsets.UTF_8));
-        byte[] packetToSend = data.serialize();
-
-        DatagramPacket datagramPacket = new DatagramPacket(packetToSend, packetToSend.length, address, port);
-
         try {
+            Packet packet = Packet.deserialize(initialPacket.getData());
+            String str;
+
+            if (packet instanceof Data dataPacket) {
+                Debugger.print((str = new String(dataPacket.getData(), StandardCharsets.UTF_8)));
+            } else str = "";
+            Data data = new Data(100, str.getBytes(StandardCharsets.UTF_8));
+
+            byte[] packetToSend = data.serialize();
+
+            DatagramPacket datagramPacket = new DatagramPacket(packetToSend, packetToSend.length, address, port);
+
             socket.send(datagramPacket);
-            System.out.println("Sending the hello packet");
+            Debugger.print("[Packet sent]");
+            Debugger.print("[Port: " + datagramPacket.getPort() + "]");
         } catch (Exception e) {
             System.out.println("Error common.RequestHandler run [" + e.getMessage() + "]");
         }

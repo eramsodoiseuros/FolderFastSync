@@ -32,13 +32,11 @@ public class Receiver implements Runnable {
     public void run() {
         try {
             while (running) {                                           // infinite loop - very bad pratice
-                System.out.println("Estou aqui");
                 byte[] inBuffer = new byte[MTU];
                 // create the packet to receive the data from client
                 DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
                 serverSocket.receive(inPacket);
 
-                Debugger.print(new String(inPacket.getData(), StandardCharsets.UTF_8));
                 Debugger.print("New connection with address: " + inPacket.getAddress() + " and port " + inPacket.getPort());
                 DatagramSocket socket = new DatagramSocket();
                 Thread t = new Thread(new RequestHandler(socket, inPacket.getAddress(), inPacket.getPort(), inPacket));
