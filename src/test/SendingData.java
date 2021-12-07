@@ -22,18 +22,9 @@ public class SendingData {
                 int port = 12345;
 
                 // Connecting
-                Hello hello = new Hello(12346);
-                byte[] bytes = hello.serialize();
-                print("[Message: " + hello.getPort() + " ]");
-                DatagramPacket datagramPacket =
-                        new DatagramPacket(bytes, bytes.length, InetAddress.getByName("localhost"), port);
-
-                socket.send(datagramPacket);
-                print("Connecting...");
-
-                socket.receive(datagramPacket);
-                hello = (Hello) Packet.deserialize(datagramPacket.getData());
-                port = hello.getPort();
+                DatagramPacket datagramPacket;
+                byte[] bytes;
+                //print("Connecting...");
 
                 while (running) {
                     Data data = new Data(0, "Hello".getBytes(StandardCharsets.UTF_8));
@@ -45,7 +36,7 @@ public class SendingData {
                     print("[Packet sent]");
 
                     socket.receive(datagramPacket);
-                    port = datagramPacket.getPort();
+                    //port = datagramPacket.getPort();
                     print(String.valueOf(port));
 
                     Data packet = (Data) Packet.deserialize(datagramPacket.getData());

@@ -16,7 +16,7 @@ public class RequestHandler implements Runnable {
     private final int port;
     private final DatagramPacket initialPacket;
 
-    public RequestHandler(DatagramSocket socket, InetAddress address, int port, DatagramPacket initialPacket) throws IOException {
+    public RequestHandler(DatagramSocket socket, InetAddress address, int port, DatagramPacket initialPacket) {
         this.socket = socket;
         this.address = address;
         this.port = port;
@@ -29,6 +29,7 @@ public class RequestHandler implements Runnable {
             Packet packet = Packet.deserialize(initialPacket.getData());
             String str;
 
+            // Testing
             if (packet instanceof Data dataPacket) {
                 Debugger.print((str = new String(dataPacket.getData(), StandardCharsets.UTF_8)));
             } else str = "";
