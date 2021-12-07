@@ -1,8 +1,7 @@
 package test;
 
 import ffrapid_protocol.FTRapid;
-import ffrapid_protocol.Packet;
-import ffrapid_protocol.data_packet_types.Data;
+import ffrapid_protocol.Packet.Data;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;

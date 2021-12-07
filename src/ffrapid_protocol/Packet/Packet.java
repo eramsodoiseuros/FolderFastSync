@@ -1,8 +1,4 @@
-package ffrapid_protocol;
-
-import ffrapid_protocol.data_packet_types.Data;
-import ffrapid_protocol.data_packet_types.Get;
-import ffrapid_protocol.data_packet_types.Hello;
+package ffrapid_protocol.Packet;
 
 import java.nio.ByteBuffer;
 

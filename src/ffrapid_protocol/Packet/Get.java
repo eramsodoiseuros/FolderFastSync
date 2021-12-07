@@ -1,6 +1,4 @@
-package ffrapid_protocol.data_packet_types;
-
-import ffrapid_protocol.Packet;
+package ffrapid_protocol.Packet;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;

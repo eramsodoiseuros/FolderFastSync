@@ -1,4 +1,4 @@
-package receiver;
+package ffrapid_protocol;
 
 import app.FFSync;
 import common.RequestHandler;
@@ -22,7 +22,7 @@ public class Receiver implements Runnable {
         try {
             this.serverSocket = new DatagramSocket(FFSync.getPORT()); // mudar isto dps
         } catch (SocketException e) {
-            System.out.println("error receiver.Receiver - receiver.Receiver [" + e.getMessage() + "]");
+            System.out.println("error ffrapid_protocol.Receiver - ffrapid_protocol.Receiver [" + e.getMessage() + "]");
         }
     }
 

@@ -1,4 +1,4 @@
-package sender;
+package ffrapid_protocol;
 
 import app.FFSync;
 import common.Node;

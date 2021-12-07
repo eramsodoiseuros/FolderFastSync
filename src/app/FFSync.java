@@ -1,8 +1,8 @@
 package app;
 
 import common.Node;
-import receiver.Receiver;
-import sender.Sender;
+import ffrapid_protocol.Receiver;
+import ffrapid_protocol.Sender;
 
 import java.io.File;
 import java.net.UnknownHostException;
