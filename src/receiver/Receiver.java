@@ -7,7 +7,6 @@ import common.debugger.Debugger;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Receives FFRapidProtocol.FTRapid data.
@@ -15,12 +14,10 @@ import java.nio.charset.StandardCharsets;
 public class Receiver implements Runnable {
     private final int MTU = FFSync.getMTU();
 
-    private final FFSync ffSync;
     private DatagramSocket serverSocket;
     private boolean running = true;
 
-    public Receiver(FFSync ffSync) {
-        this.ffSync = ffSync;
+    public Receiver() {
         try {
             this.serverSocket = new DatagramSocket(FFSync.getPORT()); // mudar isto dps
         } catch (SocketException e) {
@@ -37,7 +34,7 @@ public class Receiver implements Runnable {
                 DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
                 serverSocket.receive(inPacket);
 
-                Debugger.print("New connection with address: " + inPacket.getAddress() + " and port " + inPacket.getPort());
+                Debugger.log("New connection with address: " + inPacket.getAddress() + " and port " + inPacket.getPort());
                 DatagramSocket socket = new DatagramSocket();
                 Thread t = new Thread(new RequestHandler(socket, inPacket.getAddress(), inPacket.getPort(), inPacket));
                 t.start();

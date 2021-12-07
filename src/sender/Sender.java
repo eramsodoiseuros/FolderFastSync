@@ -8,25 +8,22 @@ import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
+import static common.debugger.Debugger.log;
+
 /**
  * Sends FFRapidProtocol.FTRapid data.
  */
 
 public class Sender implements Runnable {
-    private final FFSync ffSync;
-    private final int MTU = FFSync.getMTU();
-
-    public Sender(FFSync ffSync) {
-        this.ffSync = ffSync;
-    }
 
     @Override
     public void run() {
         // Sends a request in the beginning of the program and with changes in the directory
         // https://docs.oracle.com/javase/tutorial/essential/io/notification.html
-        Node n = ffSync.getNodes().get(0); // Vamos começar por uma ligação apenas
+        Node n = FFSync.getNodes().get(0); // Vamos começar por uma ligação apenas
+        int MTU = FFSync.getMTU();
 
-        System.out.println(n.getAddress());
+        log("Sender Node ip: " + n.getAddress().toString() );
 
         try {
             DatagramSocket clientSocket = new DatagramSocket();                         // creates a socket - port not define - system gives an available port

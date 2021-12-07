@@ -1,9 +1,7 @@
 package test;
 
-import common.debugger.Debugger;
 import ffrapid_protocol.Packet;
 import ffrapid_protocol.data_packet_types.Data;
-import ffrapid_protocol.data_packet_types.Hello;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -33,20 +31,20 @@ public class SendingData {
                             new DatagramPacket(bytes, bytes.length, InetAddress.getByName("localhost"), port);
 
                     socket.send(datagramPacket);
-                    print("[Packet sent]");
+                    log("Packet sent");
 
                     socket.receive(datagramPacket);
                     //port = datagramPacket.getPort();
-                    print(String.valueOf(port));
+                    log("Port: " + port);
 
                     Data packet = (Data) Packet.deserialize(datagramPacket.getData());
-                    print("[Packet received]");
-                    print(new String(packet.getData(), StandardCharsets.UTF_8));
+                    log("Packet received");
+                    log("Data: " + new String(packet.getData(), StandardCharsets.UTF_8));
                     Thread.sleep(5000);
                 }
                 socket.close();
             } catch (Exception e) {
-                print("Exception: " + e.getLocalizedMessage());
+                log("Exception: " + e.getLocalizedMessage());
             }
 
         }).start();

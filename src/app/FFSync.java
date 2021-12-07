@@ -39,13 +39,13 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 
 public class FFSync {
-    private static final int MTU = 1500;
+    private static final int MTU = 1500 - 20 - 8; // 1500 - IP - UDP
     private static final int PORT = 12345; // Port used to access, should be 80
 
-    private final File currentDirectory;
-    private final List<Node> nodes = new ArrayList<>(); // Connected nodes.
+    private static File currentDirectory;
+    private static final List<Node> nodes = new ArrayList<>(); // Connected nodes.
 
-    private final Lock lock = new ReentrantLock();
+    private static final Lock lock = new ReentrantLock();
 
     // metadados dos ficheiros - ou estrutura equivalente
 
@@ -57,7 +57,11 @@ public class FFSync {
         return PORT;
     }
 
-    public List<Node> getNodes() {
+    public static void setCurrentDirectory(File currentDirectory) {
+        FFSync.currentDirectory = currentDirectory;
+    }
+
+    public static List<Node> getNodes() {
         lock.lock();
         try {
             return new ArrayList<>(nodes);
@@ -66,11 +70,7 @@ public class FFSync {
         }
     }
 
-    public FFSync(File currentDirectory) {
-        this.currentDirectory = currentDirectory;
-    }
-
-    public void addNode(Node node) {
+    public static void addNode(Node node) {
         lock.lock();
         try {
             nodes.add(node);
@@ -79,10 +79,10 @@ public class FFSync {
         }
     }
 
-    private void start() {
+    private static void start() {
         // Creating 2 threads: To receive and to send requests - FFRapid protocol
-        Thread sender = new Thread(new Sender(this));
-        Thread receiver = new Thread(new Receiver(this));
+        Thread sender = new Thread(new Sender());
+        Thread receiver = new Thread(new Receiver());
 
         // Creating a thread to handle the http request on port 80 - TCP/HTTP
         //Thread httpHandler = new Thread(new HttpHandler());
@@ -111,11 +111,11 @@ public class FFSync {
         File directory = new File(args[0]);
         //if (!directory.exists()) System.exit(2); // Directory do not exist
 
-        FFSync ffSync = new FFSync(directory);
+        FFSync.setCurrentDirectory(directory);
 
-        for (int i = 1; i < args.length; i++) ffSync.addNode(new Node(args[i]));
+        for (int i = 1; i < args.length; i++) FFSync.addNode(new Node(args[i]));
 
-        ffSync.start();
+        FFSync.start();
 
     }
 }

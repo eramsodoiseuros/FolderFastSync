@@ -4,7 +4,6 @@ import common.debugger.Debugger;
 import ffrapid_protocol.Packet;
 import ffrapid_protocol.data_packet_types.Data;
 
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -31,7 +30,7 @@ public class RequestHandler implements Runnable {
 
             // Testing
             if (packet instanceof Data dataPacket) {
-                Debugger.print((str = new String(dataPacket.getData(), StandardCharsets.UTF_8)));
+                Debugger.log("Data: " + (str = new String(dataPacket.getData(), StandardCharsets.UTF_8)));
             } else str = "";
             Data data = new Data(100, str.getBytes(StandardCharsets.UTF_8));
 
@@ -40,15 +39,14 @@ public class RequestHandler implements Runnable {
             DatagramPacket datagramPacket = new DatagramPacket(packetToSend, packetToSend.length, address, port);
 
             socket.send(datagramPacket);
-            Debugger.print("[Packet sent]");
-            Debugger.print("[Port: " + datagramPacket.getPort() + "]");
+            Debugger.log("Packet sent");
+            Debugger.log("Port: " + datagramPacket.getPort());
         } catch (Exception e) {
             System.out.println("Error common.RequestHandler run [" + e.getMessage() + "]");
         }
     }
 
     private void sendMetaData(DatagramSocket socket) {
-
 
     }
 }

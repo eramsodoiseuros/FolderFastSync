@@ -7,7 +7,7 @@ public class Debugger {
         Debugger.on = on;
     }
 
-    public static void print(String message) {
-        if (on) System.out.println(message);
+    public static void log(Object object) {
+        if (on) System.out.println("[Debug] " + object.toString());
     }
 }
