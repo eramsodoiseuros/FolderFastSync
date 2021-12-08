@@ -1,12 +1,12 @@
-package ffrapid_protocol.Packet;
+package ffrapid_protocol.packet;
 
 import java.nio.ByteBuffer;
 
 public class Data extends Packet {
     private final static byte opcode = 2;
 
-    private long blockNumber;
-    private byte[] data;
+    private final long blockNumber;
+    private final byte[] data;
 
     public Data(long blockNumber, byte[] data) {
         this.blockNumber = blockNumber;

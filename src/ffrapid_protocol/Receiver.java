@@ -1,9 +1,8 @@
 package ffrapid_protocol;
 
 import app.FFSync;
-import common.RequestHandler;
+import ffrapid_protocol.operations.RequestHandler;
 import common.debugger.Debugger;
-import ffrapid_protocol.FTRapid;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;

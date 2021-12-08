@@ -1,9 +1,11 @@
-package ffrapid_protocol.Packet;
+package ffrapid_protocol.packet;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Get extends Packet {
     private final static byte opcode = 1;
@@ -70,5 +72,10 @@ public class Get extends Packet {
             get = new Get(metadata, list);
         }
         return get;
+    }
+
+    public List<File> getFiles() {
+        assert this.filesName != null;
+        return this.filesName.stream().map(File::new).collect(Collectors.toList());
     }
 }

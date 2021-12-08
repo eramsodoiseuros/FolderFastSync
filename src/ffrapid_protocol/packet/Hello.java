@@ -1,4 +1,4 @@
-package ffrapid_protocol.Packet;
+package ffrapid_protocol.packet;
 
 import java.nio.ByteBuffer;
 

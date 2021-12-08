@@ -2,6 +2,7 @@ package test;
 
 import ffrapid_protocol.FTRapid;
 import ffrapid_protocol.packet.Data;
+import ffrapid_protocol.packet.Get;
 import ffrapid_protocol.packet.Packet;
 
 import java.net.DatagramPacket;
@@ -9,11 +10,11 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 
-import static common.debugger.Debugger.*;
+import static common.debugger.Debugger.log;
 
-
-public class SendingData {
+public class RequestForMetadata {
     public static void main(String[] args) {
+
         new Thread(() -> {
             try {
                 DatagramSocket socket = new DatagramSocket();
@@ -25,10 +26,9 @@ public class SendingData {
                 byte[] bytes;
 
                 while (running) {
-                    Data dataSent = new Data(0, "Hello".getBytes(StandardCharsets.UTF_8));
-                    FTRapid.send(dataSent, socket, InetAddress.getByName("localhost"), port);
+                    Get get = new Get(true, true);
+                    FTRapid.send(get, socket, InetAddress.getByName("localhost"), port);
                     log("Packet sent");
-
 
                     datagramPacket = FTRapid.receiveDatagram(socket);
                     Data dataReceived = (Data) Packet.deserialize(datagramPacket.getData()); // Assuming that the server is going to send the packet data.
@@ -44,7 +44,6 @@ public class SendingData {
             }
 
         }).start();
-
 
     }
 }

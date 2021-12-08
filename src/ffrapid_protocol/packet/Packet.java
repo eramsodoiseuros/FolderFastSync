@@ -1,4 +1,4 @@
-package ffrapid_protocol.Packet;
+package ffrapid_protocol.packet;
 
 import java.nio.ByteBuffer;
 
@@ -17,6 +17,8 @@ public abstract class Packet {
             case 2 -> // Data packet
                     Data.deserialize(bb);
             case 3 -> // Ack packet
+                    null;
+            case 4 -> // Error packet
                     null;
             default -> null;
         };

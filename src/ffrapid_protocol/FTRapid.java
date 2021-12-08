@@ -1,7 +1,7 @@
 package ffrapid_protocol;
 
 import app.FFSync;
-import ffrapid_protocol.Packet.Packet;
+import ffrapid_protocol.packet.Packet;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
