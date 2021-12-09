@@ -34,7 +34,7 @@ public class RequestForMetadata {
                     Data dataReceived = (Data) Packet.deserialize(datagramPacket.getData()); // Assuming that the server is going to send the packet data.
                     log("From port: " + datagramPacket.getPort());
                     log("Packet received");
-                    log("Data: " + new String(dataReceived.getData(), StandardCharsets.UTF_8));
+                    log("Data: " + new String(dataReceived.data, StandardCharsets.UTF_8));
                     Thread.sleep(5000);
                     if (i++ >= 5) running = false;
                 }

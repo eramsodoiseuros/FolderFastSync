@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Get extends Packet {
-    private final static byte opcode = 1;
+    private final static byte opcode = 0;
 
-    private final boolean metadata; // Request for metadata
-    private final List<String> filesName; // Name of the files
-    private final boolean root; // All files of the root
+    public final boolean metadata; // Request for metadata
+    public final List<String> filesName; // Name of the files
+    public final boolean root; // All files of the root
 
     public Get() {
         metadata = false;
@@ -38,7 +38,13 @@ public class Get extends Packet {
 
     @Override
     public byte[] serialize() {
-        int size = root ? 0 : 4 + filesName.stream().mapToInt(String::length).sum();
+        int size;
+        if (root) {
+            size = 0;
+        } else {
+            assert filesName != null;
+            size = 4 + filesName.stream().mapToInt(String::length).sum();
+        }
         ByteBuffer bb = ByteBuffer.allocate(1 + 1 + 1 + 4 + size); // opcode + boolean + boolean + size
         bb.put(opcode);
         bb.put((byte) (metadata ? 0 : 1));

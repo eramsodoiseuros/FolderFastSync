@@ -1,3 +1,5 @@
+package folder_parser;
+
 import java.io.File;
 import java.util.HashSet;
 

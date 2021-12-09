@@ -1,13 +1,19 @@
 package common.debugger;
 
 public class Debugger {
-    private static boolean on = true;
+    private static boolean enable = true;
 
-    public static void setOn(boolean on) {
-        Debugger.on = on;
+    @SuppressWarnings("unused")
+    public static void enable() {
+        Debugger.enable = true;
+    }
+
+    @SuppressWarnings("unused")
+    public static void disable() {
+        Debugger.enable = false;
     }
 
     public static void log(Object object) {
-        if (on) System.out.println("[Debug] " + object.toString());
+        if (enable) System.out.println("[Debug] " + object.toString());
     }
 }

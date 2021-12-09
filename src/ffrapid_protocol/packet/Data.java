@@ -3,10 +3,10 @@ package ffrapid_protocol.packet;
 import java.nio.ByteBuffer;
 
 public class Data extends Packet {
-    private final static byte opcode = 2;
+    private final static byte opcode = 1;
 
-    private final long blockNumber;
-    private final byte[] data;
+    public final long blockNumber;
+    public final byte[] data;
 
     public Data(long blockNumber, byte[] data) {
         this.blockNumber = blockNumber;
@@ -27,13 +27,5 @@ public class Data extends Packet {
         byte[] arr = new byte[byteBuffer.getInt()];
         byteBuffer.get(arr);
         return new Data(blockNumber, arr);
-    }
-
-    public long getBlockNumber() {
-        return blockNumber;
-    }
-
-    public byte[] getData() {
-        return data;
     }
 }

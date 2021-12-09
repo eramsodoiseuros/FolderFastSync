@@ -1,6 +1,6 @@
 package ffrapid_protocol.operations;
 
-import ffrapid_protocol.packet.Get;
+import ffrapid_protocol.exceptions.NotAckPacket;
 
 import java.io.IOException;
 
@@ -8,7 +8,7 @@ public interface Operations {
 
     /**
      * Sends the data requested
-     * @param get a get object
+     * @param data a get object
      */
-    void sendData(Get get) throws IOException;
+    void sendData(byte[] data) throws IOException, NotAckPacket;
 }

@@ -1,6 +1,10 @@
 package ffrapid_protocol;
 
 import app.FFSync;
+import ffrapid_protocol.exceptions.NotAckPacket;
+import ffrapid_protocol.packet.Ack;
+import ffrapid_protocol.packet.Data;
+import ffrapid_protocol.packet.Error;
 import ffrapid_protocol.packet.Packet;
 
 import java.io.IOException;
@@ -63,6 +67,20 @@ public class FTRapid {
         socket.receive(packet);
 
         return packet;
+    }
+
+    public static Ack receivesAck(DatagramSocket socket, InetAddress address, int port) throws IOException, NotAckPacket {
+        Packet packet = FTRapid.receive(socket);
+        if (!(packet instanceof Ack)) {
+            Error errorPacket = new Error();
+            FTRapid.send(errorPacket, socket, address, port);
+            throw new NotAckPacket();
+        }
+        return (Ack) packet;
+    }
+
+    public static void sendAck(DatagramSocket socket, InetAddress address, int port, long seqNumber) throws IOException {
+        send(new Ack(seqNumber), socket, address, port);
     }
 
     public static void main(String[] args) {

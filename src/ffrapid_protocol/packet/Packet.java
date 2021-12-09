@@ -10,16 +10,16 @@ public abstract class Packet {
         ByteBuffer bb = ByteBuffer.wrap(message);
         byte type = bb.get();
         packet = switch (type) {
-            case 0 -> // Hello packet
-                    Hello.deserialize(bb);
-            case 1 -> // Get packet
+            case 0 -> // Get packet
                     Get.deserialize(bb);
-            case 2 -> // Data packet
+            case 1 -> // Data packet
                     Data.deserialize(bb);
-            case 3 -> // Ack packet
-                    null;
+            case 2 -> // Ack packet
+                    Ack.deserialize(bb);
+            case 3 -> // Notify packet
+                    Notify.deserialize(bb);
             case 4 -> // Error packet
-                    null;
+                    Error.deserialize(bb);
             default -> null;
         };
 

@@ -2,9 +2,7 @@ package ffrapid_protocol;
 
 import app.FFSync;
 import common.Node;
-import ffrapid_protocol.FTRapid;
 
-import javax.imageio.plugins.tiff.FaxTIFFTagSet;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.DatagramPacket;

@@ -15,6 +15,7 @@ public class Receiver implements Runnable {
     private final int MTU = FFSync.getMTU();
 
     private DatagramSocket serverSocket;
+    @SuppressWarnings({"FieldMayBeFinal", "CanBeFinal"})
     private boolean running = true;
 
     public Receiver() {
