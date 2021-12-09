@@ -7,12 +7,12 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-public class Encryption {
+public class HMac {
 
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException {
         final String KEY = "12345";
         final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
-        final String msg = "Encryption";
+        final String msg = "HMac";
 
         SecretKeySpec secretKeySpec = new SecretKeySpec(KEY.getBytes(), HMAC_SHA1_ALGORITHM);
         Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
