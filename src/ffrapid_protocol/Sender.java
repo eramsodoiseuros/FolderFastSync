@@ -28,14 +28,16 @@ public class Sender implements Runnable {
 
             log("Sender | First node ip: " + n.getAddress().toString());
 
-            requestsAllMetadata(socket, n.getAddress(), FFSync.getPORT());
+            Metadata metadata = requestsAllMetadata(socket, n.getAddress(), FFSync.getPORT());
+
+            log("Sender | Finishing");
 
         } catch (Exception e) {
             System.out.println("Error sender - run [" + e.getMessage() + "]");
         }
     }
 
-    public void requestsAllMetadata(DatagramSocket socket, InetAddress address, int port) throws IOException {
+    public Metadata requestsAllMetadata(DatagramSocket socket, InetAddress address, int port) throws IOException {
         Get get = new Get(true, true); // Metadata from all files
 
         FTRapid.send(get, socket, address, port); // Sends the request
@@ -43,5 +45,9 @@ public class Sender implements Runnable {
         log("Sender | Packet sent");
 
         Metadata metadata = (Metadata) FTRapid.receive(socket); // Receives the response
+
+        log("Sender | Packet received");
+
+        return metadata;
     }
 }

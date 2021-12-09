@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static common.debugger.Debugger.log;
+
 /**
  * PROTOCOLO DE SINCRONIZAÇÃO
  * <p>
@@ -117,7 +119,10 @@ public class FFSync {
         if (args.length < 1) System.exit(1); // Invalid number of arguments
 
         File directory = new File(args[0]);
-        //if (!directory.exists()) System.exit(2); // Directory do not exist
+        if (!directory.exists()) {
+            System.out.println("Directory does not exist");
+            System.exit(2); // Directory does not exist
+        }
 
         FFSync.setCurrentDirectory(directory);
 

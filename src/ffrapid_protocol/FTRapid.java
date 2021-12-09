@@ -13,6 +13,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.security.NoSuchAlgorithmException;
 
+import static common.debugger.Debugger.log;
+
 /**
  * PROTOCOLO DE TRANSFERÊNCIA DE DADOS
  * <p>

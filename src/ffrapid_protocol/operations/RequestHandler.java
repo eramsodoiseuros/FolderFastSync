@@ -6,7 +6,6 @@ import ffrapid_protocol.data.StopAndWait;
 import ffrapid_protocol.exceptions.NotAckPacket;
 import ffrapid_protocol.packet.Error;
 import ffrapid_protocol.packet.*;
-import folder_parser.FolderParser;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -54,15 +53,18 @@ public class RequestHandler implements Runnable {
         }
     }
 
-    private void parseGet(Get get) {
-        List<String> filesNames =
+    private void parseGet(Get get) throws IOException {
+        List<String> fileNames =
                 get.root ? Arrays.stream(Objects.requireNonNull(FFSync.getCurrentDirectory().list())).toList() : get.filesName;
-        assert filesNames != null;
+        assert fileNames != null;
+        log("RequestHandler | parseGet fileNames: " + fileNames, 1);
 
         if (get.metadata) {
-            FolderParser.metadata(filesNames);
+            Metadata metadata = Metadata.getMetadataFromNames(fileNames.stream().map(
+                    str -> FFSync.getCurrentDirectory().getName() + "/" + str).toList());
+            FTRapid.send(metadata, socket, address, port);
         }
-        else filesNames.forEach(this::sendFile);
+        else fileNames.forEach(this::sendFile);
     }
 
     private void getModification() {

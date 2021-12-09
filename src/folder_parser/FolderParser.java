@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+
+import static common.debugger.Debugger.log;
 //import org.json;
 
 /**
@@ -72,21 +74,22 @@ public class FolderParser {
         return r;
     }
 
-    public static List<AbstractMap.SimpleEntry<String, LocalDateTime>> metadata(List<String> file_names) {
-        List<AbstractMap.SimpleEntry<String, LocalDateTime>> r = new ArrayList<>();
+    public static List<AbstractMap.SimpleEntry<String, Long>> metadata(List<String> file_names) {
+        List<AbstractMap.SimpleEntry<String, Long>> r = new ArrayList<>();
         int i = 0;
         for (String s : file_names) {
             File f = new File(s);
-            LocalDateTime d = LocalDateTime.ofInstant(Instant.ofEpochMilli(f.lastModified()), ZoneId.systemDefault());
-            AbstractMap.SimpleEntry<String, LocalDateTime> x = new AbstractMap.SimpleEntry<>(s, d);
+            // LocalDateTime d = LocalDateTime.ofInstant(Instant.ofEpochMilli(f.lastModified()), ZoneId.systemDefault());
+            long d = f.lastModified();
+            var x = new AbstractMap.SimpleEntry<>(s, d);
             r.add(i, x);
         }
         return r;
         // return file_names.stream().map(fazer cenas).collect(Collectors.toList);
     }
 
-    public void print(List<AbstractMap.SimpleEntry<String, LocalDateTime>> l) {
-        for (AbstractMap.SimpleEntry<String, LocalDateTime> x : l) {
+    public void print(List<AbstractMap.SimpleEntry<String, Long>> l) {
+        for (AbstractMap.SimpleEntry<String, Long> x : l) {
             System.out.println(x.toString());
         }
     }
@@ -129,7 +132,7 @@ public class FolderParser {
         l.add("a.txt");
         l.add("d.txt");
         l.add("teste");
-        List<AbstractMap.SimpleEntry<String, LocalDateTime>> lx = fp.metadata(l);
+        List<AbstractMap.SimpleEntry<String, Long>> lx = fp.metadata(l);
         fp.print(lx);
         //fp.compareFiles("\~\fteste","\~\fteste");
         System.out.println("oi");

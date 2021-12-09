@@ -2,8 +2,10 @@ package ffrapid_protocol.packet;
 
 import java.nio.ByteBuffer;
 
+import static common.debugger.Debugger.log;
+
 public abstract class Packet {
-    public abstract byte[] serialize();
+    protected static final int debuggerLevel = 1;
 
     public static Packet deserialize(byte[] message) {
         Packet packet;
@@ -24,8 +26,10 @@ public abstract class Packet {
                     Error.deserialize(bb);
             default -> null;
         };
+        log("Packet | Type: " + type, debuggerLevel);
 
         return packet;
     }
 
+    public abstract byte[] serialize();
 }

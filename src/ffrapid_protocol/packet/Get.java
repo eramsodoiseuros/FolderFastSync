@@ -1,11 +1,15 @@
 package ffrapid_protocol.packet;
 
+import common.debugger.Debugger;
+
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static common.debugger.Debugger.log;
 
 public class Get extends Packet {
     private final static byte opcode = 0;
@@ -32,6 +36,8 @@ public class Get extends Packet {
 
     @Override
     public byte[] serialize() {
+        log("Get | Starting serializing", Packet.debuggerLevel);
+        log("Get | Before Serialize: " + this, Packet.debuggerLevel);
         int size;
         if (root) {
             size = 0;
@@ -41,8 +47,8 @@ public class Get extends Packet {
         }
         ByteBuffer bb = ByteBuffer.allocate(1 + 1 + 1 + 4 + size * (4)); // opcode + boolean + boolean + ListSize + Sum(ElementSize * Element)
         bb.put(opcode);
-        bb.put((byte) (metadata ? 0 : 1));
-        bb.put((byte) (root ? 0 : 1));
+        bb.put((byte) (metadata ? 1 : 0));
+        bb.put((byte) (root ? 1 : 0));
         if (!root) {
             bb.putInt(filesName.size());
             for (String str : filesName) {
@@ -54,6 +60,7 @@ public class Get extends Packet {
     }
 
     public static Packet deserialize(ByteBuffer byteBuffer) {
+        log("Get | Starting deserializing", Packet.debuggerLevel);
         Get get;
         List<String> list = new ArrayList<>();
         boolean metadata = byteBuffer.get() != 0;
@@ -71,11 +78,20 @@ public class Get extends Packet {
             }
             get = new Get(metadata, list);
         }
+        log("Get | Deserialize result: " + get, Packet.debuggerLevel);
         return get;
     }
 
     public List<File> getFiles() {
         assert this.filesName != null;
         return this.filesName.stream().map(File::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public String toString() {
+        return "Get - " +
+                "metadata=" + metadata +
+                ", filesName=" + filesName +
+                ", root=" + root;
     }
 }
