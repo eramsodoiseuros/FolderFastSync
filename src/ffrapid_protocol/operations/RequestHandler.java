@@ -6,17 +6,17 @@ import ffrapid_protocol.data.StopAndWait;
 import ffrapid_protocol.exceptions.NotAckPacket;
 import ffrapid_protocol.packet.Error;
 import ffrapid_protocol.packet.*;
+import folder_parser.FolderParser;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static common.debugger.Debugger.log;
 
@@ -48,20 +48,21 @@ public class RequestHandler implements Runnable {
             } else if (packet instanceof Notify) {
                 getModification();
             }
-            log("Packet sent");
+            log("Receiver | Packet sent");
         } catch (Exception e) {
             System.out.println("Error ffrapid_protocol.operation.RequestHandler run [" + e.getMessage() + "]");
         }
     }
 
     private void parseGet(Get get) {
-        List<File> files = get.root ? List.of(Objects.requireNonNull(FFSync.getCurrentDirectory().listFiles())) :
-                get.getFiles();
-        if (get.metadata) {
+        List<String> filesNames =
+                get.root ? Arrays.stream(Objects.requireNonNull(FFSync.getCurrentDirectory().list())).toList() : get.filesName;
+        assert filesNames != null;
 
-        } else {
-            files.forEach(file -> sendFile(file.getName()));
+        if (get.metadata) {
+            FolderParser.metadata(filesNames);
         }
+        else filesNames.forEach(this::sendFile);
     }
 
     private void getModification() {

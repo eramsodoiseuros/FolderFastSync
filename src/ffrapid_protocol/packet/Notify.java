@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
  * Notifies the nodes of a change.
  */
 public class Notify extends Packet {
-    private final static byte opcode = 3;
+    private final static byte opcode = 4;
     // É preciso desenvolver
 
     public static Packet deserialize(ByteBuffer bb) {

@@ -1,8 +1,8 @@
 package ffrapid_protocol;
 
 import app.FFSync;
-import ffrapid_protocol.operations.RequestHandler;
 import common.debugger.Debugger;
+import ffrapid_protocol.operations.RequestHandler;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -12,24 +12,23 @@ import java.net.SocketException;
  * Receives FFRapidProtocol.FTRapid data.
  */
 public class Receiver implements Runnable {
-    private final int MTU = FFSync.getMTU();
 
     private DatagramSocket serverSocket;
-    @SuppressWarnings({"FieldMayBeFinal", "CanBeFinal"})
+    @SuppressWarnings({"FieldMayBeFinal", "CanBeFinal", "FieldCanBeLocal"})
     private boolean running = true;
 
     public Receiver() {
         try {
             this.serverSocket = new DatagramSocket(FFSync.getPORT()); // mudar isto dps
         } catch (SocketException e) {
-            System.out.println("error ffrapid_protocol.Receiver - ffrapid_protocol.Receiver [" + e.getMessage() + "]");
+            System.out.println("Error FTRapid_protocol.Receiver - FTRapid_protocol.Receiver [" + e.getMessage() + "]");
         }
     }
 
     @Override
     public void run() {
         try {
-            while (running) {                                           // infinite loop - very bad pratice
+            while (running) { // infinite loop - very bad practice
                 DatagramPacket received = FTRapid.receiveDatagram(serverSocket);
 
                 Debugger.log("New connection with address: " + received.getAddress() + " and port " + received.getPort());
@@ -39,7 +38,7 @@ public class Receiver implements Runnable {
             }
             serverSocket.close();
         } catch (Exception e) {
-            System.out.println("erro receiver - run [" + e.getMessage() + "]");
+            System.out.println("Error receiver - run [" + e.getMessage() + "]");
         }
     }
 }

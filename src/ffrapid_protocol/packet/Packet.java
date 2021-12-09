@@ -16,9 +16,11 @@ public abstract class Packet {
                     Data.deserialize(bb);
             case 2 -> // Ack packet
                     Ack.deserialize(bb);
-            case 3 -> // Notify packet
+            case 3 -> // Metadata packet
+                    Metadata.deserialize(bb);
+            case 4 -> // Notify packet
                     Notify.deserialize(bb);
-            case 4 -> // Error packet
+            case 5 -> // Error packet
                     Error.deserialize(bb);
             default -> null;
         };

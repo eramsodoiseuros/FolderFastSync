@@ -2,18 +2,18 @@ package ffrapid_protocol;
 
 import app.FFSync;
 import common.Node;
+import ffrapid_protocol.packet.Get;
+import ffrapid_protocol.packet.Metadata;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.DatagramPacket;
+import java.io.IOException;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 import static common.debugger.Debugger.log;
 
 /**
  * Sends FFRapidProtocol.FTRapid data.
  */
-
 public class Sender implements Runnable {
 
     @Override
@@ -23,34 +23,25 @@ public class Sender implements Runnable {
         Node n = FFSync.getNodes().get(0); // Vamos começar por uma ligação apenas
         int MTU = FFSync.getMTU();
 
-        log("Sender Node ip: " + n.getAddress().toString() );
-
         try {
-            DatagramSocket clientSocket = new DatagramSocket();                         // creates a socket - port not define - system gives an available port
+            DatagramSocket socket = new DatagramSocket(); // creates a socket - port not define - system gives an available port
 
-            // buffer to read from the console
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-            String lineFromConsole = reader.readLine();                                 // reading from the console
+            log("Sender | First node ip: " + n.getAddress().toString());
 
-            while (!lineFromConsole.equalsIgnoreCase("quit")) {
-                byte[] inBuffer = new byte[MTU];
-                byte[] outBuffer;
+            requestsAllMetadata(socket, n.getAddress(), FFSync.getPORT());
 
-                // from the console to the socket - sending a message
-                outBuffer = lineFromConsole.getBytes();
-                DatagramPacket outPacket = new DatagramPacket(outBuffer, outBuffer.length, n.getAddress(), FFSync.getPORT());
-                clientSocket.send(outPacket);
-
-                // from the socket to the console - reading a message
-                DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
-                clientSocket.receive(inPacket);
-                System.out.println(new String(inPacket.getData()));
-
-                lineFromConsole = reader.readLine();                                    // reading from console
-            }
-            clientSocket.close();
         } catch (Exception e) {
-            System.out.println("erro sender - run [" + e.getMessage() + "]");
+            System.out.println("Error sender - run [" + e.getMessage() + "]");
         }
+    }
+
+    public void requestsAllMetadata(DatagramSocket socket, InetAddress address, int port) throws IOException {
+        Get get = new Get(true, true); // Metadata from all files
+
+        FTRapid.send(get, socket, address, port); // Sends the request
+
+        log("Sender | Packet sent");
+
+        Metadata metadata = (Metadata) FTRapid.receive(socket); // Receives the response
     }
 }

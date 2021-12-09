@@ -39,7 +39,7 @@ public class Get extends Packet {
             assert filesName != null;
             size = 4 + filesName.stream().mapToInt(String::length).sum();
         }
-        ByteBuffer bb = ByteBuffer.allocate(1 + 1 + 1 + 4 + size); // opcode + boolean + boolean + size
+        ByteBuffer bb = ByteBuffer.allocate(1 + 1 + 1 + 4 + size * (4)); // opcode + boolean + boolean + ListSize + Sum(ElementSize * Element)
         bb.put(opcode);
         bb.put((byte) (metadata ? 0 : 1));
         bb.put((byte) (root ? 0 : 1));
