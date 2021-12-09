@@ -1,4 +1,4 @@
-package common;
+package ffrapid_protocol.data;
 
 import ffrapid_protocol.packet.Data;
 

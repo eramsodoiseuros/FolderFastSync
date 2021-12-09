@@ -14,12 +14,6 @@ public class Get extends Packet {
     public final List<String> filesName; // Name of the files
     public final boolean root; // All files of the root
 
-    public Get() {
-        metadata = false;
-        filesName = null;
-        root = false;
-    }
-
     public Get(boolean metadata, boolean root) {
         this.metadata = metadata;
         this.root = root; // Returns all metadata of the root or all files of the root

@@ -102,6 +102,14 @@ public class FFSync {
 
     }
 
+    public static File getCurrentDirectory() {
+        lock.lock();
+        try {
+            return currentDirectory;
+        } finally {
+            lock.unlock();
+        }
+    }
 
     public static void main(String[] args) throws UnknownHostException {
 
