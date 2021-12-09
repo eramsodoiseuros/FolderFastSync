@@ -1,10 +1,13 @@
 package folder_parser;
 
 import java.io.File;
-import java.util.HashSet;
-
-import java.util.Set;
-
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
+//import org.json;
 /**
  *
  *  Preciso saber todos os files dentro de uma pasta e em pastas de pastas (arvore de files)
@@ -20,42 +23,38 @@ public class FolderParser {
  //   private List<Directory1> directories;
     private Set<File> f1;
     private Set<File> f2;
-
-    void compareFiles(File f1, File f2) {
+    public FolderParser(){
         this.f1=new HashSet<>();
         this.f2=new HashSet<>();
+    }
+    void compareFiles(File f1, File f2) {
 
-        boolean b = false;
+       // boolean b = false;
         File[] fs1 = f1.listFiles();
         File[] fs2 = f2.listFiles();
-        int i = 0, flag;
+        int j=0;
+        for(File f:fs1){
+            int r=compareFile(f,fs2[j]);
+            switch (r){
+                case 1:
+                    //f e mais atualizada
+                    this.f2.add(f);
+                case 2:
+                    //fs2[j] e mais atualizada
+                    this.f1.add(fs2[j]);
+                case 0:
+                    //sao iguais
 
-        int max, min;
-        if (fs2.length > fs1.length) {
-            max = fs2.length;
-            min = fs1.length;
-            b=true;
-        } else {
-            max = fs1.length;
-            min = fs2.length;
-            b=false;
-        }
-        for (i = 0; i < max; i++) {
-            if(fs1[i]!=null && fs2[i]!=null) {
-                if ((flag = compareFile(fs1[i], fs2[i])) > 0) {
-                    if (flag == 1) {
-                        this.f2.add(fs1[i]);
-                    } else {
-                        this.f1.add(fs2[i]);
-                    }
-                }
-            }else
-            if(fs1[i]==null){
-                this.f1.add(fs2[i]);
-            }else{
-                this.f2.add(fs1[i]);
+                default:
+                    //System.out.println("erro");
             }
-            i++;
+            j++;
+        }
+        if(fs2.length>fs1.length){
+            for(;j<fs2.length;j++){
+                this.f1.add(fs2[j]);
+            }
+
         }
         //return b;
     }
@@ -69,6 +68,68 @@ public class FolderParser {
         }
         return r;
     }
+
+    public List<AbstractMap.SimpleEntry<String, LocalDateTime> > metadata(List<String> file_names) {
+        List<AbstractMap.SimpleEntry<String,LocalDateTime>> r= new ArrayList<>();
+        int i=0;
+        for(String s: file_names){
+            File f= new File(s);
+            LocalDateTime d=LocalDateTime.ofInstant(Instant.ofEpochMilli(f.lastModified()), ZoneId.systemDefault());
+            AbstractMap.SimpleEntry<String,LocalDateTime> x = new AbstractMap.SimpleEntry<>(s,d);
+            r.add(i,x);
+        }
+        return r;
+       // return file_names.stream().map(fazer cenas).collect(Collectors.toList);
+    }
+    public void print(List<AbstractMap.SimpleEntry<String,LocalDateTime>> l){
+        for(AbstractMap.SimpleEntry<String,LocalDateTime> x: l){
+            System.out.println(x.toString());
+        }
+    }
+/*
+    public void listar() throws org.json.JSONException {
+
+        System.out.println("estou aqui - " + System.getProperty("user.dir"));
+        File directoryPath = new File(System.getProperty("user.dir"));
+        org.json.JSONObject obj = new org.json.JSONObject();
+        File[] filesList = directoryPath.listFiles();
+
+        if (filesList != null) {
+            System.out.println("nao era nulo");
+            for(File file : filesList) {
+                try{
+                    obj.put("file path",file.getAbsolutePath());
+                    obj.put("file name", file.getName());
+                    obj.put("file last update", file.lastModified());
+                    obj.put("file size", file.getTotalSpace());
+            }catch(org.json.JSONException e){
+                    System.out.println(e.getMessage());
+                }
+            }
+            System.out.println(obj);
+        }
+
+        try {
+            FileWriter file = new FileWriter(System.getProperty("user.dir")+"log.txt");
+            file.write(obj.toString());
+            //toJSONString()
+        } catch (IOException e) {
+            System.out.println("erro HTTP - JSON WRITE [" + e.getMessage() + "]");
+        }
+    }
+*/
+    public static void main(String[] args) {
+        FolderParser fp=  new FolderParser();
+        List<String> l= new ArrayList<>();
+        l.add("a.txt");
+        l.add("d.txt");
+        l.add("teste");
+        List<AbstractMap.SimpleEntry<String,LocalDateTime>> lx= fp.metadata(l);
+        fp.print(lx);
+        //fp.compareFiles("\~\fteste","\~\fteste");
+        System.out.println("oi");
+    }
+
 }
 
 
