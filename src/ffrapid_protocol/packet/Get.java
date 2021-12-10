@@ -30,6 +30,13 @@ public class Get extends Packet {
         this.root = false;
     }
 
+    public Get(String fileName) {
+        this.metadata = false;
+        this.root = false;
+        this.filesName = new ArrayList<>();
+        this.filesName.add(fileName);
+    }
+
     public static byte getOpcode() {
         return opcode;
     }

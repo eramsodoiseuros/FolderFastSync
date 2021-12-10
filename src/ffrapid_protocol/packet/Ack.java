@@ -2,6 +2,8 @@ package ffrapid_protocol.packet;
 
 import java.nio.ByteBuffer;
 
+import static common.debugger.Debugger.log;
+
 /**
  * Acknowledges that a packet has been received.
  */
@@ -15,14 +17,27 @@ public class Ack extends Packet {
     }
 
     public byte[] serialize() {
-        ByteBuffer bb = ByteBuffer.allocate(1 + 4);
+        log("Ack | Starting serializing", Packet.debuggerLevel);
+        log("Ack | Before Serialize: " + this, Packet.debuggerLevel);
+        ByteBuffer bb = ByteBuffer.allocate(1 + 8);
         bb.put(opcode);
         bb.putLong(segmentNumber);
         return bb.array();
     }
 
     public static Packet deserialize(ByteBuffer byteBuffer) {
-        return new Ack(byteBuffer.getLong());
+        log("Ack | Starting deserializing", Packet.debuggerLevel);
+
+        Ack ack = new Ack(byteBuffer.getLong());
+
+        log("Ack | Deserialize result: " + ack, Packet.debuggerLevel);
+
+        return ack;
     }
 
+    @Override
+    public String toString() {
+        return "Ack - " +
+                "segmentNumber=" + segmentNumber;
+    }
 }

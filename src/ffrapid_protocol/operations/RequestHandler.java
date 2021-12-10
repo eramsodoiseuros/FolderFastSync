@@ -42,8 +42,7 @@ public class RequestHandler implements Runnable {
             } else if (packet instanceof Data || packet instanceof Ack || packet instanceof Error) {
                 // [Data | Ack | Error] Packet in the beginning of the connection does not make sense
                 Error errorPacket = new Error();
-                FTRapid.send(errorPacket, socket, address, port);
-                // Sends an error message
+                FTRapid.send(errorPacket, socket, address, port); // Sends an error message
             } else if (packet instanceof Notify) {
                 getModification();
             }

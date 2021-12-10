@@ -2,9 +2,13 @@ package ffrapid_protocol;
 
 import app.FFSync;
 import common.Node;
+import ffrapid_protocol.data.StopAndWait;
 import ffrapid_protocol.packet.Get;
 import ffrapid_protocol.packet.Metadata;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -25,12 +29,29 @@ public class Sender implements Runnable {
 
         try {
             DatagramSocket socket = new DatagramSocket(); // creates a socket - port not define - system gives an available port
+            final InetAddress address = n.getAddress();
+            int port = FFSync.getPORT();
 
-            log("Sender | First node ip: " + n.getAddress().toString());
+            log("Sender | First node ip: " + address);
 
-            Metadata metadata = requestsAllMetadata(socket, n.getAddress(), FFSync.getPORT());
+            Metadata metadata = requestsAllMetadata(socket, address, port);
 
-            log("Sender | Finishing");
+            log("Sender | Comparing the files...");
+            // Comparing the files...
+
+            log("Sender | Updating the missing changes...");
+            // Requesting the files
+            // Getting the files...
+
+            log("Sender | Nodes synchronized");
+
+            // Requesting a file
+            String fileName = "folder1/file2";
+            requestFile(fileName, socket, address, port);
+
+            // Download the file
+            receiveFile(fileName, socket, address, port);
+
 
         } catch (Exception e) {
             System.out.println("Error sender - run [" + e.getMessage() + "]");
@@ -49,5 +70,19 @@ public class Sender implements Runnable {
         log("Sender | Packet received");
 
         return metadata;
+    }
+
+    public void receiveFile(String fileName, DatagramSocket socket, InetAddress address, int port) throws IOException {
+        File f = new File(fileName + "2");
+        FileOutputStream outputStream = new FileOutputStream(f);
+
+        StopAndWait.receiveFile(outputStream, socket, address, port);
+
+        outputStream.close();
+    }
+
+    public void requestFile(String fileName, DatagramSocket socket, InetAddress address, int port) throws IOException {
+        Get get = new Get(fileName);
+        FTRapid.send(get, socket, address, port);
     }
 }
