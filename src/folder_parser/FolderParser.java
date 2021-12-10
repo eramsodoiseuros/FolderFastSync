@@ -132,7 +132,7 @@ public class FolderParser {
         l.add("a.txt");
         l.add("d.txt");
         l.add("teste");
-        List<AbstractMap.SimpleEntry<String, Long>> lx = fp.metadata(l);
+        List<AbstractMap.SimpleEntry<String, Long>> lx = metadata(l);
         fp.print(lx);
         //fp.compareFiles("\~\fteste","\~\fteste");
         System.out.println("oi");

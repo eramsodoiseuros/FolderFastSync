@@ -20,7 +20,7 @@ import static ffrapid_protocol.data.DivideData.getBlock;
 import static ffrapid_protocol.data.DivideData.getLastBlock;
 
 public class StopAndWait {
-    private static final int debuggerLevel = 2;
+    private static final int debuggerLevel = 0;
 
     public static void sendData(DatagramSocket socket, InetAddress address, int port, byte[] data)
             throws IOException, NotAckPacket {
@@ -33,12 +33,12 @@ public class StopAndWait {
 
         Timer.startTimer();
 
-        int MTU = FFSync.getMTU();
+        int MTU = FFSync.getMTU() - Data.headerLength;
         int blocks = data.length / MTU;
         int lastBlockLen = data.length % MTU;
         Ack ack;
 
-        log("StopAndWait | Blocks: " + blocks + " lastBlockLen: " + lastBlockLen, 2);
+        log("StopAndWait | Blocks: " + blocks + " lastBlockLen: " + lastBlockLen, debuggerLevel);
 
         // Sends the amount of packets
         FTRapid.send(new Ack(blocks + 1), socket, address, port);
@@ -53,8 +53,8 @@ public class StopAndWait {
 
             // Waits for the Ack
             //if (receivesAck(socket, address, port).segmentNumber - 1 != i) i--;
-            ack = (Ack) receive(socket);
-            log("StopAndWait | Data Packet acknowledged");
+            receive(socket);
+            log("StopAndWait | Data Packet acknowledged", debuggerLevel);
         }
         // Gets the last block
         Data dataPacket = getLastBlock(lastBlockLen, data, blocks, MTU);
@@ -65,7 +65,7 @@ public class StopAndWait {
         // Waits for the Ack
         receivesAck(socket, address, port);
 
-        log("StopAndWait | File downloaded in " + Timer.getMiliseconds() + "ms");
+        log("StopAndWait | File uploaded in " + Timer.getMiliseconds() + "ms", debuggerLevel);
 
         // Ler ack
         // Mandar block
@@ -80,17 +80,15 @@ public class StopAndWait {
 
     }
 
-    public static void receiveFile(FileOutputStream outputStream, DatagramSocket socket, InetAddress address, int port)
+    public static void receiveFile(FileOutputStream outputStream, DatagramSocket socket, InetAddress address)
             throws IOException {
         // Stop and wait algorithm
-        int seqNumber = 0;
-        //long packets = receivesAck(socket, address, port).segmentNumber;
         DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
-        port = datagramPacket.getPort();
+        int port = datagramPacket.getPort();
         long packets = ((Ack) Packet.deserialize(datagramPacket.getData())).segmentNumber;
         Data data;
 
-        for (int i = 0; i < packets + 1; i++) { // Last block included
+        for (int seqNumber = 0; seqNumber < packets + 1; seqNumber++) { // Last block included
             data = (Data) FTRapid.receive(socket); // Assuming that we will receive data
 
             outputStream.write(data.data); // Writes the data

@@ -2,8 +2,11 @@ package ffrapid_protocol.packet;
 
 import java.nio.ByteBuffer;
 
+import static common.debugger.Debugger.log;
+
 public class Data extends Packet {
     private final static byte opcode = 1;
+    public final static int headerLength = Byte.BYTES + Long.BYTES + Integer.BYTES;
 
     public final long blockNumber;
     public final byte[] data;
@@ -14,7 +17,7 @@ public class Data extends Packet {
     }
 
     public byte[] serialize() {
-        ByteBuffer bb = ByteBuffer.allocate(1 + 8 + 4 + data.length);
+        ByteBuffer bb = ByteBuffer.allocate(headerLength + data.length);
         bb.put(opcode);
         bb.putLong(blockNumber);
         bb.putInt(data.length);
@@ -24,7 +27,9 @@ public class Data extends Packet {
 
     public static Packet deserialize(ByteBuffer byteBuffer) {
         long blockNumber = byteBuffer.getLong();
-        byte[] arr = new byte[byteBuffer.getInt()];
+        var len = byteBuffer.getInt();
+        log("DataPacket | Length: " + len);
+        byte[] arr = new byte[len];
         byteBuffer.get(arr);
         return new Data(blockNumber, arr);
     }

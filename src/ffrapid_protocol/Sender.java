@@ -2,12 +2,12 @@ package ffrapid_protocol;
 
 import app.FFSync;
 import common.Node;
+import common.Timer;
 import ffrapid_protocol.data.StopAndWait;
 import ffrapid_protocol.packet.Get;
 import ffrapid_protocol.packet.Metadata;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -46,7 +46,7 @@ public class Sender implements Runnable {
             log("Sender | Nodes synchronized");
 
             // Requesting a file
-            String fileName = "folder1/file2";
+            String fileName = "folder1/file1";
             requestFile(fileName, socket, address, port);
 
             // Download the file
@@ -54,7 +54,7 @@ public class Sender implements Runnable {
 
 
         } catch (Exception e) {
-            System.out.println("Error sender - run [" + e.getMessage() + "]");
+            e.printStackTrace();
         }
     }
 
@@ -76,7 +76,9 @@ public class Sender implements Runnable {
         File f = new File(fileName + "2");
         FileOutputStream outputStream = new FileOutputStream(f);
 
-        StopAndWait.receiveFile(outputStream, socket, address, port);
+        Timer.startTimer();
+        StopAndWait.receiveFile(outputStream, socket, address);
+        log("STOP | File downloaded in " + Timer.getMiliseconds() + "ms");
 
         outputStream.close();
     }
