@@ -1,8 +1,10 @@
 package http;
 
+import json.ParserJSON;
+import org.json.simple.JSONObject;
+
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 public class ClientHandler implements Runnable{
@@ -34,15 +36,15 @@ public class ClientHandler implements Runnable{
                 switch (firstLine[1]) {
                     case HTTPCodes.Route_Root -> {
                         httpResponse = HTTPCodes.OK;
-                        httpResponseBody = HTMLCodes.HTML_RouteRoot;
+                        httpResponseBody = HTMLCodes.HTML_Home();
                     }
                     case HTTPCodes.Route_Log -> {
                         httpResponse = HTTPCodes.OK;
-                        httpResponseBody = HTMLCodes.HTML_RouteLog;
+                        httpResponseBody = HTMLCodes.HTML_Title("Logs") + ParserJSON.jsonToHtml( ParserJSON.logs() );
                     }
                     case HTTPCodes.Route_Status -> {
                         httpResponse = HTTPCodes.OK;
-                        httpResponseBody = HTMLCodes.HTML_RouteStatus;
+                        httpResponseBody = HTMLCodes.HTML_Title("Lista de Ficheiros") + ParserJSON.jsonToHtml( ParserJSON.listar() );
                     }
                     default -> {
                         httpResponse = HTTPCodes.NOT_FOUND;
