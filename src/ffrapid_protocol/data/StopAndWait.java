@@ -20,12 +20,12 @@ import static ffrapid_protocol.data.DivideData.getBlock;
 import static ffrapid_protocol.data.DivideData.getLastBlock;
 
 public class StopAndWait {
-    private static final int debuggerLevel = 0;
+    private static final int debuggerLevel = 2;
 
     public static void sendData(DatagramSocket socket, InetAddress address, int port, byte[] data)
             throws IOException, NotAckPacket {
         // Stop and wait algorithm
-        // 0. Sends the amount of packets that is gonna need to download the file
+        // 0. Sends the amount of packets that is going to need to download the file
         // 1. Sends the file block
         // 2. Waits for the Ack
         // 2.1 [Ack is not received in the RTT] -> Sends the file block again

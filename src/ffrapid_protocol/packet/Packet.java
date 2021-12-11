@@ -7,6 +7,11 @@ import static common.debugger.Debugger.log;
 public abstract class Packet {
     protected static final int debuggerLevel = 1;
 
+    /**
+     * Converts a message to a Packet.
+     * @param message a message received.
+     * @return a Packet converted from the message.
+     */
     public static Packet deserialize(byte[] message) {
         Packet packet;
         ByteBuffer bb = ByteBuffer.wrap(message);
@@ -31,5 +36,9 @@ public abstract class Packet {
         return packet;
     }
 
+    /**
+     * Serializes a Packet.
+     * @return A message to be sent.
+     */
     public abstract byte[] serialize();
 }

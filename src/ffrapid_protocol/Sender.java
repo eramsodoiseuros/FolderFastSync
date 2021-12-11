@@ -6,17 +6,22 @@ import common.Timer;
 import ffrapid_protocol.data.StopAndWait;
 import ffrapid_protocol.packet.Get;
 import ffrapid_protocol.packet.Metadata;
+import folder_parser.FolderParser;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 import static common.debugger.Debugger.log;
 
 /**
- * Sends FFRapidProtocol.FTRapid data.
+ * Sends FFRapidProtocol.FTRapid packets.
  */
 public class Sender implements Runnable {
 
@@ -37,11 +42,14 @@ public class Sender implements Runnable {
             Metadata metadata = requestsAllMetadata(socket, address, port);
 
             log("Sender | Comparing the files...");
+            List<String> filesNeeded = compareMetadata(metadata);
             // Comparing the files...
 
             log("Sender | Updating the missing changes...");
             // Requesting the files
+            //requestFiles(filesNeeded, socket, address, port);
             // Getting the files...
+            //receiveFiles(filesNeeded, socket, address);
 
             log("Sender | Nodes synchronized");
 
@@ -58,6 +66,15 @@ public class Sender implements Runnable {
         }
     }
 
+    /**
+     * Requests all metadata from the directory.
+     *
+     * @param socket  a socket.
+     * @param address a address.
+     * @param port    a port.
+     * @return The metadata packet received.
+     * @throws IOException an IOException.
+     */
     public Metadata requestsAllMetadata(DatagramSocket socket, InetAddress address, int port) throws IOException {
         Get get = new Get(true, true); // Metadata from all files
 
@@ -72,6 +89,26 @@ public class Sender implements Runnable {
         return metadata;
     }
 
+    /**
+     * Compares the metadata received. Indicates the different files.
+     * @param metadata a metadata packet.
+     * @return The list of name files that are different.
+     */
+    private List<String> compareMetadata(Metadata metadata) {
+        var files = Arrays.stream(Objects.requireNonNull(FFSync.getCurrentDirectory().list())).toList();
+        var filesMeta = FolderParser.metadata(files);
+        //metadata.metadata.stream().map();
+        return null;
+    }
+
+    /**
+     * Receives a file.
+     *
+     * @param fileName the name of the file.
+     * @param socket   the socket to receive the file.
+     * @param address  the address that is going to send the file.
+     * @throws IOException an IOException
+     */
     public void receiveFile(String fileName, DatagramSocket socket, InetAddress address) throws IOException {
         File f = new File(fileName + "2");
         FileOutputStream outputStream = new FileOutputStream(f);
@@ -83,8 +120,39 @@ public class Sender implements Runnable {
         outputStream.close();
     }
 
+    /**
+     * Requests a file.
+     *
+     * @param fileName the name of the file.
+     * @param socket   the socket.
+     * @param address  an address.
+     * @param port     a port.
+     * @throws IOException an IOException.
+     */
     public void requestFile(String fileName, DatagramSocket socket, InetAddress address, int port) throws IOException {
         Get get = new Get(fileName);
         FTRapid.send(get, socket, address, port);
+    }
+
+    public void requestFiles(List<String> fileNames, DatagramSocket socket, InetAddress address, int port) {
+        fileNames.forEach(f -> {
+            try {
+                requestFile(f, socket, address, port);
+            } catch (IOException e) {
+                e.printStackTrace();
+                log("Sender | Error requesting file: " + f);
+            }
+        });
+    }
+
+    public void receiveFiles(List<String> fileNames, DatagramSocket socket, InetAddress address) {
+        fileNames.forEach(f -> {
+            try {
+                receiveFile(f, socket, address);
+            } catch (IOException e) {
+                e.printStackTrace();
+                log("Sender | Error receiving file: " + f);
+            }
+        });
     }
 }

@@ -1,7 +1,5 @@
 package ffrapid_protocol.packet;
 
-import common.debugger.Debugger;
-
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -11,6 +9,9 @@ import java.util.stream.Collectors;
 
 import static common.debugger.Debugger.log;
 
+/**
+ * Requests metadata or files.
+ */
 public class Get extends Packet {
     private final static byte opcode = 0;
 

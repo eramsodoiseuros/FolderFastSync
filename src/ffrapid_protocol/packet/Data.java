@@ -4,6 +4,9 @@ import java.nio.ByteBuffer;
 
 import static common.debugger.Debugger.log;
 
+/**
+ * Data from a file.
+ */
 public class Data extends Packet {
     private final static byte opcode = 1;
     public final static int headerLength = Byte.BYTES + Long.BYTES + Integer.BYTES;

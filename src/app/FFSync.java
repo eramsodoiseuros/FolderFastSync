@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static common.debugger.Debugger.log;
-
 /**
  * PROTOCOLO DE SINCRONIZAÇÃO
  * <p>
@@ -60,7 +58,12 @@ public class FFSync {
     }
 
     public static void setCurrentDirectory(File currentDirectory) {
-        FFSync.currentDirectory = currentDirectory;
+        lock.lock();
+        try {
+            FFSync.currentDirectory = currentDirectory;
+        } finally {
+            lock.unlock();
+        }
     }
 
     public static List<Node> getNodes() {

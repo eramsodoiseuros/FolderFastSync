@@ -1,12 +1,7 @@
 package folder_parser;
 
 import java.io.File;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
-
-import static common.debugger.Debugger.log;
 //import org.json;
 
 /**

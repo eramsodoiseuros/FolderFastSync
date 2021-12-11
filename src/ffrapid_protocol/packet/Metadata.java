@@ -10,6 +10,9 @@ import java.util.List;
 
 import static common.debugger.Debugger.log;
 
+/**
+ * Metadata requested.
+ */
 public class Metadata extends Packet {
     private final static byte opcode = 3;
     public final List<AbstractMap.SimpleEntry<String, Long>> metadata;

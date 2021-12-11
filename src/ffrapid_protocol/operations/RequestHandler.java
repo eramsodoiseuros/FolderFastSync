@@ -1,7 +1,6 @@
 package ffrapid_protocol.operations;
 
 import app.FFSync;
-import ffrapid_protocol.FTRapid;
 import ffrapid_protocol.data.StopAndWait;
 import ffrapid_protocol.exceptions.NotAckPacket;
 import ffrapid_protocol.packet.Error;
@@ -18,7 +17,11 @@ import java.util.List;
 import java.util.Objects;
 
 import static common.debugger.Debugger.log;
+import static ffrapid_protocol.FTRapid.*;
 
+/**
+ * Handles the requests received.
+ */
 public class RequestHandler implements Runnable {
     private final DatagramSocket socket;
     private final InetAddress address;
@@ -42,9 +45,9 @@ public class RequestHandler implements Runnable {
             } else if (packet instanceof Data || packet instanceof Ack || packet instanceof Error) {
                 // [Data | Ack | Error] Packet in the beginning of the connection does not make sense
                 Error errorPacket = new Error();
-                FTRapid.send(errorPacket, socket, address, port); // Sends an error message
+                send(errorPacket, socket, address, port); // Sends an error message
             } else if (packet instanceof Notify) {
-                getModification();
+                getModification((Notify) packet);
             }
             log("Receiver | Packet sent");
         } catch (Exception e) {
@@ -52,6 +55,12 @@ public class RequestHandler implements Runnable {
         }
     }
 
+    /**
+     * Parses the get packet. Executing and sending the requested operations.
+     *
+     * @param get a get packet.
+     * @throws IOException an IOException.
+     */
     private void parseGet(Get get) throws IOException {
         List<String> fileNames =
                 get.root ? Arrays.stream(Objects.requireNonNull(FFSync.getCurrentDirectory().list())).toList() : get.filesName;
@@ -61,15 +70,24 @@ public class RequestHandler implements Runnable {
         if (get.metadata) {
             Metadata metadata = Metadata.getMetadataFromNames(fileNames.stream().map(
                     str -> FFSync.getCurrentDirectory().getName() + "/" + str).toList());
-            FTRapid.send(metadata, socket, address, port);
-        }
-        else fileNames.forEach(this::sendFile);
+            send(metadata, socket, address, port);
+        } else fileNames.forEach(this::sendFile);
     }
 
-    private void getModification() {
+    /**
+     * Performs the modification notified.
+     *
+     * @param notify a notify packet.
+     */
+    private void getModification(Notify notify) {
 
     }
 
+    /**
+     * Sends a file.
+     *
+     * @param fileName the name of the file.
+     */
     public void sendFile(String fileName) {
         try {
             StopAndWait.sendData(socket, address, port, Files.readAllBytes(Paths.get(fileName)));

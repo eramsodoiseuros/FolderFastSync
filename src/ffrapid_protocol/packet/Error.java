@@ -3,7 +3,7 @@ package ffrapid_protocol.packet;
 import java.nio.ByteBuffer;
 
 /**
- * Communicates that a error has ocorred.
+ * Communicates that an error has occurred.
  */
 public class Error extends Packet {
     private final static byte opcode = 5;

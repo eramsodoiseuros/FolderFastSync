@@ -3,7 +3,6 @@ package ffrapid_protocol;
 import app.FFSync;
 import ffrapid_protocol.exceptions.NotAckPacket;
 import ffrapid_protocol.packet.Ack;
-import ffrapid_protocol.packet.Data;
 import ffrapid_protocol.packet.Error;
 import ffrapid_protocol.packet.Packet;
 
@@ -12,8 +11,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.security.NoSuchAlgorithmException;
-
-import static common.debugger.Debugger.log;
 
 /**
  * PROTOCOLO DE TRANSFERÊNCIA DE DADOS
