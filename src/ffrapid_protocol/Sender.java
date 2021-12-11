@@ -50,7 +50,7 @@ public class Sender implements Runnable {
             requestFile(fileName, socket, address, port);
 
             // Download the file
-            receiveFile(fileName, socket, address, port);
+            receiveFile(fileName, socket, address);
 
 
         } catch (Exception e) {
@@ -72,7 +72,7 @@ public class Sender implements Runnable {
         return metadata;
     }
 
-    public void receiveFile(String fileName, DatagramSocket socket, InetAddress address, int port) throws IOException {
+    public void receiveFile(String fileName, DatagramSocket socket, InetAddress address) throws IOException {
         File f = new File(fileName + "2");
         FileOutputStream outputStream = new FileOutputStream(f);
 

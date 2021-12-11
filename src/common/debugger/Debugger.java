@@ -3,6 +3,8 @@ package common.debugger;
 public class Debugger {
     private static boolean enable = true;
     private static int level = 1;
+    private static final boolean toFile = false;
+    private static final String file = "log.txt";
 
     @SuppressWarnings("unused")
     public static void enable() {
