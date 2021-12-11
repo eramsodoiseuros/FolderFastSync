@@ -78,7 +78,7 @@ public class Sender implements Runnable {
 
         Timer.startTimer();
         StopAndWait.receiveFile(outputStream, socket, address);
-        log("STOP | File downloaded in " + Timer.getMiliseconds() + "ms");
+        log("StopAndWait | File downloaded in " + Timer.getMiliseconds() + "ms");
 
         outputStream.close();
     }

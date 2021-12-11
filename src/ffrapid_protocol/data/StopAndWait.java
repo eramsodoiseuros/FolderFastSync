@@ -88,7 +88,6 @@ public class StopAndWait {
         long packets = ((Ack) Packet.deserialize(datagramPacket.getData())).segmentNumber;
         Data data;
 
-        log("Aqui");
         for (int seqNumber = 0; seqNumber < packets; seqNumber++) { // Last block included
             data = (Data) FTRapid.receive(socket); // Assuming that we will receive data
 
