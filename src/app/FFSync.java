@@ -3,8 +3,11 @@ package app;
 import common.Node;
 import ffrapid_protocol.Receiver;
 import ffrapid_protocol.Sender;
+import http.ClientHandler;
+import http.ServerHandler;
 
 import java.io.File;
+import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,21 +93,19 @@ public class FFSync {
         Thread receiver = new Thread(new Receiver());
 
         // Creating a thread to handle the http request on port 80 - TCP/HTTP
-        //Thread httpHandler = new Thread(new HttpHandler());
+        Thread serverHandler = new Thread(new ServerHandler());
 
         sender.start();
         receiver.start();
-        //httpHandler.start();
+        serverHandler.start();
 
         try {
             sender.join();
             receiver.join();
-            //httpHandler.join();
+            serverHandler.join();
         } catch (InterruptedException e) {
             System.out.println("erro node - start [" + e.getMessage() + "]");
         }
-
-
     }
 
     public static File getCurrentDirectory() {
