@@ -1,10 +1,11 @@
 package http;
 
 import json.ParserJSON;
-import org.json.simple.JSONObject;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 public class ClientHandler implements Runnable{
@@ -64,13 +65,13 @@ public class ClientHandler implements Runnable{
                     + "\n\n"
                     + httpResponseBody;
 
-            socket.getOutputStream().write(httpResponse.getBytes("UTF-8"));
+            socket.getOutputStream().write(httpResponse.getBytes(StandardCharsets.UTF_8));
 
             in.close();
             socket.close();
 
         } catch (Exception e){
-            System.out.println("erro HTTP - ClientHandler [" + e.getMessage() + "], [" + e.toString() +"]");
+            System.out.println("erro HTTP - ClientHandler [" + e.getMessage() + "], [" + e +"]");
         }
 
     }

@@ -112,7 +112,7 @@ public class Sender implements Runnable {
     /**
      * Receives a file.
      *
-     * @param fileName the name of the file.
+     * @param fileName         the name of the file.
      * @param lastTimeModified the last time that the file was modified.
      * @throws IOException an IOException.
      */
@@ -142,6 +142,7 @@ public class Sender implements Runnable {
 
     /**
      * Requests a file and downloaded it.
+     *
      * @param file the name of the file and the last time modified.
      */
     public void getFile(Map.Entry<String, Long> file) throws IOException {

@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import static common.debugger.Debugger.log;
 
 public abstract class Packet {
-    protected static final int debuggerLevel = 1;
+    protected static final int debuggerLevel = 3;
 
     /**
      * Converts a message to a Packet.

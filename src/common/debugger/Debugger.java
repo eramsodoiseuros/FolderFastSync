@@ -1,10 +1,37 @@
 package common.debugger;
 
+import java.io.*;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+
 public class Debugger {
+    private static final String file = "log.txt";
+    private static boolean toFile = false;
     private static boolean enable = true;
     private static int level = 1;
-    private static final boolean toFile = false;
-    private static final String file = "log.txt";
+
+    private static OutputStream out;
+
+    public static void initialize() {
+        try {
+            out = new FileOutputStream(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            toFile = false;
+            out = null;
+        }
+    }
+
+    public static void close() {
+        if (toFile) {
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     @SuppressWarnings("unused")
     public static void enable() {
@@ -22,7 +49,12 @@ public class Debugger {
 
     // Level 0
     public static void log(Object object) {
-        if (enable) System.out.println("[Debug] " + object.toString());
+        PrintStream pw = System.out;
+        if (enable) {
+            if (toFile) pw = new PrintStream(out);
+            pw.println("[" + DateTimeFormatter.ISO_LOCAL_TIME.format(LocalTime.now().truncatedTo(ChronoUnit.SECONDS)) + "] "
+                    + object.toString());
+        }
     }
 
     // Custom level

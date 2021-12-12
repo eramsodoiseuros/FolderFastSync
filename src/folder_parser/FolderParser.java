@@ -4,8 +4,6 @@ import app.FFSync;
 
 import java.io.File;
 import java.util.*;
-
-import static common.debugger.Debugger.log;
 //import org.json;
 
 /**
@@ -80,7 +78,6 @@ public class FolderParser {
             File f = new File(FFSync.getCurrentDirectory() + "/" + s);
             // LocalDateTime d = LocalDateTime.ofInstant(Instant.ofEpochMilli(f.lastModified()), ZoneId.systemDefault());
             long d = f.lastModified();
-            log(d);
             r.put(s, d);
         }
         return r;

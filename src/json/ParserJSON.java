@@ -44,7 +44,7 @@ public class ParserJSON {
                 html.append( obj );
             }
         } catch (Exception e) {
-            System.out.println("erro - json2html ["+e.getMessage()+"] - ["+e.toString()+"]");
+            System.out.println("erro - json2html ["+e.getMessage()+"] - ["+ e +"]");
         }
 
         return html.toString( );
@@ -58,7 +58,7 @@ public class ParserJSON {
 
             ret = (JSONObject) obj;
         } catch (Exception e){
-            System.out.println("erro - json parser ["+e.getMessage()+"] - ["+e.toString()+"]");
+            System.out.println("erro - json parser ["+e.getMessage()+"] - ["+ e +"]");
         }
 
         return ret;

@@ -1,6 +1,7 @@
 package app;
 
 import common.Node;
+import common.debugger.Debugger;
 import ffrapid_protocol.Receiver;
 import ffrapid_protocol.Sender;
 import http.ServerHandler;
@@ -46,8 +47,6 @@ public class FFSync {
     private static final Lock lock = new ReentrantLock();
     private static File currentDirectory;
 
-    // metadados dos ficheiros - ou estrutura equivalente
-
     public static int getMTU() {
         return MTU;
     }
@@ -90,6 +89,8 @@ public class FFSync {
             sender.join();
             receiver.join();
             serverHandler.join();
+
+            Debugger.close(); // Closing the debugger
         } catch (InterruptedException | SocketException e) {
             System.out.println("Error node - start [" + e.getMessage() + "]");
         }
@@ -114,6 +115,7 @@ public class FFSync {
     }
 
     public static void main(String[] args) throws UnknownHostException {
+        Debugger.initialize(); // Initializing the debugger
 
         // Validating the arguments
         if (args.length < 1) {
