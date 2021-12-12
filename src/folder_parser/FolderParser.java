@@ -1,7 +1,11 @@
 package folder_parser;
 
+import app.FFSync;
+
 import java.io.File;
 import java.util.*;
+
+import static common.debugger.Debugger.log;
 //import org.json;
 
 /**
@@ -69,23 +73,23 @@ public class FolderParser {
         return r;
     }
 
-    public static List<AbstractMap.SimpleEntry<String, Long>> metadata(List<String> file_names) {
-        List<AbstractMap.SimpleEntry<String, Long>> r = new ArrayList<>();
+    public static Map<String, Long> metadata(List<String> file_names) {
+        Map<String, Long> r = new HashMap<>();
         int i = 0;
         for (String s : file_names) {
-            File f = new File(s);
+            File f = new File(FFSync.getCurrentDirectory() + "/" + s);
             // LocalDateTime d = LocalDateTime.ofInstant(Instant.ofEpochMilli(f.lastModified()), ZoneId.systemDefault());
             long d = f.lastModified();
-            var x = new AbstractMap.SimpleEntry<>(s, d);
-            r.add(i, x);
+            log(d);
+            r.put(s, d);
         }
         return r;
         // return file_names.stream().map(fazer cenas).collect(Collectors.toList);
     }
 
-    public void print(List<AbstractMap.SimpleEntry<String, Long>> l) {
-        for (AbstractMap.SimpleEntry<String, Long> x : l) {
-            System.out.println(x.toString());
+    public void print(Map<String, Long> l) {
+        for (var x : l.entrySet()) {
+            System.out.println(x);
         }
     }
 
@@ -127,7 +131,7 @@ public class FolderParser {
         l.add("a.txt");
         l.add("d.txt");
         l.add("teste");
-        List<AbstractMap.SimpleEntry<String, Long>> lx = metadata(l);
+        Map<String, Long> lx = metadata(l);
         fp.print(lx);
         //fp.compareFiles("\~\fteste","\~\fteste");
         System.out.println("oi");

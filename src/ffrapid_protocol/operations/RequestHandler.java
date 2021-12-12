@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static common.debugger.Debugger.log;
-import static ffrapid_protocol.FTRapid.*;
+import static ffrapid_protocol.FTRapid.send;
 
 /**
  * Handles the requests received.
@@ -52,6 +52,7 @@ public class RequestHandler implements Runnable {
             log("Receiver | Packet sent");
         } catch (Exception e) {
             System.out.println("Error ffrapid_protocol.operation.RequestHandler run [" + e.getMessage() + "]");
+            e.printStackTrace();
         }
     }
 
@@ -68,8 +69,7 @@ public class RequestHandler implements Runnable {
         log("RequestHandler | parseGet fileNames: " + fileNames, 1);
 
         if (get.metadata) {
-            Metadata metadata = Metadata.getMetadataFromNames(fileNames.stream().map(
-                    str -> FFSync.getCurrentDirectory().getName() + "/" + str).toList());
+            Metadata metadata = Metadata.getMetadataFromNames(fileNames);
             send(metadata, socket, address, port);
         } else fileNames.forEach(this::sendFile);
     }
@@ -90,7 +90,7 @@ public class RequestHandler implements Runnable {
      */
     public void sendFile(String fileName) {
         try {
-            StopAndWait.sendData(socket, address, port, Files.readAllBytes(Paths.get(fileName)));
+            StopAndWait.sendData(socket, address, port, Files.readAllBytes(Paths.get(FFSync.getCurrentDirectory() + "/" + fileName)));
         } catch (NotAckPacket | IOException e) {
             e.printStackTrace();
         }

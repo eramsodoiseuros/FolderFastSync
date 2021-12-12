@@ -13,10 +13,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static common.debugger.Debugger.log;
 
@@ -24,41 +27,43 @@ import static common.debugger.Debugger.log;
  * Sends FFRapidProtocol.FTRapid packets.
  */
 public class Sender implements Runnable {
+    private final DatagramSocket socket = new DatagramSocket(); // Creates a socket with an available port
+    private final Node n = FFSync.getNodes().get(0); // Vamos começar por uma ligação apenas
+    private final InetAddress address = n.getAddress();
+    private final int port = FFSync.getPORT();
+
+    public Sender() throws SocketException {
+    }
+
 
     @Override
     public void run() {
         // Sends a request in the beginning of the program and with changes in the directory
         // https://docs.oracle.com/javase/tutorial/essential/io/notification.html
-        Node n = FFSync.getNodes().get(0); // Vamos começar por uma ligação apenas
-        int MTU = FFSync.getMTU();
 
         try {
-            DatagramSocket socket = new DatagramSocket(); // creates a socket - port not define - system gives an available port
-            final InetAddress address = n.getAddress();
-            int port = FFSync.getPORT();
 
             log("Sender | First node ip: " + address);
 
-            Metadata metadata = requestsAllMetadata(socket, address, port);
+            Metadata metadata = requestsAllMetadata();
 
             log("Sender | Comparing the files...");
-            List<String> filesNeeded = compareMetadata(metadata);
+            List<Map.Entry<String, Long>> filesNeeded = compareMetadata(metadata);
             // Comparing the files...
+            log("Sender | Different files: " + filesNeeded);
 
             log("Sender | Updating the missing changes...");
-            // Requesting the files
-            //requestFiles(filesNeeded, socket, address, port);
-            // Getting the files...
-            //receiveFiles(filesNeeded, socket, address);
+            // Downloading the needed files...
+            for (var file : filesNeeded) getFile(file);
 
             log("Sender | Nodes synchronized");
 
             // Requesting a file
-            String fileName = "folder1/file1";
-            requestFile(fileName, socket, address, port);
+            // String fileName = "folder1/file1";
+            // requestFile(fileName);
 
             // Download the file
-            receiveFile(fileName, socket, address);
+            // receiveFile(fileName);
 
 
         } catch (Exception e) {
@@ -69,13 +74,10 @@ public class Sender implements Runnable {
     /**
      * Requests all metadata from the directory.
      *
-     * @param socket  a socket.
-     * @param address a address.
-     * @param port    a port.
      * @return The metadata packet received.
      * @throws IOException an IOException.
      */
-    public Metadata requestsAllMetadata(DatagramSocket socket, InetAddress address, int port) throws IOException {
+    public Metadata requestsAllMetadata() throws IOException {
         Get get = new Get(true, true); // Metadata from all files
 
         FTRapid.send(get, socket, address, port); // Sends the request
@@ -91,26 +93,32 @@ public class Sender implements Runnable {
 
     /**
      * Compares the metadata received. Indicates the different files.
+     *
      * @param metadata a metadata packet.
      * @return The list of name files that are different.
      */
-    private List<String> compareMetadata(Metadata metadata) {
-        var files = Arrays.stream(Objects.requireNonNull(FFSync.getCurrentDirectory().list())).toList();
-        var filesMeta = FolderParser.metadata(files);
-        //metadata.metadata.stream().map();
-        return null;
+    private List<Map.Entry<String, Long>> compareMetadata(Metadata metadata) {
+        var files = Objects.requireNonNull(FFSync.getCurrentDirectory().list());
+        Map<String, Long> filesMeta = FolderParser.metadata(Arrays.stream(files).toList());
+        Predicate<Map.Entry<String, Long>> different = e -> {
+            Long time = filesMeta.get(e.getKey());
+            return !Objects.equals(time, e.getValue()) || time == null;
+        };
+        log("Local files: " + filesMeta);
+        log("Other files: " + metadata.metadata);
+        return metadata.metadata.entrySet().stream().filter(different).collect(Collectors.toList());
     }
 
     /**
      * Receives a file.
      *
      * @param fileName the name of the file.
-     * @param socket   the socket to receive the file.
-     * @param address  the address that is going to send the file.
-     * @throws IOException an IOException
+     * @param lastTimeModified the last time that the file was modified.
+     * @throws IOException an IOException.
      */
-    public void receiveFile(String fileName, DatagramSocket socket, InetAddress address) throws IOException {
-        File f = new File(fileName + "2");
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public void receiveFile(String fileName, long lastTimeModified) throws IOException {
+        File f = new File(FFSync.getCurrentDirectory() + "/" + fileName);
         FileOutputStream outputStream = new FileOutputStream(f);
 
         Timer.startTimer();
@@ -118,41 +126,26 @@ public class Sender implements Runnable {
         log("StopAndWait | File downloaded in " + Timer.getMiliseconds() + "ms");
 
         outputStream.close();
+        f.setLastModified(lastTimeModified);
     }
 
     /**
      * Requests a file.
      *
      * @param fileName the name of the file.
-     * @param socket   the socket.
-     * @param address  an address.
-     * @param port     a port.
      * @throws IOException an IOException.
      */
-    public void requestFile(String fileName, DatagramSocket socket, InetAddress address, int port) throws IOException {
+    public void requestFile(String fileName) throws IOException {
         Get get = new Get(fileName);
         FTRapid.send(get, socket, address, port);
     }
 
-    public void requestFiles(List<String> fileNames, DatagramSocket socket, InetAddress address, int port) {
-        fileNames.forEach(f -> {
-            try {
-                requestFile(f, socket, address, port);
-            } catch (IOException e) {
-                e.printStackTrace();
-                log("Sender | Error requesting file: " + f);
-            }
-        });
-    }
-
-    public void receiveFiles(List<String> fileNames, DatagramSocket socket, InetAddress address) {
-        fileNames.forEach(f -> {
-            try {
-                receiveFile(f, socket, address);
-            } catch (IOException e) {
-                e.printStackTrace();
-                log("Sender | Error receiving file: " + f);
-            }
-        });
+    /**
+     * Requests a file and downloaded it.
+     * @param file the name of the file and the last time modified.
+     */
+    public void getFile(Map.Entry<String, Long> file) throws IOException {
+        requestFile(file.getKey());
+        receiveFile(file.getKey(), file.getValue());
     }
 }

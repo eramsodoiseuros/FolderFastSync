@@ -3,11 +3,10 @@ package app;
 import common.Node;
 import ffrapid_protocol.Receiver;
 import ffrapid_protocol.Sender;
-import http.ClientHandler;
 import http.ServerHandler;
 
 import java.io.File;
-import java.net.ServerSocket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,28 +26,25 @@ import java.util.concurrent.locks.ReentrantLock;
  * - Kademlia
  * - Tapestry
  * - Pastry
-
- $ app.FFSync pasta1 10.3.3.1
- app.FFSync <pastas a sincronizar> <endereço de IP do sistema a sincronizar>
- app.FFSync <folder> <peer>
-
-
- Dps de executar o comando:
- 1. Validar os parâmetros
- 2. Verificar se há condições de funcionamento (Se há acesso à pasta e à rede).
- 3. Começar a atender pedidos em TCP e UDP em simultâneo, ambos na porta 80.
- Usar outra porta sem ser a 80 no inicio para testar. Por exemplo, porta 8888.
-
+ * <p>
+ * $ app.FFSync pasta1 10.3.3.1
+ * app.FFSync <pastas a sincronizar> <endereço de IP do sistema a sincronizar>
+ * app.FFSync <folder> <peer>
+ * <p>
+ * <p>
+ * Dps de executar o comando:
+ * 1. Validar os parâmetros
+ * 2. Verificar se há condições de funcionamento (Se há acesso à pasta e à rede).
+ * 3. Começar a atender pedidos em TCP e UDP em simultâneo, ambos na porta 80.
+ * Usar outra porta sem ser a 80 no inicio para testar. Por exemplo, porta 8888.
  */
 
 public class FFSync {
     private static final int MTU = 1500 - 20 - 8; // 1500 - IP - UDP
     private static final int PORT = 12345; // Port used to access, should be 80
-
-    private static File currentDirectory;
     private static final List<Node> nodes = new ArrayList<>(); // Connected nodes.
-
     private static final Lock lock = new ReentrantLock();
+    private static File currentDirectory;
 
     // metadados dos ficheiros - ou estrutura equivalente
 
@@ -58,15 +54,6 @@ public class FFSync {
 
     public static int getPORT() {
         return PORT;
-    }
-
-    public static void setCurrentDirectory(File currentDirectory) {
-        lock.lock();
-        try {
-            FFSync.currentDirectory = currentDirectory;
-        } finally {
-            lock.unlock();
-        }
     }
 
     public static List<Node> getNodes() {
@@ -88,23 +75,23 @@ public class FFSync {
     }
 
     private static void start() {
-        // Creating 2 threads: To receive and to send requests - FFRapid protocol
-        Thread sender = new Thread(new Sender());
-        Thread receiver = new Thread(new Receiver());
-
-        // Creating a thread to handle the http request on port 80 - TCP/HTTP
-        Thread serverHandler = new Thread(new ServerHandler());
-
-        sender.start();
-        receiver.start();
-        serverHandler.start();
-
         try {
+            // Creating 2 threads: To receive and to send requests - FFRapid protocol
+            Thread sender = new Thread(new Sender());
+            Thread receiver = new Thread(new Receiver());
+
+            // Creating a thread to handle the http request on port 80 - TCP/HTTP
+            Thread serverHandler = new Thread(new ServerHandler());
+
+            sender.start();
+            receiver.start();
+            serverHandler.start();
+
             sender.join();
             receiver.join();
             serverHandler.join();
-        } catch (InterruptedException e) {
-            System.out.println("erro node - start [" + e.getMessage() + "]");
+        } catch (InterruptedException | SocketException e) {
+            System.out.println("Error node - start [" + e.getMessage() + "]");
         }
     }
 
@@ -117,10 +104,22 @@ public class FFSync {
         }
     }
 
+    public static void setCurrentDirectory(File currentDirectory) {
+        lock.lock();
+        try {
+            FFSync.currentDirectory = currentDirectory;
+        } finally {
+            lock.unlock();
+        }
+    }
+
     public static void main(String[] args) throws UnknownHostException {
 
         // Validating the arguments
-        if (args.length < 1) System.exit(1); // Invalid number of arguments
+        if (args.length < 1) {
+            System.out.println("Invalid number of arguments");
+            System.exit(1); // Invalid number of arguments
+        }
 
         File directory = new File(args[0]);
         if (!directory.exists()) {

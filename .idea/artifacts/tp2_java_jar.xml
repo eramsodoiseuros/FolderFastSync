@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="tp2-java:jar">
+    <output-path>/tmp/pycore.42955</output-path>
+    <root id="archive" name="tp2-java.jar">
+      <element id="module-output" name="tp2-java" />
+    </root>
+  </artifact>
+</component>

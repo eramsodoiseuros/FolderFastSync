@@ -1,20 +1,21 @@
 package http;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
-public class ClientHandler implements Runnable{
+public class ClientHandler implements Runnable {
     private final Socket socket;
 
-    public ClientHandler(Socket s){
+    public ClientHandler(Socket s) {
         socket = s;
     }
 
     @Override
     public void run() {
-        try{
+        try {
             System.out.println("\t" + socket.toString());
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -25,12 +26,12 @@ public class ClientHandler implements Runnable{
             String[] firstLine = fromClient.split(" ");
 
             System.out.println("... receiving from client:");
-            while(!fromClient.isEmpty()){
-                System.out.println("\t|"+ fromClient + "|");
+            while (!fromClient.isEmpty()) {
+                System.out.println("\t|" + fromClient + "|");
                 fromClient = in.readLine();
             }
 
-            if(firstLine[0].compareTo(HTTPCodes.GET) ==0 && firstLine[2].compareTo(HTTPCodes.HTTP_VERSION) == 0){
+            if (firstLine[0].compareTo(HTTPCodes.GET) == 0 && firstLine[2].compareTo(HTTPCodes.HTTP_VERSION) == 0) {
                 switch (firstLine[1]) {
                     case HTTPCodes.Route_Root -> {
                         httpResponse = HTTPCodes.OK;
@@ -62,13 +63,13 @@ public class ClientHandler implements Runnable{
                     + "\n\n"
                     + httpResponseBody;
 
-            socket.getOutputStream().write(httpResponse.getBytes("UTF-8"));
+            socket.getOutputStream().write(httpResponse.getBytes(StandardCharsets.UTF_8));
 
             in.close();
             socket.close();
 
-        } catch (Exception e){
-            System.out.println("erro HTTP - ClientHandler [" + e.getMessage() + "], [" + e.toString() +"]");
+        } catch (Exception e) {
+            System.out.println("erro HTTP - ClientHandler [" + e.getMessage() + "], [" + e + "]");
         }
 
     }
