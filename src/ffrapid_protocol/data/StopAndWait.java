@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static common.debugger.Debugger.log;
 import static ffrapid_protocol.FTRapid.*;
@@ -78,6 +80,19 @@ public class StopAndWait {
         // 5. Optional receive Ack in the middle of the sending process
         // 6. Read this Ack to see what has to be sent
 
+    }
+
+    /**
+     * Sends a file.
+     *
+     * @param fileName the name of the file.
+     */
+    public static void sendFile(String fileName, DatagramSocket socket, InetAddress address, int port) {
+        try {
+            StopAndWait.sendData(socket, address, port, Files.readAllBytes(Paths.get(FFSync.getCurrentDirectory() + "/" + fileName)));
+        } catch (NotAckPacket | IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void receiveFile(FileOutputStream outputStream, DatagramSocket socket, InetAddress address)
