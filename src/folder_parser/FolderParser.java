@@ -1,8 +1,11 @@
 package folder_parser;
 
 import app.FFSync;
+import org.json.simple.JSONObject;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 //import org.json;
 
@@ -90,12 +93,12 @@ public class FolderParser {
         }
     }
 
-    /*
-        public void listar() throws org.json.JSONException {
+
+        public void listar()  {
 
             System.out.println("estou aqui - " + System.getProperty("user.dir"));
             File directoryPath = new File(System.getProperty("user.dir"));
-            org.json.JSONObject obj = new org.json.JSONObject();
+            JSONObject obj = new JSONObject();
             File[] filesList = directoryPath.listFiles();
 
             if (filesList != null) {
@@ -106,7 +109,7 @@ public class FolderParser {
                         obj.put("file name", file.getName());
                         obj.put("file last update", file.lastModified());
                         obj.put("file size", file.getTotalSpace());
-                }catch(org.json.JSONException e){
+                }catch(Exception e){
                         System.out.println(e.getMessage());
                     }
                 }
@@ -117,11 +120,11 @@ public class FolderParser {
                 FileWriter file = new FileWriter(System.getProperty("user.dir")+"log.txt");
                 file.write(obj.toString());
                 //toJSONString()
-            } catch (IOException e) {
+            } catch (Exception e) {
                 System.out.println("erro HTTP - JSON WRITE [" + e.getMessage() + "]");
             }
         }
-    */
+
     public static void main(String[] args) {
         FolderParser fp = new FolderParser();
         List<String> l = new ArrayList<>();
