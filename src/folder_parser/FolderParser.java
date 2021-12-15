@@ -1,11 +1,15 @@
 package folder_parser;
 
 import app.FFSync;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 //import org.json;
 
@@ -94,7 +98,7 @@ public class FolderParser {
     }
 
 
-        public void listar()  {
+        public void listar1()  {
 
             System.out.println("estou aqui - " + System.getProperty("user.dir"));
             File directoryPath = new File(System.getProperty("user.dir"));
@@ -125,7 +129,29 @@ public class FolderParser {
             }
         }
 
+    public static JSONObject listar(){
+        File directoryPath = new File(System.getProperty("user.dir"));
+        JSONObject obj = new JSONObject();
+        File[] filesList = directoryPath.listFiles();
+
+        if (filesList != null) {
+
+            for(File file : filesList) {
+                JSONArray ficheiro = new JSONArray();
+                ficheiro.add("file name: "+file.getName()+" ; ");
+                ficheiro.add("file path: "+file.getAbsolutePath()+" ; ");
+                LocalDateTime d = LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()), ZoneId.systemDefault());
+                ficheiro.add("file last update: "+d+" ; ");
+                ficheiro.add("file size: "+file.getTotalSpace()+" bytes; ");
+                obj.put("Name: "+file.getName(),ficheiro);
+
+            }
+            System.out.println(obj);
+        }
+        return obj;
+    }
     public static void main(String[] args) {
+        /*
         FolderParser fp = new FolderParser();
         List<String> l = new ArrayList<>();
         l.add("a.txt");
@@ -135,6 +161,8 @@ public class FolderParser {
         fp.print(lx);
         //fp.compareFiles("\~\fteste","\~\fteste");
         System.out.println("oi");
+        */
+        FolderParser.listar();
     }
 
 }
