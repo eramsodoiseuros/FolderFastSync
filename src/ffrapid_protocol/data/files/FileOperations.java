@@ -66,9 +66,9 @@ public class FileOperations {
         File f = new File(FFSync.getCurrentDirectory() + "/" + fileName);
         FileOutputStream outputStream = new FileOutputStream(f);
 
-        Timer.startTimer();
+        Timer timer = new Timer();
         StopAndWait.receiveFile(outputStream, socket, address);
-        log("StopAndWait | File downloaded in " + Timer.getMiliseconds() + "ms");
+        log("StopAndWait | File downloaded in " + timer.getMilliseconds() + "ms");
 
         outputStream.close();
         f.setLastModified(lastTimeModified);

@@ -21,17 +21,26 @@ import static ffrapid_protocol.FTRapid.*;
 import static ffrapid_protocol.data.DivideData.getBlock;
 import static ffrapid_protocol.data.DivideData.getLastBlock;
 
-public class StopAndWait {
+/**
+ * Sliding window protocol with Go Back N in the receiver side.
+ */
+public class SlidingWindow {
     private static final int debuggerLevel = 2;
+    private static final int windowSize = 10;
 
     public static void sendData(DatagramSocket socket, InetAddress address, int port, byte[] data)
             throws IOException, NotAckPacket {
-        // Stop and wait algorithm
-        // 0. Sends the amount of packets that is going to need to download the file
-        // 1. Sends the file block
-        // 2. Waits for the Ack
-        // 2.1 [Ack is not received in the RTT] -> Sends the file block again
-        // 3. Goes back into step 1 until there's no more blocks
+        // Ler ack
+        // Mandar block
+
+        // Accumulative algorithm
+        // 1. Divide the File in blocks
+        // 2. Send each n blocks and wait for an Ack
+        // 3. See if until block number did it get to
+        // 4. Start sending with the block number missing
+        // 5. Optional receive Ack in the middle of the sending process
+        // 6. Read this Ack to see what has to be sent
+
 
         Timer timer = new Timer();
 
@@ -49,14 +58,20 @@ public class StopAndWait {
         // Gets the blocks
         for (int i = 0; i < blocks; i++) {
             Data dataPacket = getBlock(MTU, data, i);
-
+            boolean receiveAck = false;
             // Sends the packet
-            FTRapid.send(dataPacket, socket, address, port);
+            for (int ii = 0; ii < windowSize && !receiveAck; ii++) {
+                FTRapid.send(dataPacket, socket, address, port);
+                ack = (Ack) receive(socket);
+                if (ack.segmentNumber == i + ii) {
+                    System.out.println("Recebeu direito");
+                    receiveAck = true;
+                } else System.out.println("Volta a enviar");
+                log("StopAndWait | Data Packet acknowledged", debuggerLevel);
+            }
 
             // Waits for the Ack
             //if (receivesAck(socket, address, port).segmentNumber - 1 != i) i--;
-            receive(socket);
-            log("StopAndWait | Data Packet acknowledged", debuggerLevel);
         }
         // Gets the last block
         Data dataPacket = getLastBlock(lastBlockLen, data, blocks, MTU);
@@ -68,6 +83,18 @@ public class StopAndWait {
         receivesAck(socket, address, port);
 
         log("StopAndWait | File uploaded in " + timer.getMilliseconds() + "ms", debuggerLevel);
+
+        // Ler ack
+        // Mandar block
+
+        // Accumulative algorithm
+        // 1. Divide the File in blocks
+        // 2. Send each n blocks and wait for an Ack
+        // 3. See if until block number did it get to
+        // 4. Start sending with the block number missing
+        // 5. Optional receive Ack in the middle of the sending process
+        // 6. Read this Ack to see what has to be sent
+
     }
 
     /**
@@ -92,9 +119,19 @@ public class StopAndWait {
         Data data;
 
         for (int seqNumber = 0; seqNumber < packets; seqNumber++) { // Last block included
-            data = (Data) FTRapid.receive(socket); // Assuming that we will receive data
 
-            outputStream.write(data.data); // Writes the data
+            for (int j = 0; j < windowSize; j++) {
+                data = (Data) FTRapid.receive(socket); // Assuming that we will receive data
+                long seqN = data.blockNumber;
+                if (seqN == seqNumber + 1) {
+                    System.out.println("Pacote correto");
+                    seqNumber++;
+                } else {
+                    sendAck(socket, address, port, seqNumber); // Sends the Ack
+                }
+                if (j == windowSize) ;
+                outputStream.write(data.data); // Writes the data
+            }
 
             sendAck(socket, address, port, seqNumber); // Sends the Ack
         }

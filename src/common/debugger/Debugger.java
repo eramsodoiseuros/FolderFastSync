@@ -4,12 +4,15 @@ import java.io.*;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Debugger {
     private static final String file = "log.txt";
     private static boolean toFile = false;
     private static boolean enable = true;
-    private static int level = 1;
+    private static int level = 2;
+    private static final Lock lock = new ReentrantLock();
 
     private static OutputStream out;
 
@@ -35,25 +38,45 @@ public class Debugger {
 
     @SuppressWarnings("unused")
     public static void enable() {
-        Debugger.enable = true;
+        lock.lock();
+        try {
+            Debugger.enable = true;
+        } finally {
+            lock.unlock();
+        }
     }
 
     @SuppressWarnings("unused")
     public static void disable() {
-        Debugger.enable = false;
+        lock.lock();
+        try {
+            Debugger.enable = false;
+        } finally {
+            lock.unlock();
+        }
     }
 
     public static void setLevel(int level) {
-        Debugger.level = level;
+        lock.lock();
+        try {
+            Debugger.level = level;
+        } finally {
+            lock.unlock();
+        }
     }
 
     // Level 0
     public static void log(Object object) {
-        PrintStream pw = System.out;
-        if (enable) {
-            if (toFile) pw = new PrintStream(out);
-            pw.println("[" + DateTimeFormatter.ISO_LOCAL_TIME.format(LocalTime.now().truncatedTo(ChronoUnit.SECONDS)) + "] "
-                    + object.toString());
+        lock.lock();
+        try {
+            PrintStream pw = System.out;
+            if (enable) {
+                if (toFile) pw = new PrintStream(out);
+                pw.println("[" + DateTimeFormatter.ISO_LOCAL_TIME.format(LocalTime.now().truncatedTo(ChronoUnit.SECONDS)) + "] "
+                        + object.toString());
+            }
+        } finally {
+            lock.unlock();
         }
     }
 

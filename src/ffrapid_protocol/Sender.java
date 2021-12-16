@@ -2,6 +2,7 @@ package ffrapid_protocol;
 
 import app.FFSync;
 import common.Node;
+import common.Timer;
 import ffrapid_protocol.data.files.FileOperations;
 import ffrapid_protocol.packet.Get;
 import ffrapid_protocol.packet.Metadata;
@@ -24,6 +25,7 @@ public class Sender implements Runnable {
     private final Node n = FFSync.getNodes().get(0); // Vamos começar por uma ligação apenas
     private final InetAddress address = n.getAddress();
     private final int port = FFSync.getPORT();
+    private int RTT; // Round trip time
 
     public Sender() throws SocketException {
     }
@@ -38,7 +40,12 @@ public class Sender implements Runnable {
 
             log("Sender | First node ip: " + address);
 
+            Timer timer = new Timer();
             Metadata metadata = requestsAllMetadata();
+            RTT = (int) (timer.getMilliseconds() * 1.25); // Calculating the RTT
+            socket.setSoTimeout(RTT); // Setting the timeout
+
+            log("Sender | RTT: " + RTT + "ms", 2);
 
             log("Sender | Comparing the files...");
             var filesNeeded = compareMetadata(metadata);

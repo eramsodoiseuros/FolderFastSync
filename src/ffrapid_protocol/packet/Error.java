@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
  * Communicates that an error has occurred.
  */
 public class Error extends Packet {
-    private final static byte opcode = 5;
+    private final static byte opcode = 4;
     // É preciso desenvolver
 
     public static Packet deserialize(ByteBuffer bb) {

@@ -29,9 +29,7 @@ public abstract class Packet {
                     Ack.deserialize(bb);
             case 3 -> // Metadata packet
                     Metadata.deserialize(bb);
-            case 4 -> // Notify packet
-                    Notify.deserialize(bb);
-            case 5 -> // Error packet
+            case 4 -> // Error packet
                     Error.deserialize(bb);
             default -> null;
         };
@@ -52,5 +50,5 @@ public abstract class Packet {
     public void handle(DatagramSocket socket , InetAddress address, int port) throws IOException {
         Error errorPacket = new Error();
         send(errorPacket, socket, address, port); // Sends an error message
-    };
+    }
 }
