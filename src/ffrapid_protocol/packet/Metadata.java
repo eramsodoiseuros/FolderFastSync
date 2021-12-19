@@ -1,10 +1,15 @@
 package ffrapid_protocol.packet;
 
+import ffrapid_protocol.data.files.FileOperations;
 import folder_parser.FolderParser;
 
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static common.debugger.Debugger.log;
 
@@ -13,14 +18,14 @@ import static common.debugger.Debugger.log;
  */
 public class Metadata extends Packet {
     private final static byte opcode = 3;
-    public final Map<String, Long> metadata;
-
-    public static Metadata getMetadataFromNames(List <String> file_names) {
-        return new Metadata(FolderParser.metadata(file_names));
-    }
+    public final Map<String, Long> metadata; // File name -> time
 
     public Metadata(Map<String, Long> metadata) {
         this.metadata = metadata;
+    }
+
+    public static Metadata getMetadataFromNames(List<String> file_names) {
+        return new Metadata(FolderParser.metadata(file_names));
     }
 
     public static Packet deserialize(ByteBuffer bb) {
@@ -57,6 +62,18 @@ public class Metadata extends Packet {
             bb.putLong(item.getValue()); // Long
         }
         return bb.array();
+    }
+
+    @Override
+    public void handle(DatagramSocket socket, InetAddress address, int port) {
+        // This metadata is for the file that are missing in this node.
+        // I have to request and download these files.
+        try {
+            FileOperations.getFiles(metadata.entrySet(), address);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override

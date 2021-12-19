@@ -1,13 +1,22 @@
 package ffrapid_protocol.packet;
 
+import app.FFSync;
+import ffrapid_protocol.data.StopAndWait;
+
 import java.io.File;
+import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static common.debugger.Debugger.log;
+import static ffrapid_protocol.FTRapid.send;
 
 /**
  * Requests metadata or files.
@@ -94,6 +103,32 @@ public class Get extends Packet {
         assert this.filesName != null;
         return this.filesName.stream().map(File::new).collect(Collectors.toList());
     }
+
+    @Override
+    public void handle(DatagramSocket socket, InetAddress address, int port) throws IOException {
+        parse(socket, address, port);
+    }
+
+    /**
+     * Parses the get packet. Executing and sending the requested operations.
+     *
+     * @param socket a socket.
+     * @param address a address.
+     * @param port a port.
+     * @throws IOException an IOException.
+     */
+    private void parse(DatagramSocket socket, InetAddress address, int port) throws IOException {
+        List<String> fileNames =
+                this.root ? Arrays.stream(Objects.requireNonNull(FFSync.getCurrentDirectory().list())).toList() : this.filesName;
+        assert fileNames != null;
+        log("RequestHandler | parseGet fileNames: " + fileNames, 1);
+
+        if (this.metadata) {
+            Metadata metadata = Metadata.getMetadataFromNames(fileNames);
+            send(metadata, socket, address, port);
+        } else fileNames.forEach(f -> StopAndWait.sendFile(f, socket, address, port));
+    }
+
 
     @Override
     public String toString() {

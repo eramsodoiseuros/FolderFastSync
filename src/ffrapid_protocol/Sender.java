@@ -2,24 +2,17 @@ package ffrapid_protocol;
 
 import app.FFSync;
 import common.Node;
-import common.Timer;
-import ffrapid_protocol.data.StopAndWait;
+import ffrapid_protocol.data.files.FileOperations;
 import ffrapid_protocol.packet.Get;
 import ffrapid_protocol.packet.Metadata;
 import folder_parser.FolderParser;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.function.Consumer;
 
 import static common.debugger.Debugger.log;
 
@@ -48,13 +41,15 @@ public class Sender implements Runnable {
             Metadata metadata = requestsAllMetadata();
 
             log("Sender | Comparing the files...");
-            List<Map.Entry<String, Long>> filesNeeded = compareMetadata(metadata);
+            var filesNeeded = compareMetadata(metadata);
             // Comparing the files...
             log("Sender | Different files: " + filesNeeded);
 
             log("Sender | Updating the missing changes...");
-            // Downloading the needed files...
-            for (var file : filesNeeded) getFile(file);
+
+            FileOperations.getFiles(filesNeeded.getKey(), address); // Downloading the needed files...
+
+            sendNeededFiles(filesNeeded.getValue()); // Informing the node the missing files on its side.
 
             log("Sender | Nodes synchronized");
 
@@ -70,6 +65,7 @@ public class Sender implements Runnable {
             e.printStackTrace();
         }
     }
+
 
     /**
      * Requests all metadata from the directory.
@@ -97,56 +93,51 @@ public class Sender implements Runnable {
      * @param metadata a metadata packet.
      * @return The list of name files that are different.
      */
-    private List<Map.Entry<String, Long>> compareMetadata(Metadata metadata) {
+    private Map.Entry<Set<Map.Entry<String, Long>>, Map<String, Long>> compareMetadata(Metadata metadata) {
         var files = Objects.requireNonNull(FFSync.getCurrentDirectory().list());
         Map<String, Long> filesMeta = FolderParser.metadata(Arrays.stream(files).toList());
-        Predicate<Map.Entry<String, Long>> different = e -> {
-            Long time = filesMeta.get(e.getKey());
-            return !Objects.equals(time, e.getValue()) || time == null;
+        // Metadata from the local node ^
+
+        // Files to be requested
+        Set<Map.Entry<String, Long>> local = new HashSet<>();
+        Map<String, Long> remote = new HashMap<>();
+
+        Consumer<Map.Entry<String, Long>> different = e -> {
+            Long time = filesMeta.remove(e.getKey());
+            if (time == null) local.add(e); // Local File does exist
+            else if (e.getValue().equals(time)); // Files are equal.
+            else if (localFileChange(e.getValue(), time)) local.add(e);
+            else remote.put(e.getKey(), time);
         };
-        log("Local files: " + filesMeta);
-        log("Other files: " + metadata.metadata);
-        return metadata.metadata.entrySet().stream().filter(different).collect(Collectors.toList());
+
+        metadata.metadata.entrySet().forEach(different); // Compares the files between the remote node and the local.
+        remote.putAll(filesMeta); // Adds the rest of file that the remote node does have.
+
+        log("Sender | Files to be requested by the local node: " + local);
+        log("Sender | Files to be requested by the remote node: " + remote);
+        return new AbstractMap.SimpleEntry<>(local, remote);
     }
 
     /**
-     * Receives a file.
+     * Determines if the local node has to change.
      *
-     * @param fileName         the name of the file.
-     * @param lastTimeModified the last time that the file was modified.
-     * @throws IOException an IOException.
+     * @param remote the time of the remote file.
+     * @param local the time of the local file.
+     * @return true if the local file is the one to be changed.
      */
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    public void receiveFile(String fileName, long lastTimeModified) throws IOException {
-        File f = new File(FFSync.getCurrentDirectory() + "/" + fileName);
-        FileOutputStream outputStream = new FileOutputStream(f);
-
-        Timer.startTimer();
-        StopAndWait.receiveFile(outputStream, socket, address);
-        log("StopAndWait | File downloaded in " + Timer.getMiliseconds() + "ms");
-
-        outputStream.close();
-        f.setLastModified(lastTimeModified);
+    private boolean localFileChange(Long remote, Long local) {
+        return remote > local; // if the remote file in more recent the localFile changes
     }
 
     /**
-     * Requests a file.
+     * Sends the metadata from the files that the other node is going to need.
      *
-     * @param fileName the name of the file.
-     * @throws IOException an IOException.
+     * @param files metadata from the files.
      */
-    public void requestFile(String fileName) throws IOException {
-        Get get = new Get(fileName);
-        FTRapid.send(get, socket, address, port);
-    }
+    private void sendNeededFiles(Map<String, Long> files) throws IOException {
+        DatagramSocket socket = new DatagramSocket();
 
-    /**
-     * Requests a file and downloaded it.
-     *
-     * @param file the name of the file and the last time modified.
-     */
-    public void getFile(Map.Entry<String, Long> file) throws IOException {
-        requestFile(file.getKey());
-        receiveFile(file.getKey(), file.getValue());
+        Metadata metadata = new Metadata(files);
+        FTRapid.send(metadata, socket, address, port);
     }
 }

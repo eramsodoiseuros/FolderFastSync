@@ -1,8 +1,12 @@
 package ffrapid_protocol.packet;
 
+import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
 import static common.debugger.Debugger.log;
+import static ffrapid_protocol.FTRapid.send;
 
 public abstract class Packet {
     protected static final int debuggerLevel = 3;
@@ -41,4 +45,12 @@ public abstract class Packet {
      * @return A message to be sent.
      */
     public abstract byte[] serialize();
+
+    /**
+     * Handles the packet.
+     */
+    public void handle(DatagramSocket socket , InetAddress address, int port) throws IOException {
+        Error errorPacket = new Error();
+        send(errorPacket, socket, address, port); // Sends an error message
+    };
 }

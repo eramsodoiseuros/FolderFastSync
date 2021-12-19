@@ -31,7 +31,7 @@ public class Receiver implements Runnable {
             while (running) { // infinite loop - very bad practice
                 DatagramPacket received = FTRapid.receiveDatagram(serverSocket);
 
-                Debugger.log("New connection with address: " + received.getAddress() + " and port " + received.getPort());
+                Debugger.log("Receiver | New connection with address: " + received.getAddress() + " and port " + received.getPort());
                 DatagramSocket socket = new DatagramSocket();
                 Thread t = new Thread(new RequestHandler(socket, received.getAddress(), received.getPort(), received));
                 t.start();
