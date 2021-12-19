@@ -1,11 +1,14 @@
 package folder_parser;
 
 import app.FFSync;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+//import org.json.simple.JSONArray;
+//import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -26,10 +29,19 @@ public class FolderParser {
     //   private List<Directory1> directories;
     private final Set<File> f1;
     private final Set<File> f2;
+    private Map<String,Long> map=new HashMap();
 
     public FolderParser() {
         this.f1 = new HashSet<>();
         this.f2 = new HashSet<>();
+    }
+
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+            throws IOException {
+        //System.out.println("visitFile: " + file);
+        File f= new File(String.valueOf(file));
+        map.put(f.getName(),f.lastModified());
+        return FileVisitResult.CONTINUE;
     }
 
     public static Map<String, Long> metadata(List<String> file_names) {
@@ -44,7 +56,7 @@ public class FolderParser {
         return r;
         // return file_names.stream().map(fazer cenas).collect(Collectors.toList);
     }
-
+/*
     public static JSONObject listar() {
         String dirName = "user.home";
         File directoryPath = new File(System.getProperty(dirName));
@@ -67,8 +79,8 @@ public class FolderParser {
         }
         return obj;
     }
-
-    public static void main(String[] args) {
+*/
+    public static void main(String[] args) throws IOException {
         /*
         FolderParser fp = new FolderParser();
         List<String> l = new ArrayList<>();
@@ -80,9 +92,52 @@ public class FolderParser {
         //fp.compareFiles("\~\fteste","\~\fteste");
         System.out.println("oi");
         */
-        FolderParser.listar();
+    //    FolderParser.listar();
+            Map<String,Long> map= new HashMap();
+            //String pathString = "/home/sdaslira/CC2021/src/test/FFSync/folder1/file1";
+            String pathString= "/home/sdaslira/CC2021/src/test/FFSync/folder1";
+
+            Files.walkFileTree(Paths.get(pathString),new HashSet<>(), 2, new FileVisitor<Path>() {
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                        throws IOException {
+                    System.out.println("preVisitDirectory: " + dir);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                        throws IOException {
+                    File f =new File(String.valueOf(file));
+                    map.put(f.getName(),f.lastModified());
+                    System.out.println("visitFile: " + file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException exc)
+                        throws IOException {
+                    System.out.println("visitFileFailed: " + file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc)
+                        throws IOException {
+                    System.out.println("postVisitDirectory: " + dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+
+
+        }
     }
 
+
+
+
+
+/*
     public int compareFile(File dir1, File dir2) {
         int r = -1;
 
@@ -160,7 +215,7 @@ public class FolderParser {
     }
 
 }
-
+*/
 
 // metodo que lista ficheiros diferentes (diretoria a, diretoria b) => lista dos elementos de a que sao != b e o mesmo para b
 

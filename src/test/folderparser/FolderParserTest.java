@@ -11,7 +11,7 @@ class FolderParserTest {
     @org.junit.jupiter.api.Test
     void listSubDir() {
     }
-
+/*
     @org.junit.jupiter.api.Test
     void compareMetadata1() {
         Map<String, Long> files = new HashMap<>();
@@ -21,4 +21,5 @@ class FolderParserTest {
 
         Assertions.assertEquals(FolderParser.getMetadata1(), files);
     }
+ */
 }
