@@ -81,17 +81,6 @@ public class FolderParser {
     }
 */
     public static void main(String[] args) throws IOException {
-        /*
-        FolderParser fp = new FolderParser();
-        List<String> l = new ArrayList<>();
-        l.add("a.txt");
-        l.add("d.txt");
-        l.add("teste");
-        Map<String, Long> lx = metadata(l);
-        fp.print(lx);
-        //fp.compareFiles("\~\fteste","\~\fteste");
-        System.out.println("oi");
-        */
     //    FolderParser.listar();
             Map<String,Long> map= new HashMap();
             //String pathString = "/home/sdaslira/CC2021/src/test/FFSync/folder1/file1";
