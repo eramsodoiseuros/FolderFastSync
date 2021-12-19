@@ -2,7 +2,10 @@ package ffrapid_protocol;
 
 import app.FFSync;
 import common.debugger.Debugger;
+import ffrapid_protocol.flow_control.FlowControl;
+import ffrapid_protocol.flow_control.StopAndWait;
 import ffrapid_protocol.operations.RequestHandler;
+import ffrapid_protocol.packet.Packet;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -29,10 +32,11 @@ public class Receiver implements Runnable {
     public void run() {
         try {
             while (running) { // infinite loop - very bad practice
-                DatagramPacket received = FTRapid.receiveDatagram(serverSocket);
-
-                Debugger.log("Receiver | New connection with address: " + received.getAddress() + " and port " + received.getPort());
                 DatagramSocket socket = new DatagramSocket();
+                FlowControl flowControl = new StopAndWait();
+                Packet received = flowControl.receive(socket);
+
+                // Debugger.log("Receiver | New connection with address: " + received.getAddress() + " and port " + received.getPort());
                 Thread t = new Thread(new RequestHandler(socket, received.getAddress(), received.getPort(), received));
                 t.start();
             }

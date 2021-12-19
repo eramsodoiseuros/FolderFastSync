@@ -1,5 +1,6 @@
 package ffrapid_protocol.operations;
 
+import ffrapid_protocol.control_packets.ControlPacket;
 import ffrapid_protocol.packet.Packet;
 
 import java.net.DatagramPacket;
@@ -11,23 +12,13 @@ import static common.debugger.Debugger.log;
 /**
  * Handles the requests received.
  */
-public class RequestHandler implements Runnable {
-    private final DatagramSocket socket;
-    private final InetAddress address;
-    private final int port;
-    private final DatagramPacket initialPacket;
-
-    public RequestHandler(DatagramSocket socket, InetAddress address, int port, DatagramPacket initialPacket) {
-        this.socket = socket;
-        this.address = address;
-        this.port = port;
-        this.initialPacket = initialPacket;
-    }
+public record RequestHandler(DatagramSocket socket, InetAddress address, int port,
+                             DatagramPacket initialPacket) implements Runnable {
 
     @Override
     public void run() {
         try {
-            Packet packet = Packet.deserialize(initialPacket.getData());
+            Packet packet = ControlPacket.deserialize(initialPacket.getData());
 
             packet.handle(socket, address, port);
 
@@ -37,7 +28,6 @@ public class RequestHandler implements Runnable {
             e.printStackTrace();
         }
     }
-
 
 
 }

@@ -1,8 +1,8 @@
 package test;
 
 import ffrapid_protocol.FTRapid;
-import ffrapid_protocol.packet.Data;
-import ffrapid_protocol.packet.Packet;
+import ffrapid_protocol.control_packets.ControlPacket;
+import ffrapid_protocol.control_packets.Data;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -27,13 +27,13 @@ public class SendingData {
                 while (running) {
                     Data dataSent = new Data(0, "Ack".getBytes(StandardCharsets.UTF_8));
                     FTRapid.send(dataSent, socket, InetAddress.getByName("localhost"), port);
-                    log("Packet sent");
+                    log("ControlPacket sent");
 
 
                     datagramPacket = FTRapid.receiveDatagram(socket);
-                    Data dataReceived = (Data) Packet.deserialize(datagramPacket.getData()); // Assuming that the server is going to send the packet data.
+                    Data dataReceived = (Data) ControlPacket.deserialize(datagramPacket.getData()); // Assuming that the server is going to send the packet data.
                     log("From port: " + datagramPacket.getPort());
-                    log("Packet received");
+                    log("ControlPacket received");
                     log("Data: " + new String(dataReceived.data, StandardCharsets.UTF_8));
                     Thread.sleep(5000);
                     if (i++ >= 5) running = false;

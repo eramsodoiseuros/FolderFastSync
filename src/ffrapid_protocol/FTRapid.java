@@ -1,11 +1,12 @@
 package ffrapid_protocol;
 
 import app.FFSync;
-import ffrapid_protocol.exceptions.NotAckPacket;
-import ffrapid_protocol.packet.Ack;
-import ffrapid_protocol.packet.Error;
-import ffrapid_protocol.packet.Packet;
+import ffrapid_protocol.control_packets.Ack;
+import ffrapid_protocol.control_packets.ControlPacket;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -48,16 +49,40 @@ import java.security.NoSuchAlgorithmException;
  */
 
 public class FTRapid {
+    private static final String KEY = "A0x2345";
+    private static final String MAC_SHA256_ALGORITHM = "HmacSHA256";
 
-    public static void send(Packet packet, DatagramSocket socket, InetAddress address, int port) throws IOException {
+
+    private static byte[] getHMac(byte[] data) {
+        try {
+            SecretKeySpec signingKey = new SecretKeySpec(KEY.getBytes(), MAC_SHA256_ALGORITHM);
+            Mac mac = Mac.getInstance(MAC_SHA256_ALGORITHM);
+            mac.init(signingKey);
+            return mac.doFinal(data);
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    public static void send(ControlPacket packet, DatagramSocket socket, InetAddress address, int port) throws IOException {
         byte[] data = packet.serialize();
-        DatagramPacket datagramPacket = new DatagramPacket(data, data.length, address, port);
+        byte[] hmac = new byte[0];
+        hmac = getHMac(data);
+
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        stream.write(hmac);
+        stream.write(data);
+        byte[] segment = stream.toByteArray();
+
+        DatagramPacket datagramPacket = new DatagramPacket(segment, segment.length, address, port);
         socket.send(datagramPacket);
     }
 
-    public static Packet receive(DatagramSocket socket) throws IOException {
+    public static ControlPacket receive(DatagramSocket socket) throws IOException {
         DatagramPacket datagramPacket = receiveDatagram(socket);
-        return Packet.deserialize(datagramPacket.getData());
+
+        return ControlPacket.deserialize(datagramPacket.getData());
     }
 
     public static DatagramPacket receiveDatagram(DatagramSocket socket) throws IOException {
@@ -66,16 +91,6 @@ public class FTRapid {
         socket.receive(packet);
 
         return packet;
-    }
-
-    public static Ack receivesAck(DatagramSocket socket, InetAddress address, int port) throws IOException, NotAckPacket {
-        Packet packet = FTRapid.receive(socket);
-        if (!(packet instanceof Ack)) {
-            Error errorPacket = new Error();
-            FTRapid.send(errorPacket, socket, address, port);
-            throw new NotAckPacket();
-        }
-        return (Ack) packet;
     }
 
     public static void sendAck(DatagramSocket socket, InetAddress address, int port, long seqNumber) throws IOException {

@@ -16,8 +16,8 @@ import static common.debugger.Debugger.log;
 /**
  * Metadata requested.
  */
-public class Metadata extends Packet {
-    private final static byte opcode = 3;
+public class Metadata implements Packet {
+    private final static byte opcode = 1;
     public final Map<String, Long> metadata; // File name -> time
 
     public Metadata(Map<String, Long> metadata) {
@@ -28,8 +28,8 @@ public class Metadata extends Packet {
         return new Metadata(FolderParser.metadata(file_names));
     }
 
-    public static Packet deserialize(ByteBuffer bb) {
-        log("Metadata | Starting deserializing", Packet.debuggerLevel);
+    public static Metadata deserialize(ByteBuffer bb) {
+        log("Metadata | Starting deserializing", Packet.getDebuggerLevel());
         Map<String, Long> map = new HashMap<>();
         Metadata metadata;
 
@@ -43,14 +43,17 @@ public class Metadata extends Packet {
             map.put(new String(str, StandardCharsets.UTF_8), time);
         }
         metadata = new Metadata(map);
-        log("Metadata | Deserialize result: " + metadata, Packet.debuggerLevel);
+        log("Metadata | Deserialize result: " + metadata, Packet.getDebuggerLevel());
         return metadata;
     }
 
-    @Override
+    public byte getOpcode() {
+        return opcode;
+    }
+
     public byte[] serialize() {
-        log("Metadata | Starting serializing", Packet.debuggerLevel);
-        log("Metadata | Before Serialize: " + this, Packet.debuggerLevel);
+        log("Metadata | Starting serializing", Packet.getDebuggerLevel());
+        log("Metadata | Before Serialize: " + this, Packet.getDebuggerLevel());
         int stringsSize = metadata.keySet().stream().mapToInt(String::length).sum();
         int headerLen = 1 + 4 + stringsSize + (4 + 8) * metadata.size(); // Opcode + ListSize + Sum(ElementSize + Element + Long)
         ByteBuffer bb = ByteBuffer.allocate(headerLen);

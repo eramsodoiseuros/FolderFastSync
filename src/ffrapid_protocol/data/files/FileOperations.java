@@ -3,7 +3,7 @@ package ffrapid_protocol.data.files;
 import app.FFSync;
 import common.Timer;
 import ffrapid_protocol.FTRapid;
-import ffrapid_protocol.data.StopAndWait;
+import ffrapid_protocol.flow_control.StopAndWait;
 import ffrapid_protocol.packet.Get;
 
 import java.io.File;

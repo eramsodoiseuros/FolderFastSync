@@ -1,4 +1,4 @@
-package ffrapid_protocol.packet;
+package ffrapid_protocol.control_packets;
 
 import java.nio.ByteBuffer;
 
@@ -7,8 +7,8 @@ import static common.debugger.Debugger.log;
 /**
  * Data from a file.
  */
-public class Data extends Packet {
-    private final static byte opcode = 1;
+public class Data extends ControlPacket {
+    private final static byte opcode = 0;
     public final static int headerLength = Byte.BYTES + Long.BYTES + Integer.BYTES;
 
     public final long blockNumber;
@@ -17,6 +17,11 @@ public class Data extends Packet {
     public Data(long blockNumber, byte[] data) {
         this.blockNumber = blockNumber;
         this.data = data;
+    }
+
+    @Override
+    public byte getOpcode() {
+        return opcode;
     }
 
     public byte[] serialize() {
@@ -28,7 +33,7 @@ public class Data extends Packet {
         return bb.array();
     }
 
-    public static Packet deserialize(ByteBuffer byteBuffer) {
+    public static ControlPacket deserialize(ByteBuffer byteBuffer) {
         long blockNumber = byteBuffer.getLong();
         var len = byteBuffer.getInt();
         log("DataPacket | Length: " + len);

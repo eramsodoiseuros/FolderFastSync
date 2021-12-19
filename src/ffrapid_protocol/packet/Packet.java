@@ -5,50 +5,46 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
-import static common.debugger.Debugger.log;
-import static ffrapid_protocol.FTRapid.send;
-
-public abstract class Packet {
-    protected static final int debuggerLevel = 3;
+public interface Packet {
 
     /**
-     * Converts a message to a Packet.
-     * @param message a message received.
-     * @return a Packet converted from the message.
+     * Deserializes the data received from the byte buffer.
+     * @param byteBuffer the byte buffer.
+     * @param type the type of the data.
+     * @return the packet deserialized.
      */
-    public static Packet deserialize(byte[] message) {
-        Packet packet;
-        ByteBuffer bb = ByteBuffer.wrap(message);
-        byte type = bb.get();
-        packet = switch (type) {
-            case 0 -> // Get packet
-                    Get.deserialize(bb);
-            case 1 -> // Data packet
-                    Data.deserialize(bb);
-            case 2 -> // Ack packet
-                    Ack.deserialize(bb);
-            case 3 -> // Metadata packet
-                    Metadata.deserialize(bb);
-            case 4 -> // Error packet
-                    Error.deserialize(bb);
-            default -> null;
+    static Packet deserialize(ByteBuffer byteBuffer, int type) {
+        return switch (type) {
+            case 0 -> Get.deserialize(byteBuffer);
+            case 1 -> Metadata.deserialize(byteBuffer);
+            case 2 -> Error.deserialize(byteBuffer);
+            default -> throw new IllegalStateException("Unexpected value: " + type);
         };
-        log("Packet | Type: " + type, debuggerLevel);
-
-        return packet;
     }
 
     /**
+     * Returns the debugger level.
+     * @return the debugger level.
+     */
+    static int getDebuggerLevel() {
+        return 1;
+    }
+
+    /**
+     * Returns the opcode used to identify this Packet.
+     * @return the opcode.
+     */
+    byte getOpcode();
+
+    /**
      * Serializes a Packet.
+     *
      * @return A message to be sent.
      */
-    public abstract byte[] serialize();
+    byte[] serialize();
 
     /**
      * Handles the packet.
      */
-    public void handle(DatagramSocket socket , InetAddress address, int port) throws IOException {
-        Error errorPacket = new Error();
-        send(errorPacket, socket, address, port); // Sends an error message
-    }
+    void handle(DatagramSocket socket, InetAddress address, int port) throws IOException;
 }

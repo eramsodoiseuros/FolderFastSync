@@ -83,13 +83,13 @@ public class Sender implements Runnable {
     public Metadata requestsAllMetadata() throws IOException {
         Get get = new Get(true, true); // Metadata from all files
 
-        FTRapid.send(get, socket, address, port); // Sends the request
+        .send(get, socket, address, port); // Sends the request
 
-        log("Sender | Packet sent");
+        log("Sender | ControlPacket sent");
 
         Metadata metadata = (Metadata) FTRapid.receive(socket); // Receives the response
 
-        log("Sender | Packet received");
+        log("Sender | ControlPacket received");
 
         return metadata;
     }

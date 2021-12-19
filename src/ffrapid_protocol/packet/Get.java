@@ -1,7 +1,8 @@
 package ffrapid_protocol.packet;
 
 import app.FFSync;
-import ffrapid_protocol.data.StopAndWait;
+import ffrapid_protocol.control_packets.ControlPacket;
+import ffrapid_protocol.flow_control.StopAndWait;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +22,7 @@ import static ffrapid_protocol.FTRapid.send;
 /**
  * Requests metadata or files.
  */
-public class Get extends Packet {
+public class Get implements Packet {
     private final static byte opcode = 0;
 
     public final boolean metadata; // Request for metadata
@@ -47,14 +48,13 @@ public class Get extends Packet {
         this.filesName.add(fileName);
     }
 
-    public static byte getOpcode() {
+    public byte getOpcode() {
         return opcode;
     }
 
-    @Override
     public byte[] serialize() {
-        log("Get | Starting serializing", Packet.debuggerLevel);
-        log("Get | Before Serialize: " + this, Packet.debuggerLevel);
+        log("Get | Starting serializing", ControlPacket.debuggerLevel);
+        log("Get | Before Serialize: " + this, ControlPacket.debuggerLevel);
         int size;
         if (root) {
             size = 0;
@@ -76,8 +76,8 @@ public class Get extends Packet {
         return bb.array();
     }
 
-    public static Packet deserialize(ByteBuffer byteBuffer) {
-        log("Get | Starting deserializing", Packet.debuggerLevel);
+    public static Get deserialize(ByteBuffer byteBuffer) {
+        log("Get | Starting deserializing", ControlPacket.debuggerLevel);
         Get get;
         List<String> list = new ArrayList<>();
         boolean metadata = byteBuffer.get() != 0;
@@ -95,7 +95,7 @@ public class Get extends Packet {
             }
             get = new Get(metadata, list);
         }
-        log("Get | Deserialize result: " + get, Packet.debuggerLevel);
+        log("Get | Deserialize result: " + get, ControlPacket.debuggerLevel);
         return get;
     }
 
@@ -104,7 +104,6 @@ public class Get extends Packet {
         return this.filesName.stream().map(File::new).collect(Collectors.toList());
     }
 
-    @Override
     public void handle(DatagramSocket socket, InetAddress address, int port) throws IOException {
         parse(socket, address, port);
     }
