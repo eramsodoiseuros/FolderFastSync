@@ -98,8 +98,15 @@ public class FolderParser {
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                         throws IOException {
                     File f =new File(String.valueOf(file));
-                    map.put(f.getName(),f.lastModified());
-                    System.out.println("visitFile: " + file);
+                    File pai=f.getParentFile();
+
+                    int index=f.getPath().length()-f.getName().length()-pai.getName().length()-2;
+                    String nova= (f.getPath()).substring(index);
+                    //String novas[]= f.getPath().split(pai);
+
+                    map.put(nova,f.lastModified());
+                    System.out.println("file: "+nova+","+f.lastModified());
+                   // System.out.println("visitFile: " + file);
                     return FileVisitResult.CONTINUE;
                 }
 
