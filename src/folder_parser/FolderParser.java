@@ -38,37 +38,6 @@ public class FolderParser {
         this.f2 = new HashSet<>();
     }
 
-    void compareFiles(File f1, File f2) {
-
-        // boolean b = false;
-        File[] fs1 = f1.listFiles();
-        File[] fs2 = f2.listFiles();
-        int j = 0;
-        for (File f : fs1) {
-            int r = compareFile(f, fs2[j]);
-            switch (r) {
-                case 1:
-                    //f e mais atualizada
-                    this.f2.add(f);
-                case 2:
-                    //fs2[j] e mais atualizada
-                    this.f1.add(fs2[j]);
-                case 0:
-                    //sao iguais
-
-                default:
-                    //System.out.println("erro");
-            }
-            j++;
-        }
-        if (fs2.length > fs1.length) {
-            for (; j < fs2.length; j++) {
-                this.f1.add(fs2[j]);
-            }
-
-        }
-        //return b;
-    }
 
     public int compareFile(File dir1, File dir2) {
         int r = -1;
@@ -167,19 +136,16 @@ public class FolderParser {
             }
         }
     }
+
     //em teste
     public List<Map.Entry<String, Long>> compareMetadata1(Metadata metadata) {
         File files[] = FFSync.getCurrentDirectory().listFiles();
         List<File> lf= new ArrayList<>();
-
         Map<String, Long> filesMeta = new HashMap();
-
         for(File f: files)
             listSubDir(f,lf);
-
         for(File f: lf)
-            filesMeta.put(f.getPath(),f.lastModified());
-
+            filesMeta.put(f.getName(),f.lastModified());
         Predicate<Map.Entry<String, Long>> different = e -> {
             Long time = filesMeta.get(e.getKey());
             return !Objects.equals(time, e.getValue()) || time == null;
