@@ -1,5 +1,8 @@
 package ffrapid_protocol.packet;
 
+import compression.Compression;
+import encryption.Encryption;
+
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -18,7 +21,8 @@ public abstract class Packet {
      */
     public static Packet deserialize(byte[] message) {
         Packet packet;
-        ByteBuffer bb = ByteBuffer.wrap(message);
+        byte[] data = Compression.decompress(Encryption.decrypt(message));
+        ByteBuffer bb = ByteBuffer.wrap(data);
         byte type = bb.get();
         packet = switch (type) {
             case 0 -> // Get packet
@@ -38,6 +42,14 @@ public abstract class Packet {
         log("Packet | Type: " + type, debuggerLevel);
 
         return packet;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public byte[] encryptedCompression() {
+        return Encryption.encrypt(Compression.compress(this.serialize()));
     }
 
     /**
