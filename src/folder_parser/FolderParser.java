@@ -23,8 +23,6 @@ import java.util.*;
 
 public class FolderParser {
 
-    private final HashMap<String, Long> map = new HashMap();
-
 
     public static Map<String, Long> metadata(List<String> file_names) {
         Map<String, Long> r = new HashMap<>();
