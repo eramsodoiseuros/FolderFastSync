@@ -135,13 +135,11 @@ public class StopAndWait {
         }
 
         byte[] fileCompressed = bb.array();
-        log("!!!!!!!!!!!!! " + toHexString(fileCompressed));
+        log("!! " + toHexString(fileCompressed) + " !!");
         byte[] fileDecompressed = Compression.decompress(fileCompressed);
 
         assert fileDecompressed != null;
-        log("StopAndWait | Received file with compression of " +
-                (double) fileCompressed.length / fileDecompressed.length,
-                debuggerLevel);
+        log("StopAndWait | Received file with compression of " + (double) fileCompressed.length / fileDecompressed.length, debuggerLevel);
 
         FileOutputStream outputStream = new FileOutputStream(file);
         outputStream.write(Objects.requireNonNull(fileDecompressed));

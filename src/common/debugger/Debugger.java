@@ -9,7 +9,7 @@ public class Debugger {
     private static final String file = "log.txt";
     private static boolean toFile = false;
     private static boolean enable = true;
-    private static int level = 4;
+    private static int level = 2;
 
     private static OutputStream out;
 
