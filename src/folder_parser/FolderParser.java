@@ -1,10 +1,10 @@
 package folder_parser;
 
 import app.FFSync;
-/*
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-*/
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -37,7 +37,7 @@ public class FolderParser {
         return r;
         // return file_names.stream().map(fazer cenas).collect(Collectors.toList);
     }
-
+/*
     public static void main(String[] args) throws IOException {
         String s = System.getProperty("user.dir");
         System.out.println(s);
@@ -84,7 +84,7 @@ public class FolderParser {
         }
     }
     //JSON PARSER
-    /*
+    */
     public static void main(String[] args) throws IOException {
         String s = System.getProperty("user.dir");
         System.out.println(s);
@@ -104,7 +104,7 @@ public class FolderParser {
                     //ficheiro.add("file path: "+f.getAbsolutePath()+" ; ");
                     ficheiro.add("file last update: "+f.lastModified()+" ; ");
                     ficheiro.add("file size: "+f.getTotalSpace()+" ; ");
-                    obj.put("Name: "+f.getName(),ficheiro);
+                    obj.put("Name: "+nova,ficheiro);
                   //  System.out.println(ficheiro);
                 }
                 // System.out.println("preVisitDirectory: " + dir);
@@ -139,6 +139,6 @@ public class FolderParser {
             }
         });
         System.out.println(obj);
-    }*/
+    }
 }
 
