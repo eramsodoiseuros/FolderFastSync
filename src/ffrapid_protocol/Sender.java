@@ -96,12 +96,12 @@ public class Sender implements Runnable {
         Set<Map.Entry<String, Long>> local = new HashSet<>();
         Map<String, Long> remote = new HashMap<>();
 
-        Consumer<Map.Entry<String, Long>> different = e -> {
+        Consumer<Map.Entry<String, Long>> different = e -> {local.add(e); /*
             Long time = filesMeta.remove(e.getKey());
             if (time == null) local.add(e); // Local File does exist
             else if (e.getValue().equals(time)); // Files are equal.
             else if (localFileChange(e.getValue(), time)) local.add(e);
-            else remote.put(e.getKey(), time);
+            else remote.put(e.getKey(), time); */
         };
 
         metadata.metadata.entrySet().forEach(different); // Compares the files between the remote node and the local.
@@ -132,6 +132,6 @@ public class Sender implements Runnable {
         DatagramSocket socket = new DatagramSocket();
 
         Metadata metadata = new Metadata(files);
-        FTRapid.send(metadata, socket, address, port);
+        StopAndWait.send(socket, address, port, metadata);
     }
 }

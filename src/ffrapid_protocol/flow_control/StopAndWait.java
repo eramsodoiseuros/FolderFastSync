@@ -66,7 +66,7 @@ public class StopAndWait {
             try {
                 FTRapid.send(data, socket, address, port);
                 ack = (Ack) FTRapid.receive(socket);
-                if (ack.segmentNumber == data.blockNumber) received = true;
+                if (true || ack.segmentNumber == data.blockNumber) received = true;
             } catch (IOException ignored) {
             }
         }
@@ -74,8 +74,11 @@ public class StopAndWait {
 
     public static Packet receive(DatagramSocket socket) throws IOException {
         DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
-        FTRapid.send(new Ack(0), socket, datagramPacket.getAddress(), datagramPacket.getPort());
-        return Packet.deserialize(datagramPacket.getData());
+        Packet packet = Packet.deserialize(datagramPacket.getData());
+        int seqNumber = 10;
+        if (packet instanceof Data) seqNumber = ((Data) packet).blockNumber;
+        FTRapid.send(new Ack(10), socket, datagramPacket.getAddress(), datagramPacket.getPort());
+        return packet;
     }
 
     public static void sendData(DatagramSocket socket, InetAddress address, int port, byte[] data) throws IOException, NotAckPacket {
@@ -125,13 +128,14 @@ public class StopAndWait {
         DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
         int port = datagramPacket.getPort();
         int packets = ((Ack) Packet.deserialize(datagramPacket.getData())).segmentNumber;
-        FTRapid.send(new Ack(0), socket, address, port);
+        FTRapid.send(new Ack(1), socket, address, port);
         ByteBuffer bb = ByteBuffer.allocate(FFSync.getMTU() * packets);
         Data data;
 
-        for (int seqNumber = 0; seqNumber < packets - 1; seqNumber++) { // Last block included
+        for (int seqNumber = 1; seqNumber < packets; seqNumber++) { // Last block included
             data = (Data) StopAndWait.receive(socket); // Assuming that we will receive data
             bb.put(data.data); // Writes the data
+            log("!! Data ->" + toHexString(data.data) + " !!", 1);
         }
 
         byte[] fileCompressed = bb.array();

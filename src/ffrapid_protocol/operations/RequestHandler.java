@@ -29,9 +29,9 @@ public class RequestHandler implements Runnable {
     @Override
     public void run() {
         try {
-            Packet packet = Packet.deserialize(initialPacket.getData());
+            FTRapid.send(new Ack(10), socket, address, port);
 
-            FTRapid.send(new Ack(0), socket, address, port);
+            Packet packet = Packet.deserialize(initialPacket.getData());
 
             packet.handle(socket, address, port);
 
@@ -41,7 +41,6 @@ public class RequestHandler implements Runnable {
             e.printStackTrace();
         }
     }
-
 
 
 }
