@@ -45,8 +45,6 @@ public class FFSync {
     private static final int PORT = 12345; // Port used to access, should be 80
     private static final List<Node> nodes = new ArrayList<>(); // Connected nodes.
     private static final Lock lock = new ReentrantLock();
-   // private static File currentDirectory = new File("/home/s/Documents/CC/CC2021/src/test/FFSync/folder1");
-   // private static File currentDirectory= new File("/home/sdaslira/CC2021/src/test/FFSync/folder1");//temos de repensar isso
     private static File currentDirectory= new File(System.getProperty("user.dir"));
 
     public static int getMTU() {
