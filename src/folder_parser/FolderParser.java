@@ -1,6 +1,8 @@
 package folder_parser;
 
 import app.FFSync;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -80,5 +82,62 @@ public class FolderParser {
             System.out.println("nome: " + par.getKey() + ", tempo: " + par.getValue());
         }
     }
+    //JSON PARSER
+    /*
+    public static void main(String[] args) throws IOException {
+        String s = System.getProperty("user.dir");
+        System.out.println(s);
+        JSONObject obj = new JSONObject();
+        File curDir = FFSync.getCurrentDirectory();
+        String curDirPath = curDir.getPath();
+        int index = curDir.getPath().length() - curDir.getName().length() - 1;
+        Files.walkFileTree(Paths.get(curDirPath), new HashSet<>(), 2, new FileVisitor<>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                File f = new File(String.valueOf(dir));
+                if (f.isDirectory()) {
+                    String nova = f.getPath().substring(index);
+                    JSONArray ficheiro = new JSONArray();
+                    ficheiro.add("file name: "+f.getName()+" ; ");
+                    ficheiro.add("file path: "+nova+" ; ");
+                    //ficheiro.add("file path: "+f.getAbsolutePath()+" ; ");
+                    ficheiro.add("file last update: "+f.lastModified()+" ; ");
+                    ficheiro.add("file size: "+f.getTotalSpace()+" ; ");
+                    obj.put("Name: "+f.getName(),ficheiro);
+                  //  System.out.println(ficheiro);
+                }
+                // System.out.println("preVisitDirectory: " + dir);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                File f = new File(String.valueOf(file));
+                String nova = f.getPath().substring(index);
+                JSONArray ficheiro = new JSONArray();
+                ficheiro.add("file name: "+f.getName()+" ; ");
+                ficheiro.add("file path: "+nova+" ; ");
+                //ficheiro.add("file path: "+f.getAbsolutePath()+" ; ");
+                ficheiro.add("file last update: "+f.lastModified()+" ; ");
+                ficheiro.add("file size: "+f.getTotalSpace()+" ; ");
+                obj.put("Name: "+nova,ficheiro);
+                //System.out.println(ficheiro);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                System.out.println("visitFileFailed: " + file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                // System.out.println("postVisitDirectory: " + dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+        System.out.println(obj);
+    }*/
 }
 
