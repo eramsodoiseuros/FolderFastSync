@@ -111,7 +111,7 @@ public class ParserJSON {
                     //ficheiro.add("file path: "+f.getAbsolutePath()+" ; ");
                     ficheiro.add("file last update: "+f.lastModified()+" ; ");
                     ficheiro.add("file size: "+f.getTotalSpace()+" ; ");
-                    obj.put("Name: "+f.getName(),ficheiro);
+                    obj.put("Name: "+nova,ficheiro);
                   //  System.out.println(ficheiro);
                 }
                 // System.out.println("preVisitDirectory: " + dir);
@@ -147,5 +147,6 @@ public class ParserJSON {
         });
         System.out.println(obj);
     }*/
+
 }
 

@@ -37,7 +37,7 @@ public class FolderParser {
         return r;
         // return file_names.stream().map(fazer cenas).collect(Collectors.toList);
     }
-/*
+
     public static void main(String[] args) throws IOException {
         String s = System.getProperty("user.dir");
         System.out.println(s);
@@ -84,7 +84,7 @@ public class FolderParser {
         }
     }
     //JSON PARSER
-    */
+    /*
     public static void main(String[] args) throws IOException {
         String s = System.getProperty("user.dir");
         System.out.println(s);
@@ -139,6 +139,6 @@ public class FolderParser {
             }
         });
         System.out.println(obj);
-    }
+    }*/
 }
 
