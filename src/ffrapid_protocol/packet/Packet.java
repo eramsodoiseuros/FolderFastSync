@@ -20,9 +20,13 @@ public abstract class Packet {
      * @return a Packet converted from the message.
      */
     public static Packet deserialize(byte[] message) {
+        ByteBuffer bb = ByteBuffer.wrap(message);
+        byte[] data = new byte[bb.getInt()];
+        System.arraycopy(message, 4, data, 0, data.length);
         Packet packet;
-        byte[] data = Compression.decompress(Encryption.decrypt(message));
-        ByteBuffer bb = ByteBuffer.wrap(data);
+        data = Compression.decompress(Encryption.decrypt(data));
+        assert data != null;
+        bb = ByteBuffer.wrap(data);
         byte type = bb.get();
         packet = switch (type) {
             case 0 -> // Get packet
@@ -44,12 +48,14 @@ public abstract class Packet {
         return packet;
     }
 
-    /**
-     *
-     * @return
-     */
     public byte[] encryptedCompression() {
-        return Encryption.encrypt(Compression.compress(this.serialize()));
+        byte[] ser = this.serialize();
+        byte[] data = Encryption.encrypt(Compression.compress(ser));
+        ByteBuffer bb = ByteBuffer.allocate(data.length + Integer.BYTES);
+        bb.putInt(data.length);
+        bb.put(data);
+        log("Compression % is: " + ser.length + " | " + data.length);
+        return bb.array();
     }
 
     /**
@@ -64,5 +70,5 @@ public abstract class Packet {
     public void handle(DatagramSocket socket , InetAddress address, int port) throws IOException {
         Error errorPacket = new Error();
         send(errorPacket, socket, address, port); // Sends an error message
-    };
+    }
 }
