@@ -17,12 +17,55 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static common.debugger.Debugger.log;
-import static ffrapid_protocol.FTRapid.*;
-import static ffrapid_protocol.data.DivideData.getBlock;
-import static ffrapid_protocol.data.DivideData.getLastBlock;
+import static ffrapid_protocol.FTRapid.sendAck;
 
 public class StopAndWait {
     private static final int debuggerLevel = 2;
+
+    /**
+     * Sends a packet, guarantying that arrives. Waits for the acknowledgment from the other side.
+     * If the acknowledgment isn't received in the established timeout time, the packet is resented.
+     *
+     * @param socket  a socket
+     * @param address an address
+     * @param port    a port
+     * @param packet  a
+     */
+    public static void send(DatagramSocket socket, InetAddress address, int port, Packet packet) {
+        boolean received = false;
+        Ack ack;
+
+        while (!received) { // While the receiver doesn't send the ack
+            try {
+                FTRapid.send(packet, socket, address, port);
+                Packet packetReceived = FTRapid.receive(socket);
+                if (packetReceived instanceof Ack) received = true;
+            } catch (IOException ignored) {
+            }
+        }
+    }
+
+    /**
+     * Similar to the above method, but it sends a Data packet and checks if the acknowledgment has the right sequence number.
+     *
+     * @param socket  a socket
+     * @param address an address
+     * @param port    a port
+     * @param data    a data packet
+     */
+    private static void send(DatagramSocket socket, InetAddress address, int port, Data data) {
+        boolean received = false;
+        Ack ack;
+
+        while (!received) { // While the receiver doesn't send the ack
+            try {
+                FTRapid.send(data, socket, address, port);
+                ack = (Ack) FTRapid.receive(socket);
+                if (ack.segmentNumber == data.blockNumber) received = true;
+            } catch (IOException ignored) {
+            }
+        }
+    }
 
     public static void sendData(DatagramSocket socket, InetAddress address, int port, byte[] data)
             throws IOException, NotAckPacket {
@@ -35,42 +78,23 @@ public class StopAndWait {
 
         Timer.startTimer();
 
-        int MTU = FFSync.getMTU() - Data.headerLength;
-        int blocks = data.length / MTU;
-        int lastBlockLen = data.length % MTU;
-        Ack ack;
+        DivideData divideData = new DivideData(data);
 
-        log("StopAndWait | Blocks: " + blocks + " lastBlockLen: " + lastBlockLen, debuggerLevel);
+        log("StopAndWait | Blocks: " + divideData.blocks + " lastBlockLen: " + divideData.lastBlockLen, debuggerLevel);
 
         // Sends the amount of packets
-        FTRapid.send(new Ack(blocks + 1), socket, address, port);
+        FTRapid.send(new Ack(divideData.blocks + 1), socket, address, port);
         log("StopAndWait | Sending the amount of packets");
 
         // Gets the blocks
-        for (int i = 0; i < blocks; i++) {
-            Data dataPacket = getBlock(MTU, data, i);
+        for (int i = 0; i < divideData.blocks; i++) {
+            Data dataPacket = new Data(i + 1, divideData.getBlock(i));
 
-            // Sends the packet
-            FTRapid.send(dataPacket, socket, address, port);
+            send(socket, address, port, dataPacket); // Sends the packet
 
-            // Waits for the Ack
-            //if (receivesAck(socket, address, port).segmentNumber - 1 != i) i--;
-            receive(socket);
             log("StopAndWait | Data Packet acknowledged", debuggerLevel);
         }
-        // Gets the last block
-        Data dataPacket = getLastBlock(lastBlockLen, data, blocks, MTU);
-
-        // Sends the packet
-        FTRapid.send(dataPacket, socket, address, port);
-
-        // Waits for the Ack
-        receivesAck(socket, address, port);
-
         log("StopAndWait | File uploaded in " + Timer.getMiliseconds() + "ms", debuggerLevel);
-
-        // Ler ack
-        // Mandar block
 
         // Accumulative algorithm
         // 1. Divide the File in blocks
