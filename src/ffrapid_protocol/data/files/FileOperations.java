@@ -2,12 +2,10 @@ package ffrapid_protocol.data.files;
 
 import app.FFSync;
 import common.Timer;
-import ffrapid_protocol.FTRapid;
-import ffrapid_protocol.data.StopAndWait;
+import ffrapid_protocol.flow_control.StopAndWait;
 import ffrapid_protocol.packet.Get;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -63,26 +61,23 @@ public class FileOperations {
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void receiveFile(String fileName, long lastTimeModified) throws IOException {
-        File f = new File(FFSync.getCurrentDirectory() + "/" + fileName);
-        FileOutputStream outputStream = new FileOutputStream(f);
+        File file = new File(FFSync.getCurrentDirectory() + "/" + fileName);
 
-        Timer.startTimer();
-        StopAndWait.receiveFile(outputStream, socket, address);
-        log("StopAndWait | File downloaded in " + Timer.getMiliseconds() + "ms");
+        Timer timer = new Timer();
+        StopAndWait.receiveFile(file, socket, address);
+        log("StopAndWait | File downloaded in " + timer.getMilliseconds() + "ms");
 
-        outputStream.close();
-        f.setLastModified(lastTimeModified);
+        file.setLastModified(lastTimeModified);
     }
 
     /**
      * Requests a file.
      *
      * @param fileName the name of the file.
-     * @throws IOException an IOException.
      */
-    public void requestFile(String fileName) throws IOException {
+    public void requestFile(String fileName) {
         Get get = new Get(fileName);
-        FTRapid.send(get, socket, address, port);
+        StopAndWait.send(socket, address, port, get);
     }
 
     /**

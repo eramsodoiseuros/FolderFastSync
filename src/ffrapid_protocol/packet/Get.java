@@ -1,10 +1,9 @@
 package ffrapid_protocol.packet;
 
 import app.FFSync;
-import ffrapid_protocol.data.StopAndWait;
+import ffrapid_protocol.flow_control.StopAndWait;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
@@ -16,7 +15,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static common.debugger.Debugger.log;
-import static ffrapid_protocol.FTRapid.send;
 
 /**
  * Requests metadata or files.
@@ -47,8 +45,27 @@ public class Get extends Packet {
         this.filesName.add(fileName);
     }
 
-    public static byte getOpcode() {
-        return opcode;
+    public static Packet deserialize(ByteBuffer byteBuffer) {
+        log("Get | Starting deserializing", Packet.debuggerLevel);
+        Get get;
+        List<String> list = new ArrayList<>();
+        boolean metadata = byteBuffer.get() != 0;
+        boolean root = byteBuffer.get() != 0;
+
+        if (root) get = new Get(metadata, true);
+        else {
+            int len = byteBuffer.getInt();
+
+            for (int i = 0; i < len; i++) {
+                int strLen = byteBuffer.getInt();
+                byte[] str = new byte[strLen];
+                byteBuffer.get(str, 0, strLen);
+                list.add(new String(str));
+            }
+            get = new Get(metadata, list);
+        }
+        log("Get | Deserialize result: " + get, Packet.debuggerLevel);
+        return get;
     }
 
     @Override
@@ -76,65 +93,37 @@ public class Get extends Packet {
         return bb.array();
     }
 
-    public static Packet deserialize(ByteBuffer byteBuffer) {
-        log("Get | Starting deserializing", Packet.debuggerLevel);
-        Get get;
-        List<String> list = new ArrayList<>();
-        boolean metadata = byteBuffer.get() != 0;
-        boolean root = byteBuffer.get() != 0;
-
-        if (root) get = new Get(metadata, true);
-        else {
-            int len = byteBuffer.getInt();
-
-            for (int i = 0; i < len; i++) {
-                int strLen = byteBuffer.getInt();
-                byte[] str = new byte[strLen];
-                byteBuffer.get(str, 0, strLen);
-                list.add(new String(str));
-            }
-            get = new Get(metadata, list);
-        }
-        log("Get | Deserialize result: " + get, Packet.debuggerLevel);
-        return get;
-    }
-
     public List<File> getFiles() {
         assert this.filesName != null;
         return this.filesName.stream().map(File::new).collect(Collectors.toList());
     }
 
     @Override
-    public void handle(DatagramSocket socket, InetAddress address, int port) throws IOException {
+    public void handle(DatagramSocket socket, InetAddress address, int port) {
         parse(socket, address, port);
     }
 
     /**
      * Parses the get packet. Executing and sending the requested operations.
      *
-     * @param socket a socket.
+     * @param socket  a socket.
      * @param address a address.
-     * @param port a port.
-     * @throws IOException an IOException.
+     * @param port    a port.
      */
-    private void parse(DatagramSocket socket, InetAddress address, int port) throws IOException {
-        List<String> fileNames =
-                this.root ? Arrays.stream(Objects.requireNonNull(FFSync.getCurrentDirectory().list())).toList() : this.filesName;
+    private void parse(DatagramSocket socket, InetAddress address, int port) {
+        List<String> fileNames = this.root ? Arrays.stream(Objects.requireNonNull(FFSync.getCurrentDirectory().list())).toList() : this.filesName;
         assert fileNames != null;
         log("RequestHandler | parseGet fileNames: " + fileNames, 1);
 
         if (this.metadata) {
             Metadata metadata = Metadata.getMetadataFromNames(fileNames);
-            send(metadata, socket, address, port);
+            StopAndWait.send(socket, address, port, metadata);
         } else fileNames.forEach(f -> StopAndWait.sendFile(f, socket, address, port));
     }
 
 
     @Override
     public String toString() {
-        return "Get - " +
-                "metadata=" + metadata +
-                ", filesName=" + filesName +
-                ", root=" + root;
+        return "Get - " + "metadata=" + metadata + ", filesName=" + filesName + ", root=" + root;
     }
 }

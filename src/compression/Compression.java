@@ -17,8 +17,7 @@ public class Compression {
         log("Compress | Data: " + Arrays.toString(dataToCompress), debuggerLevel);
 
         try {
-            ByteArrayOutputStream byteStream =
-                    new ByteArrayOutputStream(dataToCompress.length);
+            ByteArrayOutputStream byteStream = new ByteArrayOutputStream(dataToCompress.length);
             try (byteStream) {
                 try (GZIPOutputStream zipStream = new GZIPOutputStream(byteStream)) {
                     zipStream.write(dataToCompress);

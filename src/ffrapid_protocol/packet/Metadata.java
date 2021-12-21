@@ -66,8 +66,8 @@ public class Metadata extends Packet {
 
     @Override
     public void handle(DatagramSocket socket, InetAddress address, int port) {
-        // This metadata is for the file that are missing in this node.
-        // I have to request and download these files.
+        // This metadata indicates the files that are missing in this node.
+        // The receiving node has to request and download these files.
         try {
             FileOperations.getFiles(metadata.entrySet(), address);
         } catch (InterruptedException e) {

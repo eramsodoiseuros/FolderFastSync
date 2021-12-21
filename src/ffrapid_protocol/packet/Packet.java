@@ -1,34 +1,27 @@
 package ffrapid_protocol.packet;
 
-import compression.Compression;
 import encryption.Encryption;
+import ffrapid_protocol.flow_control.StopAndWait;
 
-import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
 import static common.debugger.Debugger.log;
-import static ffrapid_protocol.FTRapid.send;
 
 public abstract class Packet {
     protected static final int debuggerLevel = 3;
 
     /**
      * Converts a message to a Packet.
+     *
      * @param message a message received.
      * @return a Packet converted from the message.
      */
     public static Packet deserialize(byte[] message) {
-        ByteBuffer bb = ByteBuffer.wrap(message);
-        byte[] data = new byte[bb.getInt()];
-        System.arraycopy(message, 4, data, 0, data.length);
-        Packet packet;
-        data = Compression.decompress(Encryption.decrypt(data));
-        assert data != null;
-        bb = ByteBuffer.wrap(data);
+        ByteBuffer bb = ByteBuffer.wrap(decryptedPacket(message));
         byte type = bb.get();
-        packet = switch (type) {
+        Packet packet = switch (type) {
             case 0 -> // Get packet
                     Get.deserialize(bb);
             case 1 -> // Data packet
@@ -48,18 +41,39 @@ public abstract class Packet {
         return packet;
     }
 
-    public byte[] encryptedCompression() {
-        byte[] ser = this.serialize();
-        byte[] data = Encryption.encrypt(Compression.compress(ser));
-        ByteBuffer bb = ByteBuffer.allocate(data.length + Integer.BYTES);
-        bb.putInt(data.length);
-        bb.put(data);
-        log("Compression % is: " + ser.length + " | " + data.length);
+    /**
+     * Decrypts a packet.
+     *
+     * @param packet the packet in an array of bytes.
+     * @return the decrypted packet in an array of bytes.
+     */
+    public static byte[] decryptedPacket(byte[] packet) {
+        ByteBuffer bb = ByteBuffer.wrap(packet);
+        byte[] data = new byte[bb.getInt()];
+        bb.get(data, 0, data.length);
+
+        return Encryption.decrypt(data);
+    }
+
+    /**
+     * Encrypts a packet.
+     *
+     * @return the serialized packet encrypted.
+     */
+    public byte[] encryptedPacket() {
+        byte[] packet = this.serialize();
+        byte[] encrypted = Encryption.encrypt(packet);
+        ByteBuffer bb = ByteBuffer.allocate(encrypted.length + Integer.BYTES);
+        bb.putInt(encrypted.length);
+        bb.put(encrypted);
+        log("Encrypt compression % is: " + packet.length + " / " + encrypted.length + " = " + (double) packet.length / encrypted.length,
+                debuggerLevel);
         return bb.array();
     }
 
     /**
      * Serializes a Packet.
+     *
      * @return A message to be sent.
      */
     public abstract byte[] serialize();
@@ -67,8 +81,8 @@ public abstract class Packet {
     /**
      * Handles the packet.
      */
-    public void handle(DatagramSocket socket , InetAddress address, int port) throws IOException {
+    public void handle(DatagramSocket socket, InetAddress address, int port) {
         Error errorPacket = new Error();
-        send(errorPacket, socket, address, port); // Sends an error message
+        StopAndWait.send(socket, address, port, errorPacket); // Sends an error message
     }
 }

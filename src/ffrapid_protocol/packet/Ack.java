@@ -10,9 +10,9 @@ import static common.debugger.Debugger.log;
 public class Ack extends Packet {
     private final static byte opcode = 2;
 
-    public final long segmentNumber;
+    public final int segmentNumber;
 
-    public Ack(long segmentNumber) {
+    public Ack(int segmentNumber) {
         this.segmentNumber = segmentNumber;
     }
 
@@ -28,7 +28,7 @@ public class Ack extends Packet {
     public static Packet deserialize(ByteBuffer byteBuffer) {
         log("Ack | Starting deserializing", Packet.debuggerLevel);
 
-        Ack ack = new Ack(byteBuffer.getLong());
+        Ack ack = new Ack(byteBuffer.getInt());
 
         log("Ack | Deserialize result: " + ack, Packet.debuggerLevel);
 

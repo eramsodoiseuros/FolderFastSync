@@ -2,7 +2,9 @@ package ffrapid_protocol;
 
 import app.FFSync;
 import common.Node;
+import common.Timer;
 import ffrapid_protocol.data.files.FileOperations;
+import ffrapid_protocol.flow_control.StopAndWait;
 import ffrapid_protocol.packet.Get;
 import ffrapid_protocol.packet.Metadata;
 import folder_parser.FolderParser;
@@ -24,6 +26,7 @@ public class Sender implements Runnable {
     private final Node n = FFSync.getNodes().get(0); // Vamos começar por uma ligação apenas
     private final InetAddress address = n.getAddress();
     private final int port = FFSync.getPORT();
+    private float RTT;
 
     public Sender() throws SocketException {
     }
@@ -35,10 +38,11 @@ public class Sender implements Runnable {
         // https://docs.oracle.com/javase/tutorial/essential/io/notification.html
 
         try {
-
             log("Sender | First node ip: " + address);
 
+            Timer timer = new Timer();
             Metadata metadata = requestsAllMetadata();
+            RTT = timer.getMilliseconds() / 2f * 1.25f;
 
             log("Sender | Comparing the files...");
             var filesNeeded = compareMetadata(metadata);
@@ -52,14 +56,6 @@ public class Sender implements Runnable {
             sendNeededFiles(filesNeeded.getValue()); // Informing the node the missing files on its side.
 
             log("Sender | Nodes synchronized");
-
-            // Requesting a file
-            // String fileName = "folder1/file1";
-            // requestFile(fileName);
-
-            // Download the file
-            // receiveFile(fileName);
-
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,12 +72,10 @@ public class Sender implements Runnable {
     public Metadata requestsAllMetadata() throws IOException {
         Get get = new Get(true, true); // Metadata from all files
 
-        FTRapid.send(get, socket, address, port); // Sends the request
-
+        StopAndWait.send(socket, address, port, get); // Sends the request
         log("Sender | Packet sent");
 
-        Metadata metadata = (Metadata) FTRapid.receive(socket); // Receives the response
-
+        Metadata metadata = (Metadata) StopAndWait.receive(socket); // Receives the response
         log("Sender | Packet received");
 
         return metadata;

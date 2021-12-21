@@ -3,13 +3,9 @@ package common;
 import java.time.Clock;
 
 public class Timer {
-    private static long start;
+    private final long start = Clock.systemDefaultZone().millis();
 
-    public static void startTimer() {
-        start = Clock.systemDefaultZone().millis();
-    }
-
-    public static long getMiliseconds() {
+    public long getMilliseconds() {
         return Clock.systemDefaultZone().millis() - start;
     }
 }

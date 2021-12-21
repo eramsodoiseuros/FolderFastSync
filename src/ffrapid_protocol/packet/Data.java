@@ -11,10 +11,10 @@ public class Data extends Packet {
     private final static byte opcode = 1;
     public final static int headerLength = Byte.BYTES + Long.BYTES + Integer.BYTES;
 
-    public final long blockNumber;
+    public final int blockNumber;
     public final byte[] data;
 
-    public Data(long blockNumber, byte[] data) {
+    public Data(int blockNumber, byte[] data) {
         this.blockNumber = blockNumber;
         this.data = data;
     }
@@ -29,7 +29,7 @@ public class Data extends Packet {
     }
 
     public static Packet deserialize(ByteBuffer byteBuffer) {
-        long blockNumber = byteBuffer.getLong();
+        int blockNumber = byteBuffer.getInt();
         var len = byteBuffer.getInt();
         log("DataPacket | Length: " + len);
         byte[] arr = new byte[len];

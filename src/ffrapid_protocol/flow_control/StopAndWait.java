@@ -1,20 +1,25 @@
-package ffrapid_protocol.data;
+package ffrapid_protocol.flow_control;
 
 import app.FFSync;
 import common.Timer;
+import compression.Compression;
 import ffrapid_protocol.FTRapid;
+import ffrapid_protocol.data.DivideData;
 import ffrapid_protocol.exceptions.NotAckPacket;
 import ffrapid_protocol.packet.Ack;
 import ffrapid_protocol.packet.Data;
 import ffrapid_protocol.packet.Packet;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 import static common.debugger.Debugger.log;
 import static ffrapid_protocol.FTRapid.sendAck;
@@ -33,7 +38,6 @@ public class StopAndWait {
      */
     public static void send(DatagramSocket socket, InetAddress address, int port, Packet packet) {
         boolean received = false;
-        Ack ack;
 
         while (!received) { // While the receiver doesn't send the ack
             try {
@@ -67,8 +71,13 @@ public class StopAndWait {
         }
     }
 
-    public static void sendData(DatagramSocket socket, InetAddress address, int port, byte[] data)
-            throws IOException, NotAckPacket {
+    public static Packet receive(DatagramSocket socket) throws IOException {
+        DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
+        FTRapid.send(new Ack(0), socket, datagramPacket.getAddress(), datagramPacket.getPort());
+        return Packet.deserialize(datagramPacket.getData());
+    }
+
+    public static void sendData(DatagramSocket socket, InetAddress address, int port, byte[] data) throws IOException, NotAckPacket {
         // Stop and wait algorithm
         // 0. Sends the amount of packets that is going to need to download the file
         // 1. Sends the file block
@@ -76,11 +85,12 @@ public class StopAndWait {
         // 2.1 [Ack is not received in the RTT] -> Sends the file block again
         // 3. Goes back into step 1 until there's no more blocks
 
-        Timer.startTimer();
 
-        DivideData divideData = new DivideData(data);
+        DivideData divideData = new DivideData(Compression.compress(data));
 
         log("StopAndWait | Blocks: " + divideData.blocks + " lastBlockLen: " + divideData.lastBlockLen, debuggerLevel);
+
+        Timer timer = new Timer();
 
         // Sends the amount of packets
         FTRapid.send(new Ack(divideData.blocks + 1), socket, address, port);
@@ -94,16 +104,7 @@ public class StopAndWait {
 
             log("StopAndWait | Data Packet acknowledged", debuggerLevel);
         }
-        log("StopAndWait | File uploaded in " + Timer.getMiliseconds() + "ms", debuggerLevel);
-
-        // Accumulative algorithm
-        // 1. Divide the File in blocks
-        // 2. Send each n blocks and wait for an Ack
-        // 3. See if until block number did it get to
-        // 4. Start sending with the block number missing
-        // 5. Optional receive Ack in the middle of the sending process
-        // 6. Read this Ack to see what has to be sent
-
+        log("StopAndWait | Data uploaded in " + timer.getMilliseconds() + "ms", debuggerLevel);
     }
 
     /**
@@ -119,21 +120,31 @@ public class StopAndWait {
         }
     }
 
-    public static void receiveFile(FileOutputStream outputStream, DatagramSocket socket, InetAddress address)
-            throws IOException {
-        // Stop and wait algorithm
+    public static void receiveFile(File file, DatagramSocket socket, InetAddress address) throws IOException {
         DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
         int port = datagramPacket.getPort();
-        long packets = ((Ack) Packet.deserialize(datagramPacket.getData())).segmentNumber;
+        int packets = ((Ack) Packet.deserialize(datagramPacket.getData())).segmentNumber;
+        ByteBuffer bb = ByteBuffer.allocate(FFSync.getMTU() * packets);
         Data data;
 
         for (int seqNumber = 0; seqNumber < packets; seqNumber++) { // Last block included
             data = (Data) FTRapid.receive(socket); // Assuming that we will receive data
 
-            outputStream.write(data.data); // Writes the data
+            bb.put(data.data); // Writes the data
 
             sendAck(socket, address, port, seqNumber); // Sends the Ack
         }
+
+        byte[] fileCompressed = bb.array();
+        byte[] fileDecompressed = Compression.decompress(fileCompressed);
+
+        assert fileDecompressed != null;
+        log("StopAndWait | Received file with compression of " +
+                (double) fileCompressed.length / fileDecompressed.length,
+                debuggerLevel);
+
+        FileOutputStream outputStream = new FileOutputStream(file);
+        outputStream.write(Objects.requireNonNull(fileDecompressed));
         outputStream.close();
     }
 }

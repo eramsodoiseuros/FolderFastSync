@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * PROTOCOLO DE TRANSFERÊNCIA DE DADOS
@@ -50,7 +49,7 @@ import java.security.NoSuchAlgorithmException;
 public class FTRapid {
 
     public static void send(Packet packet, DatagramSocket socket, InetAddress address, int port) throws IOException {
-        byte[] data = packet.encryptedCompression();
+        byte[] data = packet.encryptedPacket();
         DatagramPacket datagramPacket = new DatagramPacket(data, data.length, address, port);
         socket.send(datagramPacket);
     }
@@ -78,17 +77,8 @@ public class FTRapid {
         return (Ack) packet;
     }
 
-    public static void sendAck(DatagramSocket socket, InetAddress address, int port, long seqNumber) throws IOException {
+    public static void sendAck(DatagramSocket socket, InetAddress address, int port, int seqNumber) throws IOException {
         send(new Ack(seqNumber), socket, address, port);
     }
 
-    public static void main(String[] args) {
-        int maxKeySize = 0;
-        try {
-            maxKeySize = javax.crypto.Cipher.getMaxAllowedKeyLength("AES");
-        } catch (NoSuchAlgorithmException e) {
-            System.out.println("erro FFRapidProtocol.FTRapid [" + e.getMessage() + "]");
-        }
-        System.out.println("Max Key Size for AES : " + maxKeySize);
-    }
 }

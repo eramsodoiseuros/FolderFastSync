@@ -1,5 +1,7 @@
 package ffrapid_protocol.operations;
 
+import ffrapid_protocol.FTRapid;
+import ffrapid_protocol.packet.Ack;
 import ffrapid_protocol.packet.Packet;
 
 import java.net.DatagramPacket;
@@ -28,6 +30,8 @@ public class RequestHandler implements Runnable {
     public void run() {
         try {
             Packet packet = Packet.deserialize(initialPacket.getData());
+
+            FTRapid.send(new Ack(0), socket, address, port);
 
             packet.handle(socket, address, port);
 
