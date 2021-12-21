@@ -22,7 +22,7 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 import static common.debugger.Debugger.log;
-import static ffrapid_protocol.FTRapid.sendAck;
+import static common.debugger.Debugger.toHexString;
 
 public class StopAndWait {
     private static final int debuggerLevel = 2;
@@ -45,6 +45,7 @@ public class StopAndWait {
                 Packet packetReceived = FTRapid.receive(socket);
                 if (packetReceived instanceof Ack) received = true;
             } catch (IOException ignored) {
+                log("StopAndWait | Ack not received in the given time, sending the packet again...", debuggerLevel);
             }
         }
     }
@@ -93,11 +94,11 @@ public class StopAndWait {
         Timer timer = new Timer();
 
         // Sends the amount of packets
-        FTRapid.send(new Ack(divideData.blocks + 1), socket, address, port);
+        StopAndWait.send(socket, address, port, new Ack(divideData.blocks));
         log("StopAndWait | Sending the amount of packets");
 
         // Gets the blocks
-        for (int i = 0; i < divideData.blocks; i++) {
+        for (int i = 0; i < divideData.blocks - 1; i++) {
             Data dataPacket = new Data(i + 1, divideData.getBlock(i));
 
             send(socket, address, port, dataPacket); // Sends the packet
@@ -124,18 +125,17 @@ public class StopAndWait {
         DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
         int port = datagramPacket.getPort();
         int packets = ((Ack) Packet.deserialize(datagramPacket.getData())).segmentNumber;
+        FTRapid.send(new Ack(0), socket, address, port);
         ByteBuffer bb = ByteBuffer.allocate(FFSync.getMTU() * packets);
         Data data;
 
-        for (int seqNumber = 0; seqNumber < packets; seqNumber++) { // Last block included
-            data = (Data) FTRapid.receive(socket); // Assuming that we will receive data
-
+        for (int seqNumber = 0; seqNumber < packets - 1; seqNumber++) { // Last block included
+            data = (Data) StopAndWait.receive(socket); // Assuming that we will receive data
             bb.put(data.data); // Writes the data
-
-            sendAck(socket, address, port, seqNumber); // Sends the Ack
         }
 
         byte[] fileCompressed = bb.array();
+        log("!!!!!!!!!!!!! " + toHexString(fileCompressed));
         byte[] fileDecompressed = Compression.decompress(fileCompressed);
 
         assert fileDecompressed != null;

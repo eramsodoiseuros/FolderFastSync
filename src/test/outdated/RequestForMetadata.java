@@ -1,4 +1,4 @@
-package test;
+package test.outdated;
 
 import ffrapid_protocol.FTRapid;
 import ffrapid_protocol.packet.Data;

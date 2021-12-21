@@ -1,11 +1,12 @@
 package test;
 
+import common.debugger.Debugger;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 public class HMac {
 
@@ -17,6 +18,6 @@ public class HMac {
         SecretKeySpec secretKeySpec = new SecretKeySpec(KEY.getBytes(), HMAC_SHA1_ALGORITHM);
         Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
         mac.init(secretKeySpec);
-        System.out.println(Arrays.toString(mac.doFinal(msg.getBytes(StandardCharsets.UTF_8))));
+        System.out.println(Debugger.toHexString(mac.doFinal(msg.getBytes(StandardCharsets.UTF_8))));
     }
 }

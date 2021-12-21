@@ -9,7 +9,7 @@ public class Debugger {
     private static final String file = "log.txt";
     private static boolean toFile = false;
     private static boolean enable = true;
-    private static int level = 1;
+    private static int level = 4;
 
     private static OutputStream out;
 
@@ -60,5 +60,16 @@ public class Debugger {
     // Custom level
     public static void log(Object object, int level) {
         if (Debugger.level >= level) log(object);
+    }
+
+
+    public static String toHexString(byte[] bytes) {
+        StringBuilder stringBuffer =new StringBuilder();
+        for (byte aByte : bytes) {
+            String hex = Integer.toHexString(0xFF & aByte);
+            if (hex.length() == 1) stringBuffer.append('0');
+            stringBuffer.append(hex);
+        }
+        return stringBuffer.toString();
     }
 }
