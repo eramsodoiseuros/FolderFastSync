@@ -102,14 +102,11 @@ public class Sender implements Runnable {
         Map<String, Long> remote = new HashMap<>();
 
         Consumer<Map.Entry<String, Long>> different = e -> {
-            local.add(e);
-            /*
             Long time = filesMeta.remove(e.getKey());
             if (time == null) local.add(e); // Local File does exist
             else if (e.getValue().equals(time)); // Files are equal.
             else if (localFileChange(e.getValue(), time)) local.add(e);
             else remote.put(e.getKey(), time);
-             */
         };
 
         metadata.metadata.entrySet().forEach(different); // Compares the files between the remote node and the local.

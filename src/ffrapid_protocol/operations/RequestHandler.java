@@ -32,7 +32,7 @@ public class RequestHandler implements Runnable {
         try {
             Timer timer = new Timer();
             FTRapid.sendAck(socket, address, port, 0); // Send the ack to acknowledge that the request as been received.
-            timeout = (int) (timer.getMilliseconds() * 1.25f); // Calculating the RTT
+            timeout = (int) (timer.getMilliseconds() * 2); // Calculating the RTT
             socket.setSoTimeout(timeout);// Setting the timeout in the socket
             log("RequestHandler | Timeout: " + timeout);
 

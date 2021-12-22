@@ -66,7 +66,7 @@ public class FileOperations {
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void receiveFile(String fileName, long lastTimeModified) throws IOException {
-        File file = new File(FFSync.getCurrentDirectory() + "/" + fileName + "1");
+        File file = new File(FFSync.getCurrentDirectory() + "/" + fileName);
 
         Timer timer = new Timer();
         StopAndWait.receiveFile(file, socket, address);
@@ -79,9 +79,8 @@ public class FileOperations {
      * Requests a file.
      *
      * @param fileName the name of the file.
-     * @throws IOException an IOException.
      */
-    public void requestFile(String fileName) throws IOException {
+    public void requestFile(String fileName) {
         Get get = new Get(fileName);
         StopAndWaitV2.send(get, socket, address, port);
     }

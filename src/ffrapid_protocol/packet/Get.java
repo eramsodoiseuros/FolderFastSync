@@ -5,7 +5,6 @@ import ffrapid_protocol.flow_control.StopAndWait;
 import ffrapid_protocol.flow_control.StopAndWaitV2;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
@@ -45,10 +44,6 @@ public class Get extends Packet {
         this.root = false;
         this.filesName = new ArrayList<>();
         this.filesName.add(fileName);
-    }
-
-    public static byte getOpcode() {
-        return opcode;
     }
 
     @Override
@@ -105,7 +100,7 @@ public class Get extends Packet {
     }
 
     @Override
-    public void handle(DatagramSocket socket, InetAddress address, int port) throws IOException {
+    public void handle(DatagramSocket socket, InetAddress address, int port) {
         parse(socket, address, port);
     }
 
@@ -115,9 +110,8 @@ public class Get extends Packet {
      * @param socket a socket.
      * @param address a address.
      * @param port a port.
-     * @throws IOException an IOException.
      */
-    private void parse(DatagramSocket socket, InetAddress address, int port) throws IOException {
+    private void parse(DatagramSocket socket, InetAddress address, int port) {
         List<String> fileNames =
                 this.root ? Arrays.stream(Objects.requireNonNull(FFSync.getCurrentDirectory().list())).toList() : this.filesName;
         assert fileNames != null;
