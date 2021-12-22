@@ -33,7 +33,7 @@ public class StopAndWait {
         // 2.1 [Ack is not received in the RTT] -> Sends the file block again
         // 3. Goes back into step 1 until there's no more blocks
 
-        Timer.startTimer();
+        Timer timer = new Timer();
 
         int MTU = FFSync.getMTU() - Data.headerLength;
         int blocks = data.length / MTU;
@@ -67,7 +67,7 @@ public class StopAndWait {
         // Waits for the Ack
         receivesAck(socket, address, port);
 
-        log("StopAndWait | File uploaded in " + Timer.getMiliseconds() + "ms", debuggerLevel);
+        log("StopAndWait | File uploaded in " + timer.getMilliseconds() + "ms", debuggerLevel);
 
         // Ler ack
         // Mandar block
