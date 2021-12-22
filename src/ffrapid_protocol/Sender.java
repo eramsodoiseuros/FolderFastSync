@@ -3,6 +3,7 @@ package ffrapid_protocol;
 import app.FFSync;
 import common.Node;
 import ffrapid_protocol.data.files.FileOperations;
+import ffrapid_protocol.exceptions.NoConnectionException;
 import ffrapid_protocol.flow_control.StopAndWaitV2;
 import ffrapid_protocol.packet.Get;
 import ffrapid_protocol.packet.Metadata;
@@ -59,9 +60,15 @@ public class Sender implements Runnable {
 
                 log("Sender | Nodes synchronized");
 
-                Thread.sleep(refreshTime);
+            } catch (NoConnectionException e) {
+                log("Sender | No connection between the nodes!");
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+
+            try {
+                Thread.sleep(refreshTime);
+            } catch (Exception ignored) {
             }
         }
     }
@@ -72,7 +79,7 @@ public class Sender implements Runnable {
      * @return The metadata packet received.
      * @throws IOException an IOException.
      */
-    public Metadata requestsAllMetadata() throws IOException {
+    public Metadata requestsAllMetadata() throws IOException, NoConnectionException {
         Get get = new Get(true, true); // Metadata from all files
 
         StopAndWaitV2.send(get, socket, address, port); // Sends the request
@@ -94,7 +101,7 @@ public class Sender implements Runnable {
      */
     private Map.Entry<Set<Map.Entry<String, Long>>, Map<String, Long>> compareMetadata(Metadata metadata) {
         var files = Objects.requireNonNull(FFSync.getCurrentDirectory().list());
-        Map<String, Long> filesMeta = FolderParser.metadata(Arrays.stream(files).toList());
+        Map<String, Long> filesMeta = FolderParser.metadata();
         // Metadata from the local node ^
 
         // Files to be requested
@@ -104,7 +111,7 @@ public class Sender implements Runnable {
         Consumer<Map.Entry<String, Long>> different = e -> {
             Long time = filesMeta.remove(e.getKey());
             if (time == null) local.add(e); // Local File does exist
-            else if (e.getValue().equals(time)); // Files are equal.
+            else if (e.getValue().equals(time)) ; // Files are equal.
             else if (localFileChange(e.getValue(), time)) local.add(e);
             else remote.put(e.getKey(), time);
         };
@@ -133,7 +140,7 @@ public class Sender implements Runnable {
      *
      * @param files metadata from the files.
      */
-    private void sendNeededFiles(Map<String, Long> files) throws IOException {
+    private void sendNeededFiles(Map<String, Long> files) throws IOException, NoConnectionException {
         DatagramSocket socket = new DatagramSocket();
 
         Metadata metadata = new Metadata(files);

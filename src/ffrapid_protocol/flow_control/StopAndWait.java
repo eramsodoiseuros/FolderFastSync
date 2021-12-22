@@ -5,6 +5,7 @@ import common.Timer;
 import compression.Compression;
 import ffrapid_protocol.FTRapid;
 import ffrapid_protocol.data.DivideData;
+import ffrapid_protocol.exceptions.NoConnectionException;
 import ffrapid_protocol.exceptions.NotAckPacket;
 import ffrapid_protocol.packet.Ack;
 import ffrapid_protocol.packet.Data;
@@ -28,7 +29,7 @@ public class StopAndWait {
     private static final int debuggerLevel = 2;
 
     public static void sendData(DatagramSocket socket, InetAddress address, int port, byte[] data)
-            throws IOException, NotAckPacket {
+            throws IOException, NotAckPacket, NoConnectionException {
         // Stop and wait algorithm
         // 0. Sends the amount of packets that is going to need to download the file
         // 1. Sends the file block
@@ -65,7 +66,7 @@ public class StopAndWait {
     public static void sendFile(String fileName, DatagramSocket socket, InetAddress address, int port) {
         try {
             StopAndWait.sendData(socket, address, port, Files.readAllBytes(Paths.get(FFSync.getCurrentDirectory() + "/" + fileName)));
-        } catch (NotAckPacket | IOException e) {
+        } catch (NotAckPacket | IOException | NoConnectionException e) {
             e.printStackTrace();
         }
     }

@@ -8,7 +8,6 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static common.debugger.Debugger.log;
@@ -24,8 +23,8 @@ public class Metadata extends Packet {
         this.metadata = metadata;
     }
 
-    public static Metadata getMetadataFromNames(List<String> file_names) {
-        return new Metadata(FolderParser.metadata(file_names));
+    public static Metadata getMetadataFromDirectory() {
+        return new Metadata(FolderParser.metadata());
     }
 
     public static Packet deserialize(ByteBuffer bb) {

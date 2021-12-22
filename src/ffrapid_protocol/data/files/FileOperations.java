@@ -4,6 +4,7 @@ import app.FFSync;
 import common.Timer;
 import compression.Compression;
 import ffrapid_protocol.data.DivideData;
+import ffrapid_protocol.exceptions.NoConnectionException;
 import ffrapid_protocol.flow_control.StopAndWait;
 import ffrapid_protocol.flow_control.StopAndWaitV2;
 import ffrapid_protocol.packet.Get;
@@ -45,7 +46,7 @@ public class FileOperations {
                 DatagramSocket socket = new DatagramSocket();
                 FileOperations fo = new FileOperations(socket, address);
                 fo.getFile(file);
-            } catch (IOException e) {
+            } catch (IOException | NoConnectionException e) {
                 e.printStackTrace();
             }
         });
@@ -80,7 +81,7 @@ public class FileOperations {
      *
      * @param fileName the name of the file.
      */
-    public void requestFile(String fileName) {
+    public void requestFile(String fileName) throws NoConnectionException {
         Get get = new Get(fileName);
         StopAndWaitV2.send(get, socket, address, port);
     }
@@ -90,7 +91,7 @@ public class FileOperations {
      *
      * @param file the name of the file and the last time modified.
      */
-    public void getFile(Map.Entry<String, Long> file) throws IOException {
+    public void getFile(Map.Entry<String, Long> file) throws IOException, NoConnectionException {
         requestFile(file.getKey());
         receiveFile(file.getKey(), file.getValue());
     }

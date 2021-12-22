@@ -2,17 +2,15 @@ package folder_parser;
 
 import app.FFSync;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
+
+import static common.debugger.Debugger.log;
 
 /**
  * Preciso saber todos os files dentro de uma pasta e em pastas de pastas (arvore de files)
@@ -25,120 +23,64 @@ import java.util.Map;
  */
 
 public class FolderParser {
+    private static final int debuggerLevel = 2;
 
-    public static Map<String, Long> metadata(List<String> file_names) {
-        Map<String, Long> r = new HashMap<>();
-        for (String s : file_names) {
-            File f = new File(FFSync.getCurrentDirectory() + "/" + s);
-            // LocalDateTime d = LocalDateTime.ofInstant(Instant.ofEpochMilli(f.lastModified()), ZoneId.systemDefault());
-            long d = f.lastModified();
-            r.put(s, d);
-        }
-        return r;
-        // return file_names.stream().map(fazer cenas).collect(Collectors.toList);
-    }
-
-    public static void main(String[] args) throws IOException {
-        String s = System.getProperty("user.dir");
-        System.out.println(s);
+    public static Map<String, Long> metadata() {
         HashMap<String, Long> map = new HashMap<>();
         File curDir = FFSync.getCurrentDirectory();
-        String curDirPath = curDir.getPath();
-        int index = curDir.getPath().length() - curDir.getName().length() - 1;
-        Files.walkFileTree(Paths.get(curDirPath), new HashSet<>(), 2, new FileVisitor<>() {
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                File f = new File(String.valueOf(dir));
-                if (f.isDirectory()) {
-                    String nova = (f.getPath()).substring(index);
-                    map.put(nova, f.lastModified());
+        log("Current directory: " + curDir, debuggerLevel);
+        String curDirPath = curDir.getAbsolutePath();
+        log("Current directory path: " + curDirPath, debuggerLevel);
+        int index = curDir.getAbsolutePath().length();
+        try {
+            Files.walkFileTree(Paths.get(curDirPath), new HashSet<>(), 20, new FileVisitor<>() {
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                    /*
+                    File f = new File(String.valueOf(dir));
+                    if (f.isDirectory()) {
+                        String nova = (f.getPath()).substring(index);
+                        map.put(nova, f.lastModified());
+                    }
+
+                     */
+                    if (dir.toFile().getName().equals("~")) return FileVisitResult.SKIP_SUBTREE;
+                    return FileVisitResult.CONTINUE;
                 }
-                // System.out.println("preVisitDirectory: " + dir);
-                return FileVisitResult.CONTINUE;
-            }
 
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                File f = new File(String.valueOf(file));
-                String nova = (f.getPath()).substring(index);
-                map.put(nova, f.lastModified());
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                    File f = file.toFile();
 
-                return FileVisitResult.CONTINUE;
-            }
+                    String nova = (f.getAbsolutePath()).substring(index);
+                    log("FolderParser | VisitFile: " + nova, debuggerLevel);
+                    if (!f.getName().startsWith("~")) {
+                        log("AAAAAAAAAAAAAAAAAAAAAAAAAQUIIIIIIIIIIIIIII");
+                        map.put(nova, f.lastModified());
+                    }
 
-            @Override
-            public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                System.out.println("visitFileFailed: " + file);
-                return FileVisitResult.CONTINUE;
-            }
+                    return FileVisitResult.CONTINUE;
+                }
 
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-                // System.out.println("postVisitDirectory: " + dir);
-                return FileVisitResult.CONTINUE;
-            }
-        });
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                    System.out.println("visitFileFailed: " + file);
+                    return FileVisitResult.CONTINUE;
+                }
 
-        for (Map.Entry<String, Long> par : map.entrySet()) {
-            System.out.println("nome: " + par.getKey() + ", tempo: " + par.getValue());
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                    // System.out.println("postVisitDirectory: " + dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+
+        } catch (IOException ignored) {
         }
+
+        log("!!!! FolderParser | Metadata: " + map + " !!!!", debuggerLevel);
+        return map;
     }
-    //JSON PARSER
-    /*
-    public static void main(String[] args) throws IOException {
-        String s = System.getProperty("user.dir");
-        System.out.println(s);
-        JSONObject obj = new JSONObject();
-        File curDir = FFSync.getCurrentDirectory();
-        String curDirPath = curDir.getPath();
-        int index = curDir.getPath().length() - curDir.getName().length() - 1;
-        Files.walkFileTree(Paths.get(curDirPath), new HashSet<>(), 2, new FileVisitor<>() {
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                File f = new File(String.valueOf(dir));
-                if (f.isDirectory()) {
-                    String nova = f.getPath().substring(index);
-                    JSONArray ficheiro = new JSONArray();
-                    ficheiro.add("file name: "+f.getName()+" ; ");
-                    ficheiro.add("file path: "+nova+" ; ");
-                    //ficheiro.add("file path: "+f.getAbsolutePath()+" ; ");
-                    ficheiro.add("file last update: "+f.lastModified()+" ; ");
-                    ficheiro.add("file size: "+f.getTotalSpace()+" ; ");
-                    obj.put("Name: "+nova,ficheiro);
-                  //  System.out.println(ficheiro);
-                }
-                // System.out.println("preVisitDirectory: " + dir);
-                return FileVisitResult.CONTINUE;
-            }
 
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                File f = new File(String.valueOf(file));
-                String nova = f.getPath().substring(index);
-                JSONArray ficheiro = new JSONArray();
-                ficheiro.add("file name: "+f.getName()+" ; ");
-                ficheiro.add("file path: "+nova+" ; ");
-                //ficheiro.add("file path: "+f.getAbsolutePath()+" ; ");
-                ficheiro.add("file last update: "+f.lastModified()+" ; ");
-                ficheiro.add("file size: "+f.getTotalSpace()+" ; ");
-                obj.put("Name: "+nova,ficheiro);
-                //System.out.println(ficheiro);
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                System.out.println("visitFileFailed: " + file);
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-                // System.out.println("postVisitDirectory: " + dir);
-                return FileVisitResult.CONTINUE;
-            }
-        });
-        System.out.println(obj);
-    }*/
 }
 

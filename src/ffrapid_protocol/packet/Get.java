@@ -1,6 +1,7 @@
 package ffrapid_protocol.packet;
 
 import app.FFSync;
+import ffrapid_protocol.exceptions.NoConnectionException;
 import ffrapid_protocol.flow_control.StopAndWait;
 import ffrapid_protocol.flow_control.StopAndWaitV2;
 
@@ -100,7 +101,7 @@ public class Get extends Packet {
     }
 
     @Override
-    public void handle(DatagramSocket socket, InetAddress address, int port) {
+    public void handle(DatagramSocket socket, InetAddress address, int port) throws NoConnectionException {
         parse(socket, address, port);
     }
 
@@ -111,14 +112,14 @@ public class Get extends Packet {
      * @param address a address.
      * @param port a port.
      */
-    private void parse(DatagramSocket socket, InetAddress address, int port) {
+    private void parse(DatagramSocket socket, InetAddress address, int port) throws NoConnectionException {
         List<String> fileNames =
                 this.root ? Arrays.stream(Objects.requireNonNull(FFSync.getCurrentDirectory().list())).toList() : this.filesName;
         assert fileNames != null;
         log("RequestHandler | parseGet fileNames: " + fileNames, 1);
 
         if (this.metadata) {
-            Metadata metadata = Metadata.getMetadataFromNames(fileNames);
+            Metadata metadata = Metadata.getMetadataFromDirectory();
             StopAndWaitV2.send(metadata, socket, address, port);
         } else fileNames.forEach(f -> StopAndWait.sendFile(f, socket, address, port));
     }

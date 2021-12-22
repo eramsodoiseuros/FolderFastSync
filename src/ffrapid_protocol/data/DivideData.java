@@ -9,7 +9,7 @@ public class DivideData {
     private final int debuggerLevel = 3;
     public final int blocks; // Number of blocks including the last one
     public final byte[] data;
-    public final int maxBlockSize = FFSync.getMTU() - Data.headerLength;
+    public final int maxBlockSize = FFSync.getMTU() - Data.headerLength - 100;
     public final int lastBlockLen;
 
     public DivideData(byte[] data) {

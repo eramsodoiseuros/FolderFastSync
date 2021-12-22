@@ -10,7 +10,7 @@ import java.util.Base64;
 import static common.debugger.Debugger.log;
 
 public class Encryption {
-    private static final int debuggerLevel = 2;
+    private static final int debuggerLevel = 4;
 
     private static final String ALG = "AES";
     private static final String keyValue = "jG7zvqh/HYkj0jUVCTqSQA==";

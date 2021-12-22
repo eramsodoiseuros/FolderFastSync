@@ -2,6 +2,7 @@ package ffrapid_protocol.packet;
 
 import app.FFSync;
 import encryption.Encryption;
+import ffrapid_protocol.exceptions.NoConnectionException;
 import ffrapid_protocol.flow_control.StopAndWaitV2;
 
 import java.net.DatagramSocket;
@@ -85,7 +86,7 @@ public abstract class Packet {
     /**
      * Handles the packet.
      */
-    public void handle(DatagramSocket socket, InetAddress address, int port) {
+    public void handle(DatagramSocket socket, InetAddress address, int port) throws NoConnectionException {
         Error errorPacket = new Error();
         StopAndWaitV2.send(errorPacket, socket, address, port); // Sends an error message
     }

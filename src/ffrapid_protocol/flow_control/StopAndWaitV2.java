@@ -1,6 +1,7 @@
 package ffrapid_protocol.flow_control;
 
 import ffrapid_protocol.FTRapid;
+import ffrapid_protocol.exceptions.NoConnectionException;
 import ffrapid_protocol.packet.Ack;
 import ffrapid_protocol.packet.Data;
 import ffrapid_protocol.packet.Packet;
@@ -14,6 +15,7 @@ import static common.debugger.Debugger.log;
 
 public class StopAndWaitV2 {
     private static final int debuggerLevel = 2;
+    private static final int tries = 3;
     private final DatagramSocket socket;
     private final InetAddress address;
     private final int port;
@@ -31,11 +33,12 @@ public class StopAndWaitV2 {
      * @param address a address
      * @param port a port
      */
-    public static void send(Packet packet, DatagramSocket socket, InetAddress address, int port) {
+    public static void send(Packet packet, DatagramSocket socket, InetAddress address, int port) throws NoConnectionException {
         boolean received = false;
+        int i = 0;
         // int portReceived = 0;
 
-        while (!received) { // While the receiver doesn't send the ack
+        while (i < tries && !received) { // While the receiver doesn't send the ack
             try {
                 FTRapid.send(packet, socket, address, port);
                 DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
@@ -43,9 +46,11 @@ public class StopAndWaitV2 {
                 Packet packetReceived = Packet.deserialize(datagramPacket.getData());
                 if (packetReceived instanceof Ack) received = true;
             } catch (IOException ignored) {
+                i++;
                 log("StopAndWait | Ack not received in the given time, sending the packet again...", debuggerLevel);
             }
         }
+        if (i == tries) throw new NoConnectionException();
         //return portReceived;
     }
 
@@ -66,13 +71,15 @@ public class StopAndWaitV2 {
      */
     public void send(Packet packet) {
         boolean received = false;
+        int i = 0;
 
-        while (!received) { // While the receiver doesn't send the ack
+        while (i < tries && !received) { // While the receiver doesn't send the ack
             try {
                 FTRapid.send(packet, socket, address, port);
                 Packet packetReceived = FTRapid.receive(socket);
                 if (packetReceived instanceof Ack) received = true;
             } catch (IOException ignored) {
+                i++;
                 log("StopAndWait | Ack not received in the given time, sending the packet again...", debuggerLevel);
             }
         }
@@ -86,13 +93,15 @@ public class StopAndWaitV2 {
     private void send(Data data) {
         boolean received = false;
         Ack ack;
+        int i = 0;
 
-        while (!received) { // While the receiver doesn't send the ack
+        while (i < tries && !received) { // While the receiver doesn't send the ack
             try {
                 FTRapid.send(data, socket, address, port);
                 ack = (Ack) FTRapid.receive(socket);
                 if (ack.segmentNumber == data.blockNumber) received = true;
             } catch (IOException ignored) {
+                i++;
                 log("StopAndWait | Ack not received in the given time, sending the packet again...", debuggerLevel);
             }
         }

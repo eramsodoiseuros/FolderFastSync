@@ -10,7 +10,7 @@ import java.util.zip.GZIPOutputStream;
 import static common.debugger.Debugger.log;
 
 public class Compression {
-    private static final int debuggerLevel = 2;
+    private static final int debuggerLevel = 4;
 
     public static byte[] compress(byte[] dataToCompress) {
         byte[] returnValue = new byte[0];
