@@ -1,9 +1,10 @@
-package ffrapid_protocol.data;
+package ffrapid_protocol.flow_control;
 
 import app.FFSync;
 import common.Timer;
 import compression.Compression;
 import ffrapid_protocol.FTRapid;
+import ffrapid_protocol.data.DivideData;
 import ffrapid_protocol.exceptions.NotAckPacket;
 import ffrapid_protocol.packet.Ack;
 import ffrapid_protocol.packet.Data;
@@ -21,9 +22,8 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 import static common.debugger.Debugger.log;
-import static ffrapid_protocol.FTRapid.*;
-import static ffrapid_protocol.data.DivideData.getBlock;
-import static ffrapid_protocol.data.DivideData.getLastBlock;
+import static ffrapid_protocol.FTRapid.receive;
+import static ffrapid_protocol.FTRapid.sendAck;
 
 public class StopAndWait {
     private static final int debuggerLevel = 2;
@@ -40,20 +40,22 @@ public class StopAndWait {
         Timer timer = new Timer();
         data = Compression.compress(data);
 
-        int MTU = FFSync.getMTU() - Data.headerLength;
-        int blocks = data.length / MTU;
-        int lastBlockLen = data.length % MTU;
+        DivideData divideData = new DivideData(data);
+
+        int MTU = divideData.maxBlockSize;
+        int blocks = divideData.blocks;
+        int lastBlockLen = divideData.lastBlockLen;
         Ack ack;
 
         log("StopAndWait | Blocks: " + blocks + " lastBlockLen: " + lastBlockLen, debuggerLevel);
 
         // Sends the amount of packets
-        FTRapid.send(new Ack(blocks + 1), socket, address, port);
+        FTRapid.send(new Ack(blocks), socket, address, port);
         log("StopAndWait | Sending the amount of packets");
 
         // Gets the blocks
-        for (int i = 0; i < blocks; i++) {
-            Data dataPacket = getBlock(MTU, data, i);
+        for (int i = 1; i <= blocks; i++) {
+            Data dataPacket = new Data(i, divideData.getBlock(i));
 
             // Sends the packet
             FTRapid.send(dataPacket, socket, address, port);
@@ -63,14 +65,6 @@ public class StopAndWait {
             receive(socket);
             log("StopAndWait | Data Packet acknowledged", debuggerLevel);
         }
-        // Gets the last block
-        Data dataPacket = getLastBlock(lastBlockLen, data, blocks, MTU);
-
-        // Sends the packet
-        FTRapid.send(dataPacket, socket, address, port);
-
-        // Waits for the Ack
-        receivesAck(socket, address, port);
 
         log("StopAndWait | File uploaded in " + timer.getMilliseconds() + "ms", debuggerLevel);
 

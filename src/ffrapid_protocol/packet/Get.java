@@ -1,7 +1,7 @@
 package ffrapid_protocol.packet;
 
 import app.FFSync;
-import ffrapid_protocol.data.StopAndWait;
+import ffrapid_protocol.flow_control.StopAndWait;
 
 import java.io.File;
 import java.io.IOException;

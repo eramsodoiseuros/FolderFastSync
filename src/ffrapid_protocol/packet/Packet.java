@@ -53,7 +53,6 @@ public abstract class Packet {
         ByteBuffer bb = ByteBuffer.wrap(packet);
         int len = bb.getInt();
         assert len <= FFSync.getMTU() - 4;
-        System.out.println("!! DecryptedPacket !! Encrypted len: " + len);
         byte[] data = new byte[len];
         bb.get(data, 0, data.length);
 
@@ -71,7 +70,6 @@ public abstract class Packet {
         assert encrypted.length <= FFSync.getMTU() - 4 : "Possible overflow avoided"; // Guaranties that the buffer does not overflow.
         ByteBuffer bb = ByteBuffer.allocate(encrypted.length + Integer.BYTES);
         bb.putInt(encrypted.length);
-        System.out.println("!! Encrypted len: " + encrypted.length);
         bb.put(encrypted);
         log("Encrypt compression % is: " + packet.length + " / " + encrypted.length + " = " + (double) packet.length / encrypted.length,
                 debuggerLevel);
