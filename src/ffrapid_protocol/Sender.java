@@ -26,8 +26,8 @@ public class Sender implements Runnable {
     private final InetAddress address = n.getAddress();
     private final int port = FFSync.getPORT();
     private final int timeout = 20;
-    private boolean running = true;
     private final int refreshTime = 60000;
+    private final boolean running = true;
 
     public Sender() throws SocketException {
         socket.setSoTimeout(timeout);
@@ -36,7 +36,7 @@ public class Sender implements Runnable {
 
     @Override
     public void run() {
-        while(running) {
+        while (running) {
             // Sends a request in the beginning of the program and with changes in the directory
             // https://docs.oracle.com/javase/tutorial/essential/io/notification.html
 
@@ -65,7 +65,6 @@ public class Sender implements Runnable {
             }
         }
     }
-
 
     /**
      * Requests all metadata from the directory.
@@ -102,7 +101,8 @@ public class Sender implements Runnable {
         Set<Map.Entry<String, Long>> local = new HashSet<>();
         Map<String, Long> remote = new HashMap<>();
 
-        Consumer<Map.Entry<String, Long>> different = e -> { local.add(e);
+        Consumer<Map.Entry<String, Long>> different = e -> {
+            local.add(e);
             /*
             Long time = filesMeta.remove(e.getKey());
             if (time == null) local.add(e); // Local File does exist
@@ -124,7 +124,7 @@ public class Sender implements Runnable {
      * Determines if the local node has to change.
      *
      * @param remote the time of the remote file.
-     * @param local the time of the local file.
+     * @param local  the time of the local file.
      * @return true if the local file is the one to be changed.
      */
     private boolean localFileChange(Long remote, Long local) {

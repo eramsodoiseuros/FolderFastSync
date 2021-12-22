@@ -41,26 +41,19 @@ public class StopAndWait {
 
         DivideData divideData = new DivideData(data);
 
-        int blocks = divideData.blocks;
-        int lastBlockLen = divideData.lastBlockLen;
-        Ack ack;
-
-        log("StopAndWait | Blocks: " + blocks + " lastBlockLen: " + lastBlockLen, debuggerLevel);
+        log("StopAndWait | Blocks: " + divideData.blocks + " lastBlockLen: " + divideData.lastBlockLen, debuggerLevel);
 
         // Sends the amount of packets
-        StopAndWaitV2.send(new Ack(blocks), socket, address, port);
+        StopAndWaitV2.send(new Ack(divideData.blocks), socket, address, port);
         log("StopAndWait | Sending the amount of packets");
 
         // Gets the blocks
-        for (int i = 1; i <= blocks; i++) {
+        for (int i = 1; i <= divideData.blocks; i++) {
             Data dataPacket = new Data(i, divideData.getBlock(i));
-
             // Sends the packet
             StopAndWaitV2.send(dataPacket, socket, address, port);
-
             log("StopAndWait | Data Packet acknowledged", debuggerLevel);
         }
-
         log("StopAndWait | File uploaded in " + timer.getMilliseconds() + "ms", debuggerLevel);
     }
 
