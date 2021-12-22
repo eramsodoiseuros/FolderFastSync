@@ -25,7 +25,7 @@ public class Sender implements Runnable {
     private final Node n = FFSync.getNodes().get(0); // Vamos começar por uma ligação apenas
     private final InetAddress address = n.getAddress();
     private final int port = FFSync.getPORT();
-    private final int timeout = 20;
+    private final int timeout = 200;
     private final int refreshTime = 60000;
     private final boolean running = true;
 
@@ -79,7 +79,7 @@ public class Sender implements Runnable {
 
         log("Sender | Packet sent");
 
-        Metadata metadata = (Metadata) FTRapid.receive(socket); // Receives the response
+        Metadata metadata = (Metadata) StopAndWaitV2.receive(socket); // Receives the response
 
         log("Sender | Packet received");
 
