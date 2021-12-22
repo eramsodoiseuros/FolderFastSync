@@ -25,45 +25,44 @@ public class Sender implements Runnable {
     private final Node n = FFSync.getNodes().get(0); // Vamos começar por uma ligação apenas
     private final InetAddress address = n.getAddress();
     private final int port = FFSync.getPORT();
+    private final int timeout = 20;
+    private boolean running = true;
+    private final int refreshTime = 60000;
 
     public Sender() throws SocketException {
+        socket.setSoTimeout(timeout);
     }
 
 
     @Override
     public void run() {
-        // Sends a request in the beginning of the program and with changes in the directory
-        // https://docs.oracle.com/javase/tutorial/essential/io/notification.html
+        while(running) {
+            // Sends a request in the beginning of the program and with changes in the directory
+            // https://docs.oracle.com/javase/tutorial/essential/io/notification.html
 
-        try {
+            try {
 
-            log("Sender | First node ip: " + address);
+                log("Sender | First node ip: " + address);
 
-            Metadata metadata = requestsAllMetadata();
+                Metadata metadata = requestsAllMetadata();
 
-            log("Sender | Comparing the files...");
-            var filesNeeded = compareMetadata(metadata);
-            // Comparing the files...
-            log("Sender | Different files: " + filesNeeded);
+                log("Sender | Comparing the files...");
+                var filesNeeded = compareMetadata(metadata);
+                // Comparing the files...
+                log("Sender | Different files: " + filesNeeded);
 
-            log("Sender | Updating the missing changes...");
+                log("Sender | Updating the missing changes...");
 
-            FileOperations.getFiles(filesNeeded.getKey(), address); // Downloading the needed files...
+                FileOperations.getFiles(filesNeeded.getKey(), address); // Downloading the needed files...
 
-            sendNeededFiles(filesNeeded.getValue()); // Informing the node the missing files on its side.
+                sendNeededFiles(filesNeeded.getValue()); // Informing the node the missing files on its side.
 
-            log("Sender | Nodes synchronized");
+                log("Sender | Nodes synchronized");
 
-            // Requesting a file
-            // String fileName = "folder1/file1";
-            // requestFile(fileName);
-
-            // Download the file
-            // receiveFile(fileName);
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
+                Thread.sleep(refreshTime);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

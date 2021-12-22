@@ -19,7 +19,7 @@ public class Receiver implements Runnable {
 
     public Receiver() {
         try {
-            this.serverSocket = new DatagramSocket(FFSync.getPORT()); // mudar isto dps
+            this.serverSocket = new DatagramSocket(FFSync.getPORT());
         } catch (SocketException e) {
             System.out.println("Error FTRapid_protocol.Receiver - FTRapid_protocol.Receiver [" + e.getMessage() + "]");
         }

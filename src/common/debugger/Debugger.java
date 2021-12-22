@@ -11,25 +11,22 @@ public class Debugger {
     private static boolean enable = true;
     private static int level = 1;
 
-    private static OutputStream out;
+    private static PrintStream stream;
 
     public static void initialize() {
         try {
-            out = new FileOutputStream(file);
+            if (toFile) stream = new PrintStream(new FileOutputStream(file));
+            else stream = System.out;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             toFile = false;
-            out = null;
+            stream = System.out;
         }
     }
 
     public static void close() {
         if (toFile) {
-            try {
-                out.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            stream.close();
         }
     }
 
@@ -49,10 +46,8 @@ public class Debugger {
 
     // Level 0
     public static void log(Object object) {
-        PrintStream pw = System.out;
         if (enable) {
-            if (toFile) pw = new PrintStream(out);
-            pw.println("[" + DateTimeFormatter.ISO_LOCAL_TIME.format(LocalTime.now().truncatedTo(ChronoUnit.SECONDS)) + "] "
+            stream.println("[" + DateTimeFormatter.ISO_LOCAL_TIME.format(LocalTime.now().truncatedTo(ChronoUnit.SECONDS)) + "] "
                     + object.toString());
         }
     }

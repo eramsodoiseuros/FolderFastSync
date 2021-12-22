@@ -87,10 +87,9 @@ public class StopAndWait {
 
 
         for (int seqNumber = 1; seqNumber <= packets; seqNumber++) { // Last block included
-            data = (Data) FTRapid.receive(socket); // Assuming that we will receive data
+            data = (Data) StopAndWaitV2.receive(socket); // Assuming that we will receive data
             bb.put(data.data); // Writes the data
             //log("!! Data ->" + toHexString(data.data) + " !!", 1);
-            sendAck(socket, address, port, seqNumber); // Sends the Ack
         }
 
         byte[] fileCompressed = bb.array();

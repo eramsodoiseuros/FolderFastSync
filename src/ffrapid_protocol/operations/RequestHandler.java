@@ -1,5 +1,6 @@
 package ffrapid_protocol.operations;
 
+import common.Timer;
 import ffrapid_protocol.FTRapid;
 import ffrapid_protocol.packet.Packet;
 
@@ -17,6 +18,7 @@ public class RequestHandler implements Runnable {
     private final InetAddress address;
     private final int port;
     private final DatagramPacket initialPacket;
+    private int timeout;
 
     public RequestHandler(DatagramSocket socket, InetAddress address, int port, DatagramPacket initialPacket) {
         this.socket = socket;
@@ -28,7 +30,11 @@ public class RequestHandler implements Runnable {
     @Override
     public void run() {
         try {
+            Timer timer = new Timer();
             FTRapid.sendAck(socket, address, port, 0); // Send the ack to acknowledge that the request as been received.
+            timeout = (int) (timer.getMilliseconds() * 1.25f); // Calculating the RTT
+            socket.setSoTimeout(timeout);// Setting the timeout in the socket
+            log("RequestHandler | Timeout: " + timeout);
 
             Packet packet = Packet.deserialize(initialPacket.getData());
 

@@ -26,11 +26,10 @@ public class StopAndWaitV2 {
 
 
     /**
-     *
-     * @param packet
-     * @param socket
-     * @param address
-     * @param port
+     * @param packet a packet
+     * @param socket a socket
+     * @param address a address
+     * @param port a port
      */
     public static void send(Packet packet, DatagramSocket socket, InetAddress address, int port) {
         boolean received = false;
@@ -48,6 +47,15 @@ public class StopAndWaitV2 {
             }
         }
         //return portReceived;
+    }
+
+    public static Packet receive(DatagramSocket socket) throws IOException {
+        DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
+        Packet packet = Packet.deserialize(datagramPacket.getData());
+        int seqNumber = 0;
+        if (packet instanceof Data) seqNumber = (int) ((Data) packet).blockNumber;
+        FTRapid.send(new Ack(seqNumber), socket, datagramPacket.getAddress(), datagramPacket.getPort());
+        return packet;
     }
 
     /**
@@ -90,7 +98,7 @@ public class StopAndWaitV2 {
         }
     }
 
-    public Packet receive(DatagramSocket socket) throws IOException {
+    public Packet receive() throws IOException {
         DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
         Packet packet = Packet.deserialize(datagramPacket.getData());
         int seqNumber = 0;
