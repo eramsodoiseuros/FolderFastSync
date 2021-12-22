@@ -2,14 +2,18 @@ package ffrapid_protocol.data.files;
 
 import app.FFSync;
 import common.Timer;
-import ffrapid_protocol.FTRapid;
+import compression.Compression;
+import ffrapid_protocol.data.DivideData;
 import ffrapid_protocol.flow_control.StopAndWait;
+import ffrapid_protocol.flow_control.StopAndWaitV2;
 import ffrapid_protocol.packet.Get;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -79,7 +83,7 @@ public class FileOperations {
      */
     public void requestFile(String fileName) throws IOException {
         Get get = new Get(fileName);
-        FTRapid.send(get, socket, address, port);
+        StopAndWaitV2.send(get, socket, address, port);
     }
 
     /**
@@ -90,5 +94,17 @@ public class FileOperations {
     public void getFile(Map.Entry<String, Long> file) throws IOException {
         requestFile(file.getKey());
         receiveFile(file.getKey(), file.getValue());
+    }
+
+    public void sendFile(String fileName) throws IOException {
+        byte[] data = Files.readAllBytes(Paths.get(FFSync.getCurrentDirectory() + "/" + fileName));
+        data = Compression.compress(data);
+
+        DivideData divideData = new DivideData(data);
+
+    }
+
+    public void receiveFile(File f) {
+
     }
 }

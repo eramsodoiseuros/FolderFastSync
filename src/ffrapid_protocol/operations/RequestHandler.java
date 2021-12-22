@@ -1,5 +1,6 @@
 package ffrapid_protocol.operations;
 
+import ffrapid_protocol.FTRapid;
 import ffrapid_protocol.packet.Packet;
 
 import java.net.DatagramPacket;
@@ -27,6 +28,8 @@ public class RequestHandler implements Runnable {
     @Override
     public void run() {
         try {
+            FTRapid.sendAck(socket, address, port, 0); // Send the ack to acknowledge that the request as been received.
+
             Packet packet = Packet.deserialize(initialPacket.getData());
 
             packet.handle(socket, address, port);

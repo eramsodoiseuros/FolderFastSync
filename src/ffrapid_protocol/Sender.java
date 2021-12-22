@@ -3,6 +3,7 @@ package ffrapid_protocol;
 import app.FFSync;
 import common.Node;
 import ffrapid_protocol.data.files.FileOperations;
+import ffrapid_protocol.flow_control.StopAndWaitV2;
 import ffrapid_protocol.packet.Get;
 import ffrapid_protocol.packet.Metadata;
 import folder_parser.FolderParser;
@@ -76,7 +77,7 @@ public class Sender implements Runnable {
     public Metadata requestsAllMetadata() throws IOException {
         Get get = new Get(true, true); // Metadata from all files
 
-        FTRapid.send(get, socket, address, port); // Sends the request
+        StopAndWaitV2.send(get, socket, address, port); // Sends the request
 
         log("Sender | Packet sent");
 
@@ -140,6 +141,6 @@ public class Sender implements Runnable {
         DatagramSocket socket = new DatagramSocket();
 
         Metadata metadata = new Metadata(files);
-        FTRapid.send(metadata, socket, address, port);
+        StopAndWaitV2.send(metadata, socket, address, port);
     }
 }

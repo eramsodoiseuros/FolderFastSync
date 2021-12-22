@@ -2,6 +2,7 @@ package ffrapid_protocol.packet;
 
 import app.FFSync;
 import ffrapid_protocol.flow_control.StopAndWait;
+import ffrapid_protocol.flow_control.StopAndWaitV2;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +17,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static common.debugger.Debugger.log;
-import static ffrapid_protocol.FTRapid.send;
 
 /**
  * Requests metadata or files.
@@ -125,7 +125,7 @@ public class Get extends Packet {
 
         if (this.metadata) {
             Metadata metadata = Metadata.getMetadataFromNames(fileNames);
-            send(metadata, socket, address, port);
+            StopAndWaitV2.send(metadata, socket, address, port);
         } else fileNames.forEach(f -> StopAndWait.sendFile(f, socket, address, port));
     }
 

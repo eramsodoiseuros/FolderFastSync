@@ -22,7 +22,6 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 import static common.debugger.Debugger.log;
-import static ffrapid_protocol.FTRapid.receive;
 import static ffrapid_protocol.FTRapid.sendAck;
 
 public class StopAndWait {
@@ -42,7 +41,6 @@ public class StopAndWait {
 
         DivideData divideData = new DivideData(data);
 
-        int MTU = divideData.maxBlockSize;
         int blocks = divideData.blocks;
         int lastBlockLen = divideData.lastBlockLen;
         Ack ack;
@@ -50,7 +48,7 @@ public class StopAndWait {
         log("StopAndWait | Blocks: " + blocks + " lastBlockLen: " + lastBlockLen, debuggerLevel);
 
         // Sends the amount of packets
-        FTRapid.send(new Ack(blocks), socket, address, port);
+        StopAndWaitV2.send(new Ack(blocks), socket, address, port);
         log("StopAndWait | Sending the amount of packets");
 
         // Gets the blocks
@@ -58,27 +56,12 @@ public class StopAndWait {
             Data dataPacket = new Data(i, divideData.getBlock(i));
 
             // Sends the packet
-            FTRapid.send(dataPacket, socket, address, port);
+            StopAndWaitV2.send(dataPacket, socket, address, port);
 
-            // Waits for the Ack
-            //if (receivesAck(socket, address, port).segmentNumber - 1 != i) i--;
-            receive(socket);
             log("StopAndWait | Data Packet acknowledged", debuggerLevel);
         }
 
         log("StopAndWait | File uploaded in " + timer.getMilliseconds() + "ms", debuggerLevel);
-
-        // Ler ack
-        // Mandar block
-
-        // Accumulative algorithm
-        // 1. Divide the File in blocks
-        // 2. Send each n blocks and wait for an Ack
-        // 3. See if until block number did it get to
-        // 4. Start sending with the block number missing
-        // 5. Optional receive Ack in the middle of the sending process
-        // 6. Read this Ack to see what has to be sent
-
     }
 
     /**
@@ -98,6 +81,7 @@ public class StopAndWait {
         DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
         int port = datagramPacket.getPort();
         int packets = (int) ((Ack) Packet.deserialize(datagramPacket.getData())).segmentNumber;
+        sendAck(socket, address, port, 0);
         Data data;
         ByteBuffer bb = ByteBuffer.allocate(FFSync.getMTU() * packets);
 

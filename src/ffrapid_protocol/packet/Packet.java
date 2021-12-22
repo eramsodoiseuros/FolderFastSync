@@ -2,6 +2,7 @@ package ffrapid_protocol.packet;
 
 import app.FFSync;
 import encryption.Encryption;
+import ffrapid_protocol.flow_control.StopAndWaitV2;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -9,7 +10,6 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
 import static common.debugger.Debugger.log;
-import static ffrapid_protocol.FTRapid.send;
 
 public abstract class Packet {
     protected static final int debuggerLevel = 3;
@@ -88,6 +88,6 @@ public abstract class Packet {
      */
     public void handle(DatagramSocket socket, InetAddress address, int port) throws IOException {
         Error errorPacket = new Error();
-        send(errorPacket, socket, address, port); // Sends an error message
+        StopAndWaitV2.send(errorPacket, socket, address, port); // Sends an error message
     }
 }
