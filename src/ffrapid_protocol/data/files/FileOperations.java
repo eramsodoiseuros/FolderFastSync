@@ -7,7 +7,6 @@ import ffrapid_protocol.data.StopAndWait;
 import ffrapid_protocol.packet.Get;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -63,15 +62,13 @@ public class FileOperations {
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void receiveFile(String fileName, long lastTimeModified) throws IOException {
-        File f = new File(FFSync.getCurrentDirectory() + "/" + fileName);
-        FileOutputStream outputStream = new FileOutputStream(f);
+        File file = new File(FFSync.getCurrentDirectory() + "/" + fileName + "1");
 
         Timer timer = new Timer();
-        StopAndWait.receiveFile(outputStream, socket, address);
+        StopAndWait.receiveFile(file, socket, address);
         log("StopAndWait | File downloaded in " + timer.getMilliseconds() + "ms");
 
-        outputStream.close();
-        f.setLastModified(lastTimeModified);
+        file.setLastModified(lastTimeModified);
     }
 
     /**

@@ -50,7 +50,7 @@ import java.security.NoSuchAlgorithmException;
 public class FTRapid {
 
     public static void send(Packet packet, DatagramSocket socket, InetAddress address, int port) throws IOException {
-        byte[] data = packet.encryptedCompression();
+        byte[] data = packet.encryptedPacket();
         DatagramPacket datagramPacket = new DatagramPacket(data, data.length, address, port);
         socket.send(datagramPacket);
     }

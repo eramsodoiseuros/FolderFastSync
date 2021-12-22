@@ -2,19 +2,23 @@ package ffrapid_protocol.data;
 
 import app.FFSync;
 import common.Timer;
+import compression.Compression;
 import ffrapid_protocol.FTRapid;
 import ffrapid_protocol.exceptions.NotAckPacket;
 import ffrapid_protocol.packet.Ack;
 import ffrapid_protocol.packet.Data;
 import ffrapid_protocol.packet.Packet;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 import static common.debugger.Debugger.log;
 import static ffrapid_protocol.FTRapid.*;
@@ -34,6 +38,7 @@ public class StopAndWait {
         // 3. Goes back into step 1 until there's no more blocks
 
         Timer timer = new Timer();
+        data = Compression.compress(data);
 
         int MTU = FFSync.getMTU() - Data.headerLength;
         int blocks = data.length / MTU;
@@ -95,21 +100,31 @@ public class StopAndWait {
         }
     }
 
-    public static void receiveFile(FileOutputStream outputStream, DatagramSocket socket, InetAddress address)
-            throws IOException {
-        // Stop and wait algorithm
+    public static void receiveFile(File file, DatagramSocket socket, InetAddress address) throws IOException {
         DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
         int port = datagramPacket.getPort();
-        long packets = ((Ack) Packet.deserialize(datagramPacket.getData())).segmentNumber;
+        int packets = (int) ((Ack) Packet.deserialize(datagramPacket.getData())).segmentNumber;
         Data data;
+        ByteBuffer bb = ByteBuffer.allocate(FFSync.getMTU() * packets);
 
-        for (int seqNumber = 0; seqNumber < packets; seqNumber++) { // Last block included
+
+        for (int seqNumber = 1; seqNumber <= packets; seqNumber++) { // Last block included
             data = (Data) FTRapid.receive(socket); // Assuming that we will receive data
-
-            outputStream.write(data.data); // Writes the data
-
+            bb.put(data.data); // Writes the data
+            //log("!! Data ->" + toHexString(data.data) + " !!", 1);
             sendAck(socket, address, port, seqNumber); // Sends the Ack
         }
+
+        byte[] fileCompressed = bb.array();
+        //log("!! " + toHexString(fileCompressed) + " !!");
+        byte[] fileDecompressed = Compression.decompress(fileCompressed);
+
+        assert fileDecompressed != null;
+        log("StopAndWait | Received file with compression of " + (double) fileCompressed.length / fileDecompressed.length, debuggerLevel);
+
+        FileOutputStream outputStream = new FileOutputStream(file);
+        outputStream.write(Objects.requireNonNull(fileDecompressed));
         outputStream.close();
     }
+
 }
