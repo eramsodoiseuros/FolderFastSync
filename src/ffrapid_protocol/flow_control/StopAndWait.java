@@ -132,7 +132,7 @@ public class StopAndWait {
         ByteBuffer bb = ByteBuffer.allocate(FFSync.getMTU() * packets);
         Data data;
 
-        for (int seqNumber = 1; seqNumber < packets; seqNumber++) { // Last block included
+        for (int seqNumber = 1; seqNumber <= packets; seqNumber++) { // Last block included
             data = (Data) StopAndWait.receive(socket); // Assuming that we will receive data
             bb.put(data.data); // Writes the data
             log("!! Data ->" + toHexString(data.data) + " !!", 1);
