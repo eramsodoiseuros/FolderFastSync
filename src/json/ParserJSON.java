@@ -9,8 +9,8 @@ import java.io.FileReader;
 import java.util.List;
 
 public class ParserJSON {
-    public static String jsonToHtml( Object obj ) {
-        StringBuilder html = new StringBuilder( );
+    public static String jsonToHtml(Object obj) {
+        StringBuilder html = new StringBuilder();
 
         try {
             if (obj instanceof JSONObject jsonObject) {
@@ -20,12 +20,11 @@ public class ParserJSON {
                 if (keys.size() > 0) {
                     for (String key : keys) {
 
-                        html.append("<div><span class=\"json_key\"><pre><b>")
-                                .append(key).append("</b></span> -> \n\t");
+                        html.append("<div><span class=\"json_key\"><pre><b>").append(key).append("</b></span> -> \n\t");
 
                         Object val = jsonObject.get(key);
 
-                        html.append( jsonToHtml( val ) );
+                        html.append(jsonToHtml(val));
                         html.append("<pre></div>");
                     }
                 }
@@ -39,43 +38,43 @@ public class ParserJSON {
                     html.append("<pre>");
                 }
             } else {
-                html.append( obj );
+                html.append(obj);
             }
         } catch (Exception e) {
-            System.out.println("erro - json2html ["+e.getMessage()+"] - ["+ e +"]");
+            System.out.println("erro - json2html [" + e.getMessage() + "] - [" + e + "]");
         }
 
-        return html.toString( );
+        return html.toString();
     }
 
-    public static JSONObject parser(File file)  {
+    public static JSONObject parser(File file) {
         JSONParser jp = new JSONParser();
         JSONObject ret = new JSONObject();
-        try (FileReader reader = new FileReader(file)){
+        try (FileReader reader = new FileReader(file)) {
             Object obj = jp.parse(reader);
 
             ret = (JSONObject) obj;
-        } catch (Exception e){
-            System.out.println("erro - json parser ["+e.getMessage()+"] - ["+ e +"]");
+        } catch (Exception e) {
+            System.out.println("erro - json parser [" + e.getMessage() + "] - [" + e + "]");
         }
 
         return ret;
     }
 
-    public static JSONObject listar(){
+    public static JSONObject listar() {
         File directoryPath = new File(System.getProperty("user.dir"));
         JSONObject obj = new JSONObject();
         File[] filesList = directoryPath.listFiles();
 
         if (filesList != null) {
 
-            for(File file : filesList) {
+            for (File file : filesList) {
                 JSONArray ficheiro = new JSONArray();
-                ficheiro.add("file name: "+file.getName()+" ; ");
-                ficheiro.add("file path: "+file.getAbsolutePath()+" ; ");
-                ficheiro.add("file last update: "+file.lastModified()+" ; ");
-                ficheiro.add("file size: "+file.getTotalSpace()+" ; ");
-                obj.put("Name: "+file.getName(),ficheiro);
+                ficheiro.add("file name: " + file.getName() + " ; ");
+                ficheiro.add("file path: " + file.getAbsolutePath() + " ; ");
+                ficheiro.add("file last update: " + file.lastModified() + " ; ");
+                ficheiro.add("file size: " + file.getTotalSpace() + " ; ");
+                obj.put("Name: " + file.getName(), ficheiro);
             }
             System.out.println(obj);
         }
@@ -83,10 +82,10 @@ public class ParserJSON {
         return obj;
     }
 
-    public static JSONObject logs(){
+    public static JSONObject logs() {
         String s = System.getProperty("user.dir");
-        System.out.println(s+"\\aaa.txt");
-        return parser(new File(s+"\\aaa.txt"));
+        System.out.println(s + "\\aaa.txt");
+        return parser(new File(s + "\\aaa.txt"));
     }
     //JSON PARSER
     /*

@@ -71,8 +71,8 @@ public abstract class Packet {
         ByteBuffer bb = ByteBuffer.allocate(encrypted.length + Integer.BYTES);
         bb.putInt(encrypted.length);
         bb.put(encrypted);
-        log("Encrypt compression % is: " + packet.length + " / " + encrypted.length + " = " + (double) packet.length / encrypted.length,
-                debuggerLevel);
+        log("Encrypt compression % is: " + encrypted.length +
+                        " / " + packet.length + " = " + (double) encrypted.length / packet.length, debuggerLevel);
         return bb.array();
     }
 

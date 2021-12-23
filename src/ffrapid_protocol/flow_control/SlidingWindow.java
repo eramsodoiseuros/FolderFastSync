@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 
 import static common.debugger.Debugger.log;
+import static common.debugger.Debugger.toHexString;
 import static ffrapid_protocol.FTRapid.sendAck;
 
 public class SlidingWindow {
@@ -99,7 +100,7 @@ public class SlidingWindow {
 
 
         byte[] fileCompressed = bb.array();
-        //log("!! " + toHexString(fileCompressed) + " !!");
+        log("Compressed File: " + toHexString(fileCompressed), debuggerLevel + 2);
         byte[] fileDecompressed = Compression.decompress(fileCompressed);
 
         assert fileDecompressed != null;
