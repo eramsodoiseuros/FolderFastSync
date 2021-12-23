@@ -3,18 +3,18 @@ package compression;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import static common.debugger.Debugger.log;
+import static common.debugger.Debugger.toHexString;
 
 public class Compression {
     private static final int debuggerLevel = 4;
 
     public static byte[] compress(byte[] dataToCompress) {
         byte[] returnValue = new byte[0];
-        log("Compress | Data: " + Arrays.toString(dataToCompress), debuggerLevel);
+        log("Compress | Data: " + toHexString(dataToCompress), debuggerLevel);
 
         try {
             ByteArrayOutputStream byteStream =
@@ -31,12 +31,12 @@ public class Compression {
             System.out.println("Error - Compress - [" + e + "].");
         }
 
-        log("Compress | Compressed data: " + Arrays.toString(returnValue), debuggerLevel);
+        log("Compress | Compressed data: " + toHexString(returnValue), debuggerLevel);
         return returnValue;
     }
 
     public static byte[] decompress(byte[] data) {
-        log("Decompress | Compressed data: " + Arrays.toString(data), debuggerLevel);
+        log("Decompress | Compressed data: " + toHexString(data), debuggerLevel);
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
@@ -55,7 +55,7 @@ public class Compression {
             return null;
         }
 
-        log("Decompress | Compressed data: " + Arrays.toString(os.toByteArray()), debuggerLevel);
+        log("Decompress | Compressed data: " + toHexString(os.toByteArray()), debuggerLevel);
         return os.toByteArray();
     }
 }

@@ -10,6 +10,7 @@ import ffrapid_protocol.exceptions.NotAckPacket;
 import ffrapid_protocol.packet.Ack;
 import ffrapid_protocol.packet.Data;
 import ffrapid_protocol.packet.Packet;
+import hmac.PacketCorruptedException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 
 import static common.debugger.Debugger.log;
+import static common.debugger.Debugger.toHexString;
 import static ffrapid_protocol.FTRapid.sendAck;
 
 public class SlidingWindow {
@@ -60,6 +62,8 @@ public class SlidingWindow {
                 i = (int) (ack.segmentNumber + 1);
             } catch (SocketTimeoutException e) {
                 log("SlidingWindow | Sending Data - SocketTimeout...");
+            } catch (PacketCorruptedException e) {
+                log("Packet corrupted!", debuggerLevel);
             }
 
             log("SlidingWindow | DataPacket's acknowledged", debuggerLevel);
@@ -73,7 +77,11 @@ public class SlidingWindow {
     public static void receiveFile(File file, DatagramSocket socket, InetAddress address) throws IOException {
         DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
         int port = datagramPacket.getPort();
-        int packets = (int) ((Ack) Packet.deserialize(datagramPacket.getData())).segmentNumber;
+        int packets = 0;
+        try {
+            packets = (int) ((Ack) Packet.deserialize(datagramPacket.getData())).segmentNumber;
+        } catch (PacketCorruptedException ignored) {
+        }
         sendAck(socket, address, port, 0);
         Data data;
         ByteBuffer bb = ByteBuffer.allocate(FFSync.getMTU() * packets);
@@ -92,6 +100,8 @@ public class SlidingWindow {
                 FTRapid.sendAck(socket, address, port, minJ);
             } catch (SocketTimeoutException e) {
                 log("SlidingWindow | Receiving file - SocketTimeout...");
+            } catch (PacketCorruptedException e) {
+                log("Packet corrupted!", debuggerLevel);
             }
             i = minJ + 1;
             log("SlidingWindow | DataPacket's acknowledged", debuggerLevel);
@@ -99,7 +109,7 @@ public class SlidingWindow {
 
 
         byte[] fileCompressed = bb.array();
-        //log("!! " + toHexString(fileCompressed) + " !!");
+        log("Compressed File: " + toHexString(fileCompressed), debuggerLevel + 2);
         byte[] fileDecompressed = Compression.decompress(fileCompressed);
 
         assert fileDecompressed != null;

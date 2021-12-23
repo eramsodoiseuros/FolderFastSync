@@ -2,6 +2,9 @@ package common.debugger;
 
 import java.io.*;
 import java.time.LocalDateTime;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -13,6 +16,7 @@ import static java.time.format.FormatStyle.MEDIUM;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 public class Debugger {
+
     private static final String file = "LOG" + timeNow() +  ".txt";
 
     private static boolean toFile = true;
@@ -82,5 +86,15 @@ public class Debugger {
 
     private static String getTimeNow() {
         return DateTimeFormatter.ISO_LOCAL_TIME.format(LocalTime.now().truncatedTo(SECONDS));
+    }
+
+    public static String toHexString(byte[] bytes) {
+        StringBuilder stringBuffer = new StringBuilder();
+        for (byte aByte : bytes) {
+            String hex = Integer.toHexString(0xFF & aByte);
+            if (hex.length() == 1) stringBuffer.append('0');
+            stringBuffer.append(hex);
+        }
+        return stringBuffer.toString();
     }
 }

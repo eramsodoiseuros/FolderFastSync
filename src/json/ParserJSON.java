@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 
 public class ParserJSON {
+
     private static String jsonToHtml( Object obj ) {
         StringBuilder html = new StringBuilder( );
 
@@ -28,12 +29,11 @@ public class ParserJSON {
                 if (keys.size() > 0) {
                     for (String key : keys) {
 
-                        html.append("<div><span class=\"json_key\"><pre><b>")
-                                .append(key).append("</b></span> -> \n\t");
+                        html.append("<div><span class=\"json_key\"><pre><b>").append(key).append("</b></span> -> \n\t");
 
                         Object val = jsonObject.get(key);
 
-                        html.append( jsonToHtml( val ) );
+                        html.append(jsonToHtml(val));
                         html.append("<pre></div>");
                     }
                 }
@@ -47,7 +47,7 @@ public class ParserJSON {
                     html.append("<pre>");
                 }
             } else {
-                html.append( obj );
+                html.append(obj);
             }
         } catch (Exception e) {
             System.out.println("Error - JSON2HTML [" + e + "]");
@@ -56,19 +56,23 @@ public class ParserJSON {
         return html.toString();
     }
 
+
     private static JSONObject parser(File file)  {
+
         JSONParser jp = new JSONParser();
         JSONObject ret = new JSONObject();
-        try (FileReader reader = new FileReader(file)){
+        try (FileReader reader = new FileReader(file)) {
             Object obj = jp.parse(reader);
 
             ret = (JSONObject) obj;
+
         } catch (Exception e){
             System.out.println("Error - JSON Parser [" + e + "]");
         }
 
         return ret;
     }
+
 
     private static JSONObject metadata() throws IOException {
         JSONObject obj = new JSONObject();
@@ -112,27 +116,7 @@ public class ParserJSON {
         return obj;
     }
 
-    public static JSONObject listar(){
-        File directoryPath = new File(System.getProperty("user.dir"));
-        JSONObject obj = new JSONObject();
-        File[] filesList = directoryPath.listFiles();
-
-        if (filesList != null) {
-
-            for(File file : filesList) {
-                JSONArray ficheiro = new JSONArray();
-                ficheiro.add("file name: "+file.getName()+" ; ");
-                ficheiro.add("file path: "+file.getAbsolutePath()+" ; ");
-                ficheiro.add("file last update: "+file.lastModified()+" ; ");
-                ficheiro.add("file size: "+file.getTotalSpace()+" ; ");
-                obj.put("Name: "+file.getName(),ficheiro);
-            }
-            System.out.println(obj);
-        }
-
-        return obj;
-    }
-
+   
     private static JSONArray merge(File f){
         JSONArray returnValue = new JSONArray();
         Charset charset = StandardCharsets.UTF_8;

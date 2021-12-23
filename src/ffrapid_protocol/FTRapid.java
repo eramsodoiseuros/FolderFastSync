@@ -4,6 +4,7 @@ import app.FFSync;
 import ffrapid_protocol.exceptions.NotAckPacket;
 import ffrapid_protocol.packet.Ack;
 import ffrapid_protocol.packet.Packet;
+import hmac.PacketCorruptedException;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -53,7 +54,7 @@ public class FTRapid {
         socket.send(datagramPacket);
     }
 
-    public static Packet receive(DatagramSocket socket) throws IOException {
+    public static Packet receive(DatagramSocket socket) throws IOException, PacketCorruptedException {
         DatagramPacket datagramPacket = receiveDatagram(socket);
         return Packet.deserialize(datagramPacket.getData());
     }
@@ -66,7 +67,7 @@ public class FTRapid {
         return packet;
     }
 
-    public static Ack receivesAck(DatagramSocket socket) throws IOException, NotAckPacket {
+    public static Ack receivesAck(DatagramSocket socket) throws IOException, NotAckPacket, PacketCorruptedException {
         Packet packet = FTRapid.receive(socket);
         if (!(packet instanceof Ack)) throw new NotAckPacket();
         return (Ack) packet;
