@@ -12,16 +12,6 @@ import java.util.Map;
 
 import static common.debugger.Debugger.log;
 
-/**
- * Preciso saber todos os files dentro de uma pasta e em pastas de pastas (arvore de files)
- * <p>
- * é preciso saber o nome dos ficheiros, o tamanho dos ficheiros e a ultima atualizaçao desse ficheiro / pasta
- * <p>
- * aprender sobre metadados
- * <p>
- * . FFSync consegue obter uma lista dos ficheiros da pasta a sincronizar e listá-los no “log” ou na saída normal
- */
-
 public class FolderParser {
     private static final int debuggerLevel = 2;
 

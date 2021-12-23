@@ -1,32 +1,46 @@
 package common.debugger;
 
 import java.io.*;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.Locale;
+
+import static java.time.format.FormatStyle.MEDIUM;
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 public class Debugger {
-    private static final String file = "log" + getTimeNow() +  ".txt";
-    private static boolean toFile = false;
-    private static boolean enable = true;
-    private static int level = 1;
+    private static final String file = "LOG" + timeNow() +  ".txt";
 
-    private static PrintStream stream;
+    private static boolean toFile = true;
+    private static boolean enable = true;
+
+    private static int level = 3;
+
+    private static PrintStream stream_file;
+    private static PrintStream stream_sout;
 
     public static void initialize() {
         try {
-            if (toFile) stream = new PrintStream(new FileOutputStream(file));
-            else stream = System.out;
+            stream_sout = System.out;
+            if(toFile){
+                stream_file = new PrintStream(new FileOutputStream(file));
+            }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("Error - LOG FILE NOT FOUND - [" + e + "]");
             toFile = false;
-            stream = System.out;
+            stream_file.close();
         }
     }
 
     public static void close() {
+        stream_sout.close();
+
         if (toFile) {
-            stream.close();
+            stream_file.close();
         }
     }
 
@@ -47,7 +61,12 @@ public class Debugger {
     // Level 0
     public static void log(Object object) {
         if (enable) {
-            stream.println("[" + getTimeNow() + "] "
+            if(toFile){
+                stream_file.println("[" + getTimeNow() + "] "
+                        + object.toString());
+            }
+
+            stream_sout.println("[" + getTimeNow() + "] "
                     + object.toString());
         }
     }
@@ -57,8 +76,11 @@ public class Debugger {
         if (Debugger.level >= level) log(object);
     }
 
+    private static String timeNow(){
+        return DateTimeFormatter.ISO_DATE_TIME.format(LocalDateTime.now().truncatedTo(SECONDS)).replace(":","_");
+    }
 
     private static String getTimeNow() {
-        return DateTimeFormatter.ISO_LOCAL_TIME.format(LocalTime.now().truncatedTo(ChronoUnit.SECONDS));
+        return DateTimeFormatter.ISO_LOCAL_TIME.format(LocalTime.now().truncatedTo(SECONDS));
     }
 }

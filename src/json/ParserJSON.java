@@ -1,15 +1,23 @@
 package json;
 
+import app.FFSync;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashSet;
 import java.util.List;
 
 public class ParserJSON {
-    public static String jsonToHtml( Object obj ) {
+    private static String jsonToHtml( Object obj ) {
         StringBuilder html = new StringBuilder( );
 
         try {
@@ -42,13 +50,13 @@ public class ParserJSON {
                 html.append( obj );
             }
         } catch (Exception e) {
-            System.out.println("erro - json2html ["+e.getMessage()+"] - ["+ e +"]");
+            System.out.println("Error - JSON2HTML [" + e + "]");
         }
 
-        return html.toString( );
+        return html.toString();
     }
 
-    public static JSONObject parser(File file)  {
+    private static JSONObject parser(File file)  {
         JSONParser jp = new JSONParser();
         JSONObject ret = new JSONObject();
         try (FileReader reader = new FileReader(file)){
@@ -56,10 +64,52 @@ public class ParserJSON {
 
             ret = (JSONObject) obj;
         } catch (Exception e){
-            System.out.println("erro - json parser ["+e.getMessage()+"] - ["+ e +"]");
+            System.out.println("Error - JSON Parser [" + e + "]");
         }
 
         return ret;
+    }
+
+    private static JSONObject metadata() throws IOException {
+        JSONObject obj = new JSONObject();
+        File curDir = FFSync.getCurrentDirectory();
+        String curDirPath = curDir.getPath();
+        int index = curDir.getAbsolutePath().length();
+
+        Files.walkFileTree(Paths.get(curDirPath), new HashSet<>(), 20, new FileVisitor<>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                File f = file.toFile();
+                String nova = (f.getAbsolutePath()).substring(index);
+
+                JSONArray ficheiro = new JSONArray();
+                ficheiro.add("file name: " + f.getName() + " ; ");
+                ficheiro.add("file path: " + f.getAbsolutePath() + " ; ");
+                ficheiro.add("file last update: " + f.lastModified() + " ; ");
+                ficheiro.add("file size: " + f.getTotalSpace() + " ; ");
+                obj.put("Name: " + nova,ficheiro);
+
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                System.out.println("visitFileFailed: " + file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                return FileVisitResult.CONTINUE;
+            }
+        });
+
+        return obj;
     }
 
     public static JSONObject listar(){
@@ -83,68 +133,49 @@ public class ParserJSON {
         return obj;
     }
 
-    public static JSONObject logs(){
-        String s = System.getProperty("user.dir");
-        System.out.println(s+"\\aaa.txt");
-        return parser(new File(s+"\\aaa.txt"));
+    private static JSONArray merge(File f){
+        JSONArray returnValue = new JSONArray();
+        Charset charset = StandardCharsets.UTF_8;
+        try (BufferedReader bufferedReader = Files.newBufferedReader(Path.of(f.getPath()), charset)) {
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                returnValue.add(line);
+            }
+        } catch (Exception e) {
+            System.out.println("Error - MERGE LOGS [" + e + "]");
+        }
+        return returnValue;
     }
-    //JSON PARSER
-    /*
-    public static void main(String[] args) throws IOException {
-        String s = System.getProperty("user.dir");
-        System.out.println(s);
+
+    public static String html_logs(){
+        File curDir = new File(System.getProperty("user.dir"));
+        File[] filesList = curDir.listFiles();
         JSONObject obj = new JSONObject();
-        File curDir = FFSync.getCurrentDirectory();
-        String curDirPath = curDir.getPath();
-        int index = curDir.getPath().length() - curDir.getName().length() - 1;
-        Files.walkFileTree(Paths.get(curDirPath), new HashSet<>(), 2, new FileVisitor<>() {
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                File f = new File(String.valueOf(dir));
-                if (f.isDirectory()) {
-                    String nova = f.getPath().substring(index);
-                    JSONArray ficheiro = new JSONArray();
-                    ficheiro.add("file name: "+f.getName()+" ; ");
-                    ficheiro.add("file path: "+nova+" ; ");
-                    //ficheiro.add("file path: "+f.getAbsolutePath()+" ; ");
-                    ficheiro.add("file last update: "+f.lastModified()+" ; ");
-                    ficheiro.add("file size: "+f.getTotalSpace()+" ; ");
-                    obj.put("Name: "+nova,ficheiro);
-                  //  System.out.println(ficheiro);
+        JSONArray f1;
+
+        if (filesList != null) {
+            for(File file : filesList) {
+                System.out.println("\t\tfound ->" + file.getName() + "<-");
+                if(file.isFile()){
+                    f1 = merge(file);
+                    obj.put("Name: " + file.getName(), f1);
                 }
-                // System.out.println("preVisitDirectory: " + dir);
-                return FileVisitResult.CONTINUE;
             }
+        }
 
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                File f = new File(String.valueOf(file));
-                String nova = f.getPath().substring(index);
-                JSONArray ficheiro = new JSONArray();
-                ficheiro.add("file name: "+f.getName()+" ; ");
-                ficheiro.add("file path: "+nova+" ; ");
-                //ficheiro.add("file path: "+f.getAbsolutePath()+" ; ");
-                ficheiro.add("file last update: "+f.lastModified()+" ; ");
-                ficheiro.add("file size: "+f.getTotalSpace()+" ; ");
-                obj.put("Name: "+nova,ficheiro);
-                //System.out.println(ficheiro);
-                return FileVisitResult.CONTINUE;
-            }
+        return jsonToHtml(obj);
+    }
 
-            @Override
-            public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                System.out.println("visitFileFailed: " + file);
-                return FileVisitResult.CONTINUE;
-            }
+    public static String html_files(){
+        String returnValue = "";
 
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-                // System.out.println("postVisitDirectory: " + dir);
-                return FileVisitResult.CONTINUE;
-            }
-        });
-        System.out.println(obj);
-    }*/
+        try {
+            returnValue = jsonToHtml(metadata());
+        } catch (Exception e) {
+            System.out.println("Error - HMTL FILE LISTING [" + e + "]");
+        }
 
+        return returnValue;
+    }
 }
 
