@@ -10,16 +10,13 @@ public class HTMLCodes {
     }
 
     public static String HTML_Home(){
-        StringBuilder s = new StringBuilder();
 
-        s.append("<html><body>");
-        s.append("<h1>HOMEPAGE</h1>");
-        s.append("<p><b>Paginas Disponiveis: </b></p>");
-        s.append("<pre>\t-> /log : ver o ficheiro de LOGS.</pre>");
-        s.append("<pre>\t-> /status : ver os ficheiros atuais do sistema.</pre>");
-        s.append("</body></html>");
-
-        return s.toString();
+        return "<html><body>" +
+                "<h1>HOMEPAGE</h1>" +
+                "<p><b>Paginas Disponiveis: </b></p>" +
+                "<pre>\t-> /log : ver o ficheiro de LOGS.</pre>" +
+                "<pre>\t-> /status : ver os ficheiros atuais do sistema.</pre>" +
+                "</body></html>";
     }
 }
 

@@ -13,25 +13,16 @@ import java.net.InetAddress;
 
 import static common.debugger.Debugger.log;
 
-public class StopAndWaitV2 {
+public record StopAndWaitV2(DatagramSocket socket, InetAddress address, int port) {
     private static final int debuggerLevel = 2;
     private static final int tries = 3;
-    private final DatagramSocket socket;
-    private final InetAddress address;
-    private final int port;
-
-    public StopAndWaitV2(DatagramSocket socket, InetAddress address, int port) {
-        this.socket = socket;
-        this.address = address;
-        this.port = port;
-    }
 
 
     /**
-     * @param packet a packet
-     * @param socket a socket
+     * @param packet  a packet
+     * @param socket  a socket
      * @param address a address
-     * @param port a port
+     * @param port    a port
      */
     public static void send(Packet packet, DatagramSocket socket, InetAddress address, int port) throws NoConnectionException {
         boolean received = false;

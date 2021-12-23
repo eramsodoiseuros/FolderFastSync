@@ -21,8 +21,8 @@ public class ClientHandler implements Runnable{
             System.out.println("\t" + socket.toString());
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            String httpResponse = "";
-            String httpResponseBody = "";
+            String httpResponse;
+            String httpResponseBody;
 
             String fromClient = in.readLine();
             String[] firstLine = fromClient.split(" ");

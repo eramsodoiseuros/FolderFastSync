@@ -36,14 +36,6 @@ public class FolderParser {
             Files.walkFileTree(Paths.get(curDirPath), new HashSet<>(), 20, new FileVisitor<>() {
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                    /*
-                    File f = new File(String.valueOf(dir));
-                    if (f.isDirectory()) {
-                        String nova = (f.getPath()).substring(index);
-                        map.put(nova, f.lastModified());
-                    }
-
-                     */
                     return FileVisitResult.CONTINUE;
                 }
 

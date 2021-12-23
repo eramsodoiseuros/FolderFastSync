@@ -42,6 +42,8 @@ public class RequestHandler implements Runnable {
             packet.handle(socket, address, port);
 
             log("RequestHandler | Packet handled.");
+
+            socket.close();
         } catch (Exception e) {
             System.out.println("Error RequestHandler run [" + e.getMessage() + "]");
             e.printStackTrace();

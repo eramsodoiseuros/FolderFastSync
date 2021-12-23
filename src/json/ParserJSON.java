@@ -13,8 +13,7 @@ public class ParserJSON {
         StringBuilder html = new StringBuilder( );
 
         try {
-            if (obj instanceof JSONObject) {
-                JSONObject jsonObject = (JSONObject)obj;
+            if (obj instanceof JSONObject jsonObject) {
                 List<String> keys = jsonObject.keySet().stream().toList();
                 html.append("<div class=\"json_object\">");
 
@@ -33,8 +32,7 @@ public class ParserJSON {
 
                 html.append("</div>");
 
-            } else if (obj instanceof JSONArray) {
-                JSONArray array = (JSONArray)obj;
+            } else if (obj instanceof JSONArray array) {
                 for (Object o : array) {
                     html.append("<pre>\t");
                     html.append(jsonToHtml(o));
