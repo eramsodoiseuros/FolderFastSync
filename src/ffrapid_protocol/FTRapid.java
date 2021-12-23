@@ -3,14 +3,12 @@ package ffrapid_protocol;
 import app.FFSync;
 import ffrapid_protocol.exceptions.NotAckPacket;
 import ffrapid_protocol.packet.Ack;
-import ffrapid_protocol.packet.Error;
 import ffrapid_protocol.packet.Packet;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * PROTOCOLO DE TRANSFERÊNCIA DE DADOS
@@ -68,13 +66,9 @@ public class FTRapid {
         return packet;
     }
 
-    public static Ack receivesAck(DatagramSocket socket, InetAddress address, int port) throws IOException, NotAckPacket {
+    public static Ack receivesAck(DatagramSocket socket) throws IOException, NotAckPacket {
         Packet packet = FTRapid.receive(socket);
-        if (!(packet instanceof Ack)) {
-            Error errorPacket = new Error();
-            FTRapid.send(errorPacket, socket, address, port);
-            throw new NotAckPacket();
-        }
+        if (!(packet instanceof Ack)) throw new NotAckPacket();
         return (Ack) packet;
     }
 
@@ -82,13 +76,4 @@ public class FTRapid {
         send(new Ack(seqNumber), socket, address, port);
     }
 
-    public static void main(String[] args) {
-        int maxKeySize = 0;
-        try {
-            maxKeySize = javax.crypto.Cipher.getMaxAllowedKeyLength("AES");
-        } catch (NoSuchAlgorithmException e) {
-            System.out.println("erro FFRapidProtocol.FTRapid [" + e.getMessage() + "]");
-        }
-        System.out.println("Max Key Size for AES : " + maxKeySize);
-    }
 }

@@ -6,10 +6,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 public class Debugger {
-    private static final String file = "log.txt";
-    private static boolean toFile = false;
+    private static final String file = "log" + getTimeNow() +  ".txt";
+    private static boolean toFile = true;
     private static boolean enable = true;
-    private static int level = 2;
+    private static int level = 1;
 
     private static PrintStream stream;
 
@@ -47,7 +47,7 @@ public class Debugger {
     // Level 0
     public static void log(Object object) {
         if (enable) {
-            stream.println("[" + DateTimeFormatter.ISO_LOCAL_TIME.format(LocalTime.now().truncatedTo(ChronoUnit.SECONDS)) + "] "
+            stream.println("[" + getTimeNow() + "] "
                     + object.toString());
         }
     }
@@ -55,5 +55,10 @@ public class Debugger {
     // Custom level
     public static void log(Object object, int level) {
         if (Debugger.level >= level) log(object);
+    }
+
+
+    private static String getTimeNow() {
+        return DateTimeFormatter.ISO_LOCAL_TIME.format(LocalTime.now().truncatedTo(ChronoUnit.SECONDS));
     }
 }

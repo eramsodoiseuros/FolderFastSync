@@ -31,7 +31,7 @@ public class Data extends Packet {
     public static Packet deserialize(ByteBuffer byteBuffer) {
         long blockNumber = byteBuffer.getLong();
         var len = byteBuffer.getInt();
-        log("DataPacket | Length: " + len);
+        log("DataPacket | Length: " + len, debuggerLevel);
         byte[] arr = new byte[len];
         byteBuffer.get(arr);
         return new Data(blockNumber, arr);

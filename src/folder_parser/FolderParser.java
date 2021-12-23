@@ -44,7 +44,6 @@ public class FolderParser {
                     }
 
                      */
-                    if (dir.toFile().getName().equals("~")) return FileVisitResult.SKIP_SUBTREE;
                     return FileVisitResult.CONTINUE;
                 }
 
@@ -54,10 +53,7 @@ public class FolderParser {
 
                     String nova = (f.getAbsolutePath()).substring(index);
                     log("FolderParser | VisitFile: " + nova, debuggerLevel);
-                    if (!f.getName().startsWith("~")) {
-                        log("AAAAAAAAAAAAAAAAAAAAAAAAAQUIIIIIIIIIIIIIII");
-                        map.put(nova, f.lastModified());
-                    }
+                    map.put(nova, f.lastModified());
 
                     return FileVisitResult.CONTINUE;
                 }
@@ -70,7 +66,6 @@ public class FolderParser {
 
                 @Override
                 public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-                    // System.out.println("postVisitDirectory: " + dir);
                     return FileVisitResult.CONTINUE;
                 }
             });
@@ -78,7 +73,7 @@ public class FolderParser {
         } catch (IOException ignored) {
         }
 
-        log("!!!! FolderParser | Metadata: " + map + " !!!!", debuggerLevel);
+        log("FolderParser | Metadata: " + map, debuggerLevel);
         return map;
     }
 

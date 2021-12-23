@@ -51,9 +51,8 @@ public class StopAndWait {
         // Gets the blocks
         for (int i = 1; i <= divideData.blocks; i++) {
             Data dataPacket = new Data(i, divideData.getBlock(i));
-            // Sends the packet
-            StopAndWaitV2.send(dataPacket, socket, address, port);
-            log("StopAndWait | Data Packet acknowledged", debuggerLevel);
+            StopAndWaitV2.send(dataPacket, socket, address, port); // Sends the packet
+            log("StopAndWait | DataPacket acknowledged", debuggerLevel);
         }
         log("StopAndWait | File uploaded in " + timer.getMilliseconds() + "ms", debuggerLevel);
     }
