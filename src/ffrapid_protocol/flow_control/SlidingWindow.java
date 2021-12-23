@@ -114,7 +114,8 @@ public class SlidingWindow {
         byte[] fileDecompressed = Compression.decompress(fileCompressed);
 
         assert fileDecompressed != null;
-        log("SlidingWindow | Received file with compression of " + (double)fileCompressed.length  / fileDecompressed.length, debuggerLevel);
+        double tax = (double) fileCompressed.length  / fileDecompressed.length;
+        log("SlidingWindow | Received file with compression of " + String.format("%.0f", tax), debuggerLevel);
 
         FileOutputStream outputStream = new FileOutputStream(file);
         outputStream.write(Objects.requireNonNull(fileDecompressed));
