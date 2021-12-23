@@ -1,87 +1,116 @@
 package ffrapid_protocol.flow_control;
 
-import app.FFSync;
-import common.Timer;
-import compression.Compression;
 import ffrapid_protocol.FTRapid;
-import ffrapid_protocol.data.DivideData;
 import ffrapid_protocol.exceptions.NoConnectionException;
 import ffrapid_protocol.packet.Ack;
 import ffrapid_protocol.packet.Data;
 import ffrapid_protocol.packet.Packet;
 import hmac.PacketCorruptedException;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.nio.ByteBuffer;
-import java.util.Objects;
 
 import static common.debugger.Debugger.log;
-import static ffrapid_protocol.FTRapid.sendAck;
 
-public class StopAndWait {
+public record StopAndWait(DatagramSocket socket, InetAddress address, int port) {
     private static final int debuggerLevel = 2;
+    private static final int tries = 3;
 
-    public static void sendData(DatagramSocket socket, InetAddress address, int port, byte[] data)
-            throws NoConnectionException {
-        // Stop and wait algorithm
-        // 0. Sends the amount of packets that is going to need to download the file
-        // 1. Sends the file block
-        // 2. Waits for the Ack
-        // 2.1 [Ack is not received in the RTT] -> Sends the file block again
-        // 3. Goes back into step 1 until there's no more blocks
 
-        Timer timer = new Timer();
-        data = Compression.compress(data);
+    /**
+     * @param packet  a packet
+     * @param socket  a socket
+     * @param address a address
+     * @param port    a port
+     */
+    public static void send(Packet packet, DatagramSocket socket, InetAddress address, int port) throws NoConnectionException {
+        boolean received = false;
+        int i = 0;
+        // int portReceived = 0;
 
-        DivideData divideData = new DivideData(data);
-
-        log("StopAndWait | Blocks: " + divideData.blocks + " lastBlockLen: " + divideData.lastBlockLen, debuggerLevel);
-
-        // Sends the amount of packets
-        StopAndWaitV2.send(new Ack(divideData.blocks), socket, address, port);
-        log("StopAndWait | Sending the amount of packets");
-
-        // Gets the blocks
-        for (int i = 1; i <= divideData.blocks; i++) {
-            Data dataPacket = new Data(i, divideData.getBlock(i));
-            StopAndWaitV2.send(dataPacket, socket, address, port); // Sends the packet
-            log("StopAndWait | DataPacket acknowledged", debuggerLevel);
+        while (i < tries && !received) { // While the receiver doesn't send the ack
+            try {
+                FTRapid.send(packet, socket, address, port);
+                DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
+                // portReceived = datagramPacket.getPort();
+                Packet packetReceived = Packet.deserialize(datagramPacket.getData());
+                if (packetReceived instanceof Ack) received = true;
+            } catch (IOException ignored) {
+                i++;
+                log("StopAndWait | Ack not received in the given time, sending the packet again...", debuggerLevel);
+            } catch (PacketCorruptedException e) {
+                log("Packet corrupted!", debuggerLevel);
+            }
         }
-        log("StopAndWait | File uploaded in " + timer.getMilliseconds() + "ms", debuggerLevel);
+        if (i == tries) throw new NoConnectionException();
+        //return portReceived;
     }
 
-
-
-    public static void receiveFile(File file, DatagramSocket socket, InetAddress address) throws IOException, PacketCorruptedException {
+    public static Packet receive(DatagramSocket socket) throws IOException, PacketCorruptedException {
         DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
-        int port = datagramPacket.getPort();
-        int packets = (int) ((Ack) Packet.deserialize(datagramPacket.getData())).segmentNumber;
-        sendAck(socket, address, port, 0);
-        Data data;
-        ByteBuffer bb = ByteBuffer.allocate(FFSync.getMTU() * packets);
-
-
-        for (int seqNumber = 1; seqNumber <= packets; seqNumber++) { // Last block included
-            data = (Data) StopAndWaitV2.receive(socket); // Assuming that we will receive data
-            bb.put(data.data); // Writes the data
-            //log("!! Data ->" + toHexString(data.data) + " !!", 1);
-        }
-
-        byte[] fileCompressed = bb.array();
-        //log("!! " + toHexString(fileCompressed) + " !!");
-        byte[] fileDecompressed = Compression.decompress(fileCompressed);
-
-        assert fileDecompressed != null;
-        log("StopAndWait | Received file with compression of " + (double) fileCompressed.length / fileDecompressed.length, debuggerLevel);
-
-        FileOutputStream outputStream = new FileOutputStream(file);
-        outputStream.write(Objects.requireNonNull(fileDecompressed));
-        outputStream.close();
+        Packet packet = Packet.deserialize(datagramPacket.getData());
+        int seqNumber = 0;
+        if (packet instanceof Data) seqNumber = (int) ((Data) packet).blockNumber;
+        FTRapid.send(new Ack(seqNumber), socket, datagramPacket.getAddress(), datagramPacket.getPort());
+        return packet;
     }
 
+    /**
+     * Sends a packet, guarantying that arrives. Waits for the acknowledgment from the other side.
+     * If the acknowledgment isn't received in the established timeout time, the packet is resented.
+     *
+     * @param packet a packet
+     */
+    public void send(Packet packet) {
+        boolean received = false;
+        int i = 0;
+
+        while (i < tries && !received) { // While the receiver doesn't send the ack
+            try {
+                FTRapid.send(packet, socket, address, port);
+                Packet packetReceived = FTRapid.receive(socket);
+                if (packetReceived instanceof Ack) received = true;
+            } catch (IOException ignored) {
+                i++;
+                log("StopAndWait | Ack not received in the given time, sending the packet again...", debuggerLevel);
+            } catch (PacketCorruptedException e) {
+                log("Packet corrupted!", debuggerLevel);
+            }
+        }
+    }
+
+    /**
+     * Similar to the above method, but it sends a Data packet and checks if the acknowledgment has the right sequence number.
+     *
+     * @param data a data packet
+     */
+    private void send(Data data) {
+        boolean received = false;
+        Ack ack;
+        int i = 0;
+
+        while (i < tries && !received) { // While the receiver doesn't send the ack
+            try {
+                FTRapid.send(data, socket, address, port);
+                ack = (Ack) FTRapid.receive(socket);
+                if (ack.segmentNumber == data.blockNumber) received = true;
+            } catch (IOException ignored) {
+                i++;
+                log("StopAndWait | Ack not received in the given time, sending the packet again...", debuggerLevel);
+            } catch (PacketCorruptedException e) {
+                log("Packet corrupted!", debuggerLevel);
+            }
+        }
+    }
+
+    public Packet receive() throws IOException, PacketCorruptedException {
+        DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
+        Packet packet = Packet.deserialize(datagramPacket.getData());
+        int seqNumber = 0;
+        if (packet instanceof Data) seqNumber = (int) ((Data) packet).blockNumber;
+        FTRapid.send(new Ack(seqNumber), socket, datagramPacket.getAddress(), datagramPacket.getPort());
+        return packet;
+    }
 }

@@ -3,7 +3,7 @@ package ffrapid_protocol.packet;
 import app.FFSync;
 import ffrapid_protocol.data.files.FileOperations;
 import ffrapid_protocol.exceptions.NoConnectionException;
-import ffrapid_protocol.flow_control.StopAndWaitV2;
+import ffrapid_protocol.flow_control.StopAndWait;
 
 import java.io.File;
 import java.net.DatagramSocket;
@@ -120,7 +120,7 @@ public class Get extends Packet {
 
         if (this.metadata) {
             Metadata metadata = Metadata.getMetadataFromDirectory();
-            StopAndWaitV2.send(metadata, socket, address, port);
+            StopAndWait.send(metadata, socket, address, port);
         } else fileNames.forEach(f -> FileOperations.sendFile(f, socket, address, port));
     }
 

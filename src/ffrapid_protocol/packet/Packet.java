@@ -3,7 +3,7 @@ package ffrapid_protocol.packet;
 import app.FFSync;
 import encryption.Encryption;
 import ffrapid_protocol.exceptions.NoConnectionException;
-import ffrapid_protocol.flow_control.StopAndWaitV2;
+import ffrapid_protocol.flow_control.StopAndWait;
 import hmac.HMac;
 import hmac.PacketCorruptedException;
 
@@ -90,6 +90,6 @@ public abstract class Packet {
      */
     public void handle(DatagramSocket socket, InetAddress address, int port) throws NoConnectionException {
         Error errorPacket = new Error();
-        StopAndWaitV2.send(errorPacket, socket, address, port); // Sends an error message
+        StopAndWait.send(errorPacket, socket, address, port); // Sends an error message
     }
 }

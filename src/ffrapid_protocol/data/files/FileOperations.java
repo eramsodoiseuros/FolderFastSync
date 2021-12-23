@@ -5,7 +5,7 @@ import common.Timer;
 import ffrapid_protocol.exceptions.NoConnectionException;
 import ffrapid_protocol.exceptions.NotAckPacket;
 import ffrapid_protocol.flow_control.SlidingWindow;
-import ffrapid_protocol.flow_control.StopAndWaitV2;
+import ffrapid_protocol.flow_control.StopAndWait;
 import ffrapid_protocol.packet.Get;
 
 import java.io.File;
@@ -97,7 +97,7 @@ public class FileOperations {
      */
     public void requestFile(String fileName) throws NoConnectionException {
         Get get = new Get(fileName);
-        StopAndWaitV2.send(get, socket, address, port);
+        StopAndWait.send(get, socket, address, port);
     }
 
     /**

@@ -48,7 +48,7 @@ public class SlidingWindow {
         log("SlidingWindow | Blocks: " + divideData.blocks + " lastBlockLen: " + divideData.lastBlockLen, debuggerLevel);
 
         // Sends the amount of packets
-        StopAndWaitV2.send(new Ack(divideData.blocks), socket, address, port);
+        StopAndWait.send(new Ack(divideData.blocks), socket, address, port);
         log("SlidingWindow | Sending the amount of packets");
 
         // Gets the blocks
@@ -109,7 +109,7 @@ public class SlidingWindow {
 
 
         byte[] fileCompressed = bb.array();
-        log("Compressed File: " + toHexString(fileCompressed), debuggerLevel + 2);
+        log("SlidingWindow | Compressed File: " + toHexString(fileCompressed), debuggerLevel + 2);
         byte[] fileDecompressed = Compression.decompress(fileCompressed);
 
         assert fileDecompressed != null;
