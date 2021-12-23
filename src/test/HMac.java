@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 public class HMac {
 
+
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException {
         final String KEY = "12345";
         final String HMAC_SHA1_ALGORITHM = "HmacSHA1";

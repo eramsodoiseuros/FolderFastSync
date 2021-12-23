@@ -8,6 +8,7 @@ import ffrapid_protocol.flow_control.StopAndWaitV2;
 import ffrapid_protocol.packet.Get;
 import ffrapid_protocol.packet.Metadata;
 import folder_parser.FolderParser;
+import hmac.PacketCorruptedException;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -79,7 +80,7 @@ public class Sender implements Runnable {
      * @return The metadata packet received.
      * @throws IOException an IOException.
      */
-    public Metadata requestsAllMetadata() throws IOException, NoConnectionException {
+    public Metadata requestsAllMetadata() throws IOException, NoConnectionException, PacketCorruptedException {
         Get get = new Get(true, true); // Metadata from all files
 
         StopAndWaitV2.send(get, socket, address, port); // Sends the request

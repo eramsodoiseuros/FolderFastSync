@@ -9,6 +9,7 @@ import ffrapid_protocol.exceptions.NoConnectionException;
 import ffrapid_protocol.packet.Ack;
 import ffrapid_protocol.packet.Data;
 import ffrapid_protocol.packet.Packet;
+import hmac.PacketCorruptedException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -56,7 +57,7 @@ public class StopAndWait {
 
 
 
-    public static void receiveFile(File file, DatagramSocket socket, InetAddress address) throws IOException {
+    public static void receiveFile(File file, DatagramSocket socket, InetAddress address) throws IOException, PacketCorruptedException {
         DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
         int port = datagramPacket.getPort();
         int packets = (int) ((Ack) Packet.deserialize(datagramPacket.getData())).segmentNumber;

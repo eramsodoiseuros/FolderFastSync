@@ -4,6 +4,8 @@ import app.FFSync;
 import encryption.Encryption;
 import ffrapid_protocol.exceptions.NoConnectionException;
 import ffrapid_protocol.flow_control.StopAndWaitV2;
+import hmac.HMac;
+import hmac.PacketCorruptedException;
 
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -20,7 +22,7 @@ public abstract class Packet {
      * @param message a message received.
      * @return a Packet converted from the message.
      */
-    public static Packet deserialize(byte[] message) {
+    public static Packet deserialize(byte[] message) throws PacketCorruptedException {
         ByteBuffer bb = ByteBuffer.wrap(decryptedPacket(message));
         byte type = bb.get();
         Packet packet = switch (type) {
@@ -44,29 +46,29 @@ public abstract class Packet {
     }
 
     /**
-     * Decrypts a packet.
+     * Decrypts a packet. Uses HMac for authentication and integrity of the message.
      *
      * @param packet the packet in an array of bytes.
      * @return the decrypted packet in an array of bytes.
      */
-    public static byte[] decryptedPacket(byte[] packet) {
+    public static byte[] decryptedPacket(byte[] packet) throws PacketCorruptedException {
         ByteBuffer bb = ByteBuffer.wrap(packet);
         int len = bb.getInt();
         assert len <= FFSync.getMTU() - 4;
         byte[] data = new byte[len];
         bb.get(data, 0, data.length);
 
-        return Encryption.decrypt(data);
+        return HMac.confirmPacketHeader(Encryption.decrypt(data));
     }
 
     /**
-     * Encrypts a packet.
+     * Encrypts a packet. Uses HMac for authentication and integrity of the message.
      *
      * @return the serialized packet encrypted.
      */
     public byte[] encryptedPacket() {
         byte[] packet = this.serialize();
-        byte[] encrypted = Encryption.encrypt(packet);
+        byte[] encrypted = Encryption.encrypt(HMac.addHeaderHMAC(packet));
         assert encrypted.length <= FFSync.getMTU() - 4 : "Possible overflow avoided"; // Guaranties that the buffer does not overflow.
         ByteBuffer bb = ByteBuffer.allocate(encrypted.length + Integer.BYTES);
         bb.putInt(encrypted.length);

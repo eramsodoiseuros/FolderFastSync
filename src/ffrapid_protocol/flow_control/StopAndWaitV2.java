@@ -5,6 +5,7 @@ import ffrapid_protocol.exceptions.NoConnectionException;
 import ffrapid_protocol.packet.Ack;
 import ffrapid_protocol.packet.Data;
 import ffrapid_protocol.packet.Packet;
+import hmac.PacketCorruptedException;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -39,13 +40,15 @@ public record StopAndWaitV2(DatagramSocket socket, InetAddress address, int port
             } catch (IOException ignored) {
                 i++;
                 log("StopAndWait | Ack not received in the given time, sending the packet again...", debuggerLevel);
+            } catch (PacketCorruptedException e) {
+                log("Packet corrupted!", debuggerLevel);
             }
         }
         if (i == tries) throw new NoConnectionException();
         //return portReceived;
     }
 
-    public static Packet receive(DatagramSocket socket) throws IOException {
+    public static Packet receive(DatagramSocket socket) throws IOException, PacketCorruptedException {
         DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
         Packet packet = Packet.deserialize(datagramPacket.getData());
         int seqNumber = 0;
@@ -72,6 +75,8 @@ public record StopAndWaitV2(DatagramSocket socket, InetAddress address, int port
             } catch (IOException ignored) {
                 i++;
                 log("StopAndWait | Ack not received in the given time, sending the packet again...", debuggerLevel);
+            } catch (PacketCorruptedException e) {
+                log("Packet corrupted!", debuggerLevel);
             }
         }
     }
@@ -94,11 +99,13 @@ public record StopAndWaitV2(DatagramSocket socket, InetAddress address, int port
             } catch (IOException ignored) {
                 i++;
                 log("StopAndWait | Ack not received in the given time, sending the packet again...", debuggerLevel);
+            } catch (PacketCorruptedException e) {
+                log("Packet corrupted!", debuggerLevel);
             }
         }
     }
 
-    public Packet receive() throws IOException {
+    public Packet receive() throws IOException, PacketCorruptedException {
         DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);
         Packet packet = Packet.deserialize(datagramPacket.getData());
         int seqNumber = 0;
