@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
@@ -50,12 +51,16 @@ public class SlidingWindow {
 
         // Gets the blocks
         for (int i = 1; i <= divideData.blocks; ) {
-            for (int j = 0; j < windowSize && i + j <= divideData.blocks; j++) {
-                Data dataPacket = new Data(i + j, divideData.getBlock(i + j));
-                FTRapid.send(dataPacket, socket, address, port); // Sends the packet
+            try {
+                for (int j = 0; j < windowSize && i + j <= divideData.blocks; j++) {
+                    Data dataPacket = new Data(i + j, divideData.getBlock(i + j));
+                    FTRapid.send(dataPacket, socket, address, port); // Sends the packet
+                }
+                ack = FTRapid.receivesAck(socket);
+                i = (int) (ack.segmentNumber + 1);
+            } catch (SocketTimeoutException e) {
+                log("SlidingWindow | Sending Data - SocketTimeout...");
             }
-            ack = FTRapid.receivesAck(socket);
-            i = (int) (ack.segmentNumber + 1);
 
             log("SlidingWindow | DataPacket's acknowledged", debuggerLevel);
         }
@@ -74,14 +79,18 @@ public class SlidingWindow {
 
         for (int i = 1; i <= packets; ) {
             int minJ = i - 1;
-            for (int j = 0; j < windowSize && i + j <= packets; j++) {
-                data = (Data) FTRapid.receive(socket); // Sends the packet
-                if (data.blockNumber == minJ + 1) {
-                    bb.put(data.data);
-                    minJ++;
+            try {
+                for (int j = 0; j < windowSize && i + j <= packets; j++) {
+                    data = (Data) FTRapid.receive(socket); // Sends the packet
+                    if (data.blockNumber == minJ + 1) {
+                        bb.put(data.data);
+                        minJ++;
+                    }
                 }
+                FTRapid.sendAck(socket, address, port, minJ);
+            } catch (SocketTimeoutException e) {
+                log("SlidingWindow | Receiving file - SocketTimeout...");
             }
-            FTRapid.sendAck(socket, address, port, minJ);
             i = minJ + 1;
             log("SlidingWindow | DataPacket's acknowledged", debuggerLevel);
         }
@@ -92,8 +101,7 @@ public class SlidingWindow {
         byte[] fileDecompressed = Compression.decompress(fileCompressed);
 
         assert fileDecompressed != null;
-        log("StopAndWait | Received file with compression of " +
-                (double) (fileCompressed.length - fileDecompressed.length) / fileDecompressed.length, debuggerLevel);
+        log("SlidingWindow | Received file with compression of " + (double) (fileCompressed.length - fileDecompressed.length) / fileDecompressed.length, debuggerLevel);
 
         FileOutputStream outputStream = new FileOutputStream(file);
         outputStream.write(Objects.requireNonNull(fileDecompressed));

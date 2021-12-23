@@ -7,7 +7,7 @@ import java.time.temporal.ChronoUnit;
 
 public class Debugger {
     private static final String file = "log" + getTimeNow() +  ".txt";
-    private static boolean toFile = true;
+    private static boolean toFile = false;
     private static boolean enable = true;
     private static int level = 1;
 

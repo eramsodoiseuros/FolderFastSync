@@ -2,10 +2,9 @@ package ffrapid_protocol.data.files;
 
 import app.FFSync;
 import common.Timer;
-import compression.Compression;
-import ffrapid_protocol.data.DivideData;
 import ffrapid_protocol.exceptions.NoConnectionException;
-import ffrapid_protocol.flow_control.StopAndWait;
+import ffrapid_protocol.exceptions.NotAckPacket;
+import ffrapid_protocol.flow_control.SlidingWindow;
 import ffrapid_protocol.flow_control.StopAndWaitV2;
 import ffrapid_protocol.packet.Get;
 
@@ -59,6 +58,19 @@ public class FileOperations {
     }
 
     /**
+     * Sends a file.
+     *
+     * @param fileName the name of the file.
+     */
+    public static void sendFile(String fileName, DatagramSocket socket, InetAddress address, int port) {
+        try {
+            SlidingWindow.sendData(socket, address, port, Files.readAllBytes(Paths.get(FFSync.getCurrentDirectory() + "/" + fileName)));
+        } catch (NotAckPacket | IOException | NoConnectionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Receives a file.
      *
      * @param fileName         the name of the file.
@@ -70,8 +82,10 @@ public class FileOperations {
         File file = new File(FFSync.getCurrentDirectory() + "/" + fileName);
 
         Timer timer = new Timer();
-        StopAndWait.receiveFile(file, socket, address);
-        log("StopAndWait | File downloaded in " + timer.getMilliseconds() + "ms");
+        SlidingWindow.receiveFile(file, socket, address);
+        long time = timer.getMilliseconds();
+        log("FileOperations | File downloaded in " + time + "ms");
+        log("FileOperations | Download speed: " + (file.getTotalSpace() / (time * 1e3)) + "mb/s");
 
         file.setLastModified(lastTimeModified);
     }
@@ -96,15 +110,4 @@ public class FileOperations {
         receiveFile(file.getKey(), file.getValue());
     }
 
-    public void sendFile(String fileName) throws IOException {
-        byte[] data = Files.readAllBytes(Paths.get(FFSync.getCurrentDirectory() + "/" + fileName));
-        data = Compression.compress(data);
-
-        DivideData divideData = new DivideData(data);
-
-    }
-
-    public void receiveFile(File f) {
-
-    }
 }

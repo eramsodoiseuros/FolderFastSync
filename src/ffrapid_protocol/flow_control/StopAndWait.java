@@ -6,7 +6,6 @@ import compression.Compression;
 import ffrapid_protocol.FTRapid;
 import ffrapid_protocol.data.DivideData;
 import ffrapid_protocol.exceptions.NoConnectionException;
-import ffrapid_protocol.exceptions.NotAckPacket;
 import ffrapid_protocol.packet.Ack;
 import ffrapid_protocol.packet.Data;
 import ffrapid_protocol.packet.Packet;
@@ -18,8 +17,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Objects;
 
 import static common.debugger.Debugger.log;
@@ -29,7 +26,7 @@ public class StopAndWait {
     private static final int debuggerLevel = 2;
 
     public static void sendData(DatagramSocket socket, InetAddress address, int port, byte[] data)
-            throws IOException, NotAckPacket, NoConnectionException {
+            throws NoConnectionException {
         // Stop and wait algorithm
         // 0. Sends the amount of packets that is going to need to download the file
         // 1. Sends the file block
@@ -57,18 +54,7 @@ public class StopAndWait {
         log("StopAndWait | File uploaded in " + timer.getMilliseconds() + "ms", debuggerLevel);
     }
 
-    /**
-     * Sends a file.
-     *
-     * @param fileName the name of the file.
-     */
-    public static void sendFile(String fileName, DatagramSocket socket, InetAddress address, int port) {
-        try {
-            StopAndWait.sendData(socket, address, port, Files.readAllBytes(Paths.get(FFSync.getCurrentDirectory() + "/" + fileName)));
-        } catch (NotAckPacket | IOException | NoConnectionException e) {
-            e.printStackTrace();
-        }
-    }
+
 
     public static void receiveFile(File file, DatagramSocket socket, InetAddress address) throws IOException {
         DatagramPacket datagramPacket = FTRapid.receiveDatagram(socket);

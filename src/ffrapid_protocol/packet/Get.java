@@ -1,8 +1,8 @@
 package ffrapid_protocol.packet;
 
 import app.FFSync;
+import ffrapid_protocol.data.files.FileOperations;
 import ffrapid_protocol.exceptions.NoConnectionException;
-import ffrapid_protocol.flow_control.StopAndWait;
 import ffrapid_protocol.flow_control.StopAndWaitV2;
 
 import java.io.File;
@@ -116,12 +116,12 @@ public class Get extends Packet {
         List<String> fileNames =
                 this.root ? Arrays.stream(Objects.requireNonNull(FFSync.getCurrentDirectory().list())).toList() : this.filesName;
         assert fileNames != null;
-        log("RequestHandler | parseGet fileNames: " + fileNames, 1);
+        log("Get | parseGet fileNames: " + fileNames, 1);
 
         if (this.metadata) {
             Metadata metadata = Metadata.getMetadataFromDirectory();
             StopAndWaitV2.send(metadata, socket, address, port);
-        } else fileNames.forEach(f -> StopAndWait.sendFile(f, socket, address, port));
+        } else fileNames.forEach(f -> FileOperations.sendFile(f, socket, address, port));
     }
 
 
