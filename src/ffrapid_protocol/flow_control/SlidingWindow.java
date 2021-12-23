@@ -64,7 +64,9 @@ public class SlidingWindow {
 
             log("SlidingWindow | DataPacket's acknowledged", debuggerLevel);
         }
-        log("SlidingWindow | File uploaded in " + timer.getMilliseconds() + "ms", debuggerLevel);
+        long time = timer.getMilliseconds();
+        log("SlidingWindow | File uploaded in " + time + "ms", debuggerLevel);
+        log("SlidingWindow | Download speed: " + (data.length / (time * 1e3)) + "mb/s");
     }
 
 
