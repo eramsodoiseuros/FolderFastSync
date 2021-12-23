@@ -7,7 +7,7 @@ import ffrapid_protocol.exceptions.NoConnectionException;
 import ffrapid_protocol.flow_control.StopAndWait;
 import ffrapid_protocol.packet.Get;
 import ffrapid_protocol.packet.Metadata;
-import folder_parser.FolderParser;
+import folder_stats.FolderStats;
 import hmac.PacketCorruptedException;
 
 import java.io.IOException;
@@ -102,7 +102,7 @@ public class Sender implements Runnable {
      */
     private Map.Entry<Set<Map.Entry<String, Long>>, Map<String, Long>> compareMetadata(Metadata metadata) {
         var files = Objects.requireNonNull(FFSync.getCurrentDirectory().list());
-        Map<String, Long> filesMeta = FolderParser.metadata();
+        Map<String, Long> filesMeta = FolderStats.metadata();
         // Metadata from the local node ^
 
         // Files to be requested

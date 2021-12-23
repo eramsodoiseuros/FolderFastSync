@@ -1,18 +1,12 @@
 package common.debugger;
 
-import java.io.*;
-import java.time.LocalDateTime;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.Locale;
 
-import static java.time.format.FormatStyle.MEDIUM;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 public class Debugger {
@@ -22,7 +16,7 @@ public class Debugger {
     private static boolean toFile = true;
     private static boolean enable = true;
 
-    private static int level = 3;
+    private static int level = 2;
 
     private static PrintStream stream_file;
     private static PrintStream stream_sout;

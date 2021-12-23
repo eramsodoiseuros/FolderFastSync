@@ -1,7 +1,7 @@
 package ffrapid_protocol.packet;
 
 import ffrapid_protocol.data.files.FileOperations;
-import folder_parser.FolderParser;
+import folder_stats.FolderStats;
 
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -24,7 +24,7 @@ public class Metadata extends Packet {
     }
 
     public static Metadata getMetadataFromDirectory() {
-        return new Metadata(FolderParser.metadata());
+        return new Metadata(FolderStats.metadata());
     }
 
     public static Packet deserialize(ByteBuffer bb) {

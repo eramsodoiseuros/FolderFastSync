@@ -1,4 +1,4 @@
-package folder_parser;
+package folder_stats;
 
 import app.FFSync;
 
@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static common.debugger.Debugger.log;
 
-public class FolderParser {
+public class FolderStats {
     private static final int debuggerLevel = 2;
 
     public static Map<String, Long> metadata() {
@@ -34,7 +34,7 @@ public class FolderParser {
                     File f = file.toFile();
 
                     String nova = (f.getAbsolutePath()).substring(index);
-                    log("FolderParser | VisitFile: " + nova, debuggerLevel);
+                    log("FolderStats | VisitFile: " + nova, debuggerLevel + 1);
                     map.put(nova, f.lastModified());
 
                     return FileVisitResult.CONTINUE;
@@ -42,7 +42,6 @@ public class FolderParser {
 
                 @Override
                 public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                    System.out.println("visitFileFailed: " + file);
                     return FileVisitResult.CONTINUE;
                 }
 
@@ -55,7 +54,7 @@ public class FolderParser {
         } catch (IOException ignored) {
         }
 
-        log("FolderParser | Metadata: " + map, debuggerLevel);
+        log("FolderStats | Metadata: " + map, debuggerLevel);
         return map;
     }
 
