@@ -9,7 +9,7 @@ import java.util.Arrays;
 import static common.debugger.Debugger.log;
 
 public class HMac {
-    private static final int debuggerLevel = 1;
+    private static final int debuggerLevel = 3;
     public static final int HeaderSize = 20; // For HmacSHA1
     private static final String HMAC = "HmacSHA1";
     private static final String keyValueHMAC = "G8T267ASNyjxbN/U2jFLgw==";

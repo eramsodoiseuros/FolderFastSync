@@ -84,8 +84,9 @@ public class FileOperations {
         Timer timer = new Timer();
         SlidingWindow.receiveFile(file, socket, address);
         long time = timer.getMilliseconds();
+        double speed = (file.getTotalSpace() / (time * 1e3));
         log("FileOperations | " + fileName + " downloaded in " + time + "ms");
-        log("FileOperations | Download speed: " + (file.getTotalSpace() / (time * 1e3)) + "mb/s");
+        log("FileOperations | Download speed: " + String.format("%.0f", speed) + "mb/s");
 
         file.setLastModified(lastTimeModified);
     }

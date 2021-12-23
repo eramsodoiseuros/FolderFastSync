@@ -27,7 +27,7 @@ public class Sender implements Runnable {
     private final Node n = FFSync.getNodes().get(0); // Vamos começar por uma ligação apenas
     private final InetAddress address = n.getAddress();
     private final int port = FFSync.getPORT();
-    private final int timeout = 200;
+    private final int timeout = 400;
     private final int refreshTime = 60000;
     private final boolean running = true;
 

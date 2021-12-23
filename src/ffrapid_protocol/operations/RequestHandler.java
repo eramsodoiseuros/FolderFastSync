@@ -19,7 +19,7 @@ public class RequestHandler implements Runnable {
     private final int port;
     private final DatagramPacket initialPacket;
     private int timeout;
-    private final int coef = 4;
+    private final int coef = 8;
 
     public RequestHandler(DatagramSocket socket, InetAddress address, int port, DatagramPacket initialPacket) {
         this.socket = socket;
@@ -33,7 +33,7 @@ public class RequestHandler implements Runnable {
         try {
             Timer timer = new Timer();
             FTRapid.sendAck(socket, address, port, 0); // Send the ack to acknowledge that the request as been received.
-            timeout = (int) (timer.getMilliseconds() * coef); // Calculating the RTT
+            timeout = (int) (timer.getMilliseconds() * coef + 100); // Calculating the RTT
             socket.setSoTimeout(timeout);// Setting the timeout in the socket
             log("RequestHandler | Timeout: " + timeout);
 

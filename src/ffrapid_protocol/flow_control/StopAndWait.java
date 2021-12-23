@@ -39,9 +39,9 @@ public record StopAndWait(DatagramSocket socket, InetAddress address, int port) 
                 if (packetReceived instanceof Ack) received = true;
             } catch (IOException ignored) {
                 i++;
-                log("StopAndWait | Ack not received in the given time, sending the packet again...", debuggerLevel);
+                log("StopAndWait | Ack not received in the given time, sending the packet again...", debuggerLevel + 2);
             } catch (PacketCorruptedException e) {
-                log("Packet corrupted!", debuggerLevel);
+                log("Packet corrupted!", debuggerLevel + 1);
             }
         }
         if (i == tries) throw new NoConnectionException();
@@ -74,9 +74,9 @@ public record StopAndWait(DatagramSocket socket, InetAddress address, int port) 
                 if (packetReceived instanceof Ack) received = true;
             } catch (IOException ignored) {
                 i++;
-                log("StopAndWait | Ack not received in the given time, sending the packet again...", debuggerLevel);
+                log("StopAndWait | Ack not received in the given time, sending the packet again...", debuggerLevel + 2);
             } catch (PacketCorruptedException e) {
-                log("Packet corrupted!", debuggerLevel);
+                log("Packet corrupted!", debuggerLevel + 1);
             }
         }
     }
@@ -98,9 +98,9 @@ public record StopAndWait(DatagramSocket socket, InetAddress address, int port) 
                 if (ack.segmentNumber == data.blockNumber) received = true;
             } catch (IOException ignored) {
                 i++;
-                log("StopAndWait | Ack not received in the given time, sending the packet again...", debuggerLevel);
+                log("StopAndWait | Ack not received in the given time, sending the packet again...", debuggerLevel + 2);
             } catch (PacketCorruptedException e) {
-                log("Packet corrupted!", debuggerLevel);
+                log("Packet corrupted!", debuggerLevel + 1);
             }
         }
     }

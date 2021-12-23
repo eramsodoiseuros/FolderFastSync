@@ -45,7 +45,7 @@ public class SlidingWindow {
 
         DivideData divideData = new DivideData(data);
 
-        log("SlidingWindow | Blocks: " + divideData.blocks + " lastBlockLen: " + divideData.lastBlockLen, debuggerLevel);
+        log("SlidingWindow | Blocks: " + divideData.blocks + " lastBlockLen: " + divideData.lastBlockLen, debuggerLevel + 1);
 
         // Sends the amount of packets
         StopAndWait.send(new Ack(divideData.blocks), socket, address, port);
@@ -61,16 +61,17 @@ public class SlidingWindow {
                 ack = FTRapid.receivesAck(socket);
                 i = (int) (ack.segmentNumber + 1);
             } catch (SocketTimeoutException e) {
-                log("SlidingWindow | Sending Data - SocketTimeout...");
+                log("SlidingWindow | Sending Data - SocketTimeout...", debuggerLevel + 2);
             } catch (PacketCorruptedException e) {
                 log("Packet corrupted!", debuggerLevel);
             }
 
-            log("SlidingWindow | DataPacket's acknowledged", debuggerLevel);
+            log("SlidingWindow | DataPacket's acknowledged", debuggerLevel + 2);
         }
         long time = timer.getMilliseconds();
+        double speed = (data.length / (time * 1e3));
         log("SlidingWindow | File uploaded in " + time + "ms", debuggerLevel);
-        log("SlidingWindow | Download speed: " + (data.length / (time * 1e3)) + "mb/s");
+        log("SlidingWindow | Upload speed: " + String.format("%.0f", speed) + "mb/s");
     }
 
 
@@ -99,12 +100,12 @@ public class SlidingWindow {
                 }
                 FTRapid.sendAck(socket, address, port, minJ);
             } catch (SocketTimeoutException e) {
-                log("SlidingWindow | Receiving file - SocketTimeout...");
+                log("SlidingWindow | Receiving file - SocketTimeout...", debuggerLevel + 2);
             } catch (PacketCorruptedException e) {
                 log("Packet corrupted!", debuggerLevel);
             }
             i = minJ + 1;
-            log("SlidingWindow | DataPacket's acknowledged", debuggerLevel);
+            log("SlidingWindow | DataPacket's acknowledged", debuggerLevel + 2);
         }
 
 
@@ -113,7 +114,7 @@ public class SlidingWindow {
         byte[] fileDecompressed = Compression.decompress(fileCompressed);
 
         assert fileDecompressed != null;
-        log("SlidingWindow | Received file with compression of " + (double) (fileCompressed.length - fileDecompressed.length) / fileDecompressed.length, debuggerLevel);
+        log("SlidingWindow | Received file with compression of " + (double)fileCompressed.length  / fileDecompressed.length, debuggerLevel);
 
         FileOutputStream outputStream = new FileOutputStream(file);
         outputStream.write(Objects.requireNonNull(fileDecompressed));
