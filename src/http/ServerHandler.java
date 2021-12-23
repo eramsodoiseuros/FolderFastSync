@@ -31,7 +31,7 @@ public class ServerHandler implements Runnable {
 
             s.close();
         } catch (Exception e) {
-            System.out.println("erro HTTP - main [" + e.getMessage() + "]");
+            System.out.println("Error HTTP - SERVERSIDE [" + e.getMessage() + "]");
         }
     }
 }

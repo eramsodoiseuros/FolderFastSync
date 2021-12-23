@@ -1,0 +1,128 @@
+[17:21:08] Sender | First node ip: localhost/127.0.0.1
+[17:21:08] Get | Starting serializing
+[17:21:08] Get | Before Serialize: Get - metadata=true, filesName=null, root=true
+[17:21:08] Encrypt compression % is: 7 / 16 = 0.4375
+[17:21:08] Receiver | New connection with address: /127.0.0.1 and port 56745
+[17:21:08] Ack | Starting serializing
+[17:21:08] Ack | Before Serialize: Ack - segmentNumber=0
+[17:21:08] Encrypt compression % is: 9 / 16 = 0.5625
+[17:21:08] Ack | Starting deserializing
+[17:21:08] Ack | Deserialize result: Ack - segmentNumber=0
+[17:21:08] RequestHandler | Timeout: 8
+[17:21:08] Packet | Type: 2
+[17:21:08] Sender | Packet sent
+[17:21:08] Get | Starting deserializing
+[17:21:08] Get | Deserialize result: Get - metadata=true, filesName=null, root=true
+[17:21:08] Packet | Type: 0
+[17:21:08] Get | parseGet fileNames: [file1, file2, folder2]
+[17:21:08] Current directory: folder1
+[17:21:08] Current directory path: C:\Users\kiko\Desktop\uminho2122\1semestre\CC3\CC2021\src\test\FFSync\folder1
+[17:21:08] FolderParser | VisitFile: \file1
+[17:21:08] FolderParser | VisitFile: \file2
+[17:21:08] FolderParser | VisitFile: \folder2\file3
+[17:21:08] FolderParser | Metadata: {\file1=1640255102325, \file2=1640255102326, \folder2\file3=1640255102326}
+[17:21:08] Metadata | Starting serializing
+[17:21:08] Metadata | Before Serialize: Metadata - metadata={\file1=1640255102325, \file2=1640255102326, \folder2\file3=1640255102326}
+[17:21:08] Encrypt compression % is: 67 / 80 = 0.8375
+[17:21:08] Metadata | Starting deserializing
+[17:21:08] Metadata | Deserialize result: Metadata - metadata={\file1=1640255102325, \file2=1640255102326, \folder2\file3=1640255102326}
+[17:21:08] Packet | Type: 3
+[17:21:08] Ack | Starting serializing
+[17:21:08] Ack | Before Serialize: Ack - segmentNumber=0
+[17:21:08] Encrypt compression % is: 9 / 16 = 0.5625
+[17:21:08] Sender | Packet received
+[17:21:08] Sender | Comparing the files...
+[17:21:08] Current directory: folder1
+[17:21:08] Current directory path: C:\Users\kiko\Desktop\uminho2122\1semestre\CC3\CC2021\src\test\FFSync\folder1
+[17:21:08] FolderParser | VisitFile: \file1
+[17:21:08] FolderParser | VisitFile: \file2
+[17:21:08] FolderParser | VisitFile: \folder2\file3
+[17:21:08] FolderParser | Metadata: {\file1=1640255102325, \file2=1640255102326, \folder2\file3=1640255102326}
+[17:21:08] Ack | Starting deserializing
+[17:21:08] Ack | Deserialize result: Ack - segmentNumber=0
+[17:21:08] Packet | Type: 2
+[17:21:08] RequestHandler | Packet handled.
+[17:21:08] Sender | Files to be requested by the local node: []
+[17:21:08] Sender | Files to be requested by the remote node: {}
+[17:21:08] Sender | Different files: []={}
+[17:21:08] Sender | Updating the missing changes...
+[17:21:08] Metadata | Starting serializing
+[17:21:08] Metadata | Before Serialize: Metadata - metadata={}
+[17:21:08] Encrypt compression % is: 5 / 16 = 0.3125
+[17:21:08] Receiver | New connection with address: /127.0.0.1 and port 56747
+[17:21:08] Ack | Starting serializing
+[17:21:08] Ack | Before Serialize: Ack - segmentNumber=0
+[17:21:08] Encrypt compression % is: 9 / 16 = 0.5625
+[17:21:08] RequestHandler | Timeout: 0
+[17:21:08] Ack | Starting deserializing
+[17:21:08] Metadata | Starting deserializing
+[17:21:08] Ack | Deserialize result: Ack - segmentNumber=0
+[17:21:08] Metadata | Deserialize result: Metadata - metadata={}
+[17:21:08] Packet | Type: 2
+[17:21:08] Packet | Type: 3
+[17:21:08] Sender | Nodes synchronized
+[17:21:08] RequestHandler | Packet handled.
+[17:22:08] Sender | First node ip: localhost/127.0.0.1
+[17:22:08] Get | Starting serializing
+[17:22:08] Get | Before Serialize: Get - metadata=true, filesName=null, root=true
+[17:22:08] Encrypt compression % is: 7 / 16 = 0.4375
+[17:22:08] Receiver | New connection with address: /127.0.0.1 and port 56745
+[17:22:08] Ack | Starting serializing
+[17:22:08] Ack | Before Serialize: Ack - segmentNumber=0
+[17:22:08] Encrypt compression % is: 9 / 16 = 0.5625
+[17:22:08] RequestHandler | Timeout: 0
+[17:22:08] Ack | Starting deserializing
+[17:22:08] Get | Starting deserializing
+[17:22:08] Ack | Deserialize result: Ack - segmentNumber=0
+[17:22:08] Get | Deserialize result: Get - metadata=true, filesName=null, root=true
+[17:22:08] Packet | Type: 2
+[17:22:08] Packet | Type: 0
+[17:22:08] Sender | Packet sent
+[17:22:08] Get | parseGet fileNames: [file1, file2, folder2]
+[17:22:08] Current directory: folder1
+[17:22:08] Current directory path: C:\Users\kiko\Desktop\uminho2122\1semestre\CC3\CC2021\src\test\FFSync\folder1
+[17:22:08] FolderParser | VisitFile: \file1
+[17:22:08] FolderParser | VisitFile: \file2
+[17:22:08] FolderParser | VisitFile: \folder2\file3
+[17:22:08] FolderParser | Metadata: {\file1=1640255102325, \file2=1640255102326, \folder2\file3=1640255102326}
+[17:22:08] Metadata | Starting serializing
+[17:22:08] Metadata | Before Serialize: Metadata - metadata={\file1=1640255102325, \file2=1640255102326, \folder2\file3=1640255102326}
+[17:22:08] Encrypt compression % is: 67 / 80 = 0.8375
+[17:22:08] Metadata | Starting deserializing
+[17:22:08] Metadata | Deserialize result: Metadata - metadata={\file1=1640255102325, \file2=1640255102326, \folder2\file3=1640255102326}
+[17:22:08] Packet | Type: 3
+[17:22:08] Ack | Starting serializing
+[17:22:08] Ack | Before Serialize: Ack - segmentNumber=0
+[17:22:08] Encrypt compression % is: 9 / 16 = 0.5625
+[17:22:08] Sender | Packet received
+[17:22:08] Sender | Comparing the files...
+[17:22:08] Ack | Starting deserializing
+[17:22:08] Ack | Deserialize result: Ack - segmentNumber=0
+[17:22:08] Packet | Type: 2
+[17:22:08] RequestHandler | Packet handled.
+[17:22:08] Current directory: folder1
+[17:22:08] Current directory path: C:\Users\kiko\Desktop\uminho2122\1semestre\CC3\CC2021\src\test\FFSync\folder1
+[17:22:08] FolderParser | VisitFile: \file1
+[17:22:08] FolderParser | VisitFile: \file2
+[17:22:08] FolderParser | VisitFile: \folder2\file3
+[17:22:08] FolderParser | Metadata: {\file1=1640255102325, \file2=1640255102326, \folder2\file3=1640255102326}
+[17:22:08] Sender | Files to be requested by the local node: []
+[17:22:08] Sender | Files to be requested by the remote node: {}
+[17:22:08] Sender | Different files: []={}
+[17:22:08] Sender | Updating the missing changes...
+[17:22:08] Metadata | Starting serializing
+[17:22:08] Metadata | Before Serialize: Metadata - metadata={}
+[17:22:08] Encrypt compression % is: 5 / 16 = 0.3125
+[17:22:08] Receiver | New connection with address: /127.0.0.1 and port 55276
+[17:22:08] Ack | Starting serializing
+[17:22:08] Ack | Before Serialize: Ack - segmentNumber=0
+[17:22:08] Encrypt compression % is: 9 / 16 = 0.5625
+[17:22:08] RequestHandler | Timeout: 4
+[17:22:08] Ack | Starting deserializing
+[17:22:08] Metadata | Starting deserializing
+[17:22:08] Ack | Deserialize result: Ack - segmentNumber=0
+[17:22:08] Metadata | Deserialize result: Metadata - metadata={}
+[17:22:08] Packet | Type: 2
+[17:22:08] Packet | Type: 3
+[17:22:08] Sender | Nodes synchronized
+[17:22:08] RequestHandler | Packet handled.

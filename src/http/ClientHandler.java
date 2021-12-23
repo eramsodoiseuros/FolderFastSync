@@ -29,7 +29,6 @@ public class ClientHandler implements Runnable{
 
             System.out.println("... receiving from client:");
             while(!fromClient.isEmpty()){
-                System.out.println("\t|"+ fromClient + "|");
                 fromClient = in.readLine();
             }
 
@@ -37,15 +36,18 @@ public class ClientHandler implements Runnable{
                 switch (firstLine[1]) {
                     case HTTPCodes.Route_Root -> {
                         httpResponse = HTTPCodes.OK;
+                        System.out.println("\t... received /");
                         httpResponseBody = HTMLCodes.HTML_Home();
                     }
                     case HTTPCodes.Route_Log -> {
                         httpResponse = HTTPCodes.OK;
-                        httpResponseBody = HTMLCodes.HTML_Title("Logs") + ParserJSON.jsonToHtml( ParserJSON.logs() );
+                        System.out.println("\t... received /log");
+                        httpResponseBody = HTMLCodes.HTML_Title("Logs") + ParserJSON.html_logs();
                     }
                     case HTTPCodes.Route_Status -> {
                         httpResponse = HTTPCodes.OK;
-                        httpResponseBody = HTMLCodes.HTML_Title("Lista de Ficheiros") + ParserJSON.jsonToHtml( ParserJSON.listar() );
+                        System.out.println("\t... received /status");
+                        httpResponseBody = HTMLCodes.HTML_Title("Lista de Ficheiros") + ParserJSON.html_files();
                     }
                     default -> {
                         httpResponse = HTTPCodes.NOT_FOUND;
@@ -71,7 +73,7 @@ public class ClientHandler implements Runnable{
             socket.close();
 
         } catch (Exception e){
-            System.out.println("erro HTTP - ClientHandler [" + e.getMessage() + "], [" + e +"]");
+            System.out.println("Error HTTP - ClientHandler [" + e + "]");
         }
 
     }
